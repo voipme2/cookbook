@@ -13,11 +13,12 @@ var recipeSchema = new mongoose.Schema({
     ingredients: [{
         name: String,       // ingredient name
         measure: String,    // tbsp, tsp, pinch
-        amount: Number      
+        amount: String      // 1, 1/2, 1/4
     }], 
     notes: [{
         author: String,
-        message: String
+        message: String,
+        date: Date,
     }],
     steps: [{
         directions: String,
