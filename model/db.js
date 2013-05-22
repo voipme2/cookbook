@@ -1,4 +1,4 @@
-﻿/**
+/**
  * db.js - initial cut of the model classes used for the cookbook
  */ 
  
@@ -13,12 +13,11 @@ var recipeSchema = new mongoose.Schema({
     ingredients: [{
         name: String,       // ingredient name
         measure: String,    // tbsp, tsp, pinch
-        amount: String      // 1, 1/2, 1/4
+        amount: Number      
     }], 
     notes: [{
         author: String,
-        message: String,
-        date: Date,
+        message: String
     }],
     steps: [{
         directions: String,
