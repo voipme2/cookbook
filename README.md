@@ -17,7 +17,7 @@ Assuming the clone of your repo is in ``cookbook_repo``
 
 1. Download and install Node.js, and MongoDB.  Follow the guides there to get them running.
 1. From your ``cookbook_repo``, run ``npm install`` in order to grab all of the dependencies.
-1. Run ``node app``, then browse to http://localhost:3000/cookbook/
+1. Run ``node app``, then browse to http://localhost:3000/
 
 That's it!
 
