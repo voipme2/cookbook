@@ -1,11 +1,11 @@
-
 /**
  * Module dependencies.
  */
 
 var express = require('express')
   , db = require('./model/db')
-  , routes = require('./routes')
+  , main = require('./routes/main')
+  , recipe = require('./routes/recipes')
   , http = require('http')
   , path = require('path');
 
@@ -27,7 +27,17 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-app.get('/', routes.index);
+// index, and search pages.  not sure if we need to have the
+// main.index, but we'll leave it there for now.
+app.get('/', main.index);
+app.get('/search', main.search);
+
+// REST configuration
+app.get('/recipes', recipe.listAllRecipes);
+app.get('/recipes/:id', recipe.findById);
+app.post('/recipes', recipe.addRecipe);
+app.put('/recipes/:id', recipe.updateRecipe);
+app.delete('/recipes/:id', wine.deleteRecipe);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
