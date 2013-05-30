@@ -35,3 +35,10 @@ exports.updateRecipe = function(req, res) {
   var id = req.params.id;
   var recipe = req.body;
 };
+
+/**
+ * Deletes a recipe.
+ */
+exports.deleteRecipe = function(req, res) {
+  var id = req.params.id;
+};
