@@ -17,7 +17,7 @@ Assuming the clone of your repo is in ``cookbook_repo``
 
 1. Download and install Node.js, and MongoDB.  Follow the guides there to get them running.
 1. From your ``cookbook_repo``, run ``npm install`` in order to grab all of the dependencies.
-1. Run ``node app``, then browse to http://localhost:3000/
+1. Run ``node cookbook``, then browse to http://localhost:3000/
 
 That's it!
 
@@ -28,22 +28,22 @@ This documents the REST API - which will be pretty simple.  See [the schema file
 
 Formats supported will initially be JSON and XML.
 
-### GET /recipe
+### GET /api/recipe
 
 Returns a list of all the recipes.
 
-### GET /recipe/:id
+### GET /api/recipe/:id
 
 Return the recipe specified by the ID.
 
-### POST /recipe
+### POST /api/recipe
 
 Creates a new recipe.
 
-### PUT /recipe/:id
+### PUT /api/recipe/:id
 
 Updates or creates a recipe.
 
-### DELETE /recipe/:id
+### DELETE /api/recipe/:id
 
 Deletes the recipe with the specified ID.

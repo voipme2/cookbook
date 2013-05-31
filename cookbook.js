@@ -33,12 +33,12 @@ app.get('/', main.index);
 app.get('/search', main.search);
 
 // REST configuration
-app.get('/recipes', recipe.listAllRecipes);
-app.get('/recipes/:id', recipe.findById);
-app.post('/recipes', recipe.addRecipe);
-app.put('/recipes/:id', recipe.updateRecipe);
-app.delete('/recipes/:id', recipe.deleteRecipe);
+app.get('/api/recipes', recipe.listAllRecipes);
+app.get('/api/recipes/:id', recipe.findById);
+app.post('/api/recipes', recipe.addRecipe);
+app.put('/api/recipes/:id', recipe.updateRecipe);
+app.delete('/api/recipes/:id', recipe.deleteRecipe);
 
 http.createServer(app).listen(app.get('port'), function(){
-  console.log("Express server listening on port " + app.get('port'));
+  console.log("Start cooking!  Go to http://localhost:" + app.get('port') + " and start working!");
 });
