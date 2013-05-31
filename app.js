@@ -5,7 +5,7 @@
 var express = require('express')
   , db = require('./model/db')
   , main = require('./routes/main')
-  , recipe = require('./routes/recipes')
+  , recipe = require('./model/recipes')
   , http = require('http')
   , path = require('path');
 
@@ -37,7 +37,7 @@ app.get('/recipes', recipe.listAllRecipes);
 app.get('/recipes/:id', recipe.findById);
 app.post('/recipes', recipe.addRecipe);
 app.put('/recipes/:id', recipe.updateRecipe);
-app.delete('/recipes/:id', wine.deleteRecipe);
+app.delete('/recipes/:id', recipe.deleteRecipe);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
