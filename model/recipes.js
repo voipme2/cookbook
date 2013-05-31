@@ -114,3 +114,22 @@ exports.deleteRecipe = function(req, res) {
 		});
 	});
 };
+
+
+/**
+ * This function searches the database.  Not sure what this is going to render, though.  Most likely JSON.
+ */
+exports.search = function(req, res) {
+	var q = new RegExp(req.body.query, "ig");
+	// TODO figure out the best way to split up the query
+	return Recipe.find({
+		$or: [
+			{ name: q }
+		]}, function (err, recipes) {
+		if (!err) {
+			return res.send(recipes);
+		} else {
+			return console.log(err);
+		}
+	});
+};
