@@ -17,6 +17,8 @@ exports.index = function(req, res) {
  * This function searches the database.  Not sure what this is going to render, though.  Most likely JSON.
  */
 exports.search = function(req, res) {
- 
+	res.render('index', {
+		title: "search"
+	});
 };
 
