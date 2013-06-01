@@ -37,10 +37,20 @@ var recipeSchema = new mongoose.Schema({
 var Recipe = mongoose.model( 'Recipe', recipeSchema );
  
 /**
- * Lists all of the recipes.
+ * Lists all of the recipes, or if query params are supplied,
+ * performs a search.
  */
-exports.listAllRecipes = function(req, res) {
-	return Recipe.find(function (err, recipes) {
+exports.findRecipes = function(req, res) {
+	var q = {};
+	if (req.query && req.query.search) {
+		var search = new RegExp(req.query.search, "ig");
+		q = {
+			$or: [
+				{ name: search }
+			]
+		};
+	}
+	return Recipe.find(q, function (err, recipes) {
 		if (!err) {
 			return res.send(recipes);
 		} else {
@@ -120,16 +130,5 @@ exports.deleteRecipe = function(req, res) {
  * This function searches the database.  Not sure what this is going to render, though.  Most likely JSON.
  */
 exports.search = function(req, res) {
-	var q = new RegExp(req.body.query, "ig");
-	// TODO figure out the best way to split up the query
-	return Recipe.find({
-		$or: [
-			{ name: q }
-		]}, function (err, recipes) {
-		if (!err) {
-			return res.send(recipes);
-		} else {
-			return console.log(err);
-		}
-	});
+
 };

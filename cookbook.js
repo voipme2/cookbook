@@ -31,10 +31,8 @@ app.configure('development', function(){
 // main.index, but we'll leave it there for now.
 app.get('/', main.index);
 
-
 // REST configuration
-app.get('/api/search', recipe.search);  // dunno if I like this URI
-app.get('/api/recipes', recipe.listAllRecipes);
+app.get('/api/recipes', recipe.findRecipes);
 app.get('/api/recipes/:id', recipe.findById);
 app.post('/api/recipes', recipe.addRecipe);
 app.put('/api/recipes/:id', recipe.updateRecipe);
