@@ -7,34 +7,8 @@
  * Also thanks to https://gist.github.com/pixelhandler/1791080.
  */
 
-var mongoose = require( 'mongoose' );
- 
-var recipeSchema = new mongoose.Schema({
-    name: String,
-    imageUrl: String,
-    prepTime: Number,
-    cookTime: Number,
-    tags: [String],
-    ingredients: [{
-        name: String,       // ingredient name
-        measure: String,    // tbsp, tsp, pinch
-        amount: Number      
-    }], 
-    notes: [{
-        author: String,
-        message: String
-    }],
-    steps: [{
-        directions: String,
-        imageUrl: String
-    }],
-    copyright: {
-        holder: String,
-        date: Date
-    }
-});
-
-var Recipe = mongoose.model( 'Recipe', recipeSchema );
+var mongoose = require( 'mongoose' ),
+    Recipe = mongoose.model('Recipe');
  
 /**
  * Lists all of the recipes, or if query params are supplied,

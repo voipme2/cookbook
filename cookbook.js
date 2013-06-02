@@ -27,9 +27,10 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-// index, and search pages.  not sure if we need to have the
-// main.index, but we'll leave it there for now.
+
+// pages that get rendered 
 app.get('/', main.index);
+app.get('/recipes', main.recipes);
 
 // REST configuration
 app.get('/api/recipes', recipe.findRecipes);
