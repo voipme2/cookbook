@@ -76,6 +76,8 @@ exports.addRecipe = function(req, res) {
 
 /**
  * Updates a recipe.
+ * TODO: this shouldn't increment the version of the found, it should 
+ * make a copy with version number that is +1
  */
 exports.updateRecipe = function(req, res) {
 	return Recipe.findById(req.params.id, function (err, recipe) {
