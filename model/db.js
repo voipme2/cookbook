@@ -5,29 +5,30 @@
 var mongoose = require( 'mongoose' );
 mongoose.connect( 'mongodb://localhost/cookbook' );
 
+// TODO - should measure come from a pre-populated list?
+var Ingredient = new mongoose.Schema({
+  name: String,       // ingredient name
+  measure: String,    // tbsp, tsp, pinch
+  amount: Number      
+});
+
+// TODO - do we want to indicate which ingredients are used in this step?
+var CookingStep = new mongoose.Schema({
+  time: Number,
+  directions: String,
+  imageUrl: String
+});
+
 var RecipeSchema = new mongoose.Schema({
-    name: String,
+    name: { type: String, required: true },
+    version: Number,
     imageUrl: String,
-    prepTime: Number,
-    cookTime: Number,
+    prepTime: { type: Number, min: 0 },
+    cookTime: { type: Number, min: 0 },
     tags: [String],
-    ingredients: [{
-        name: String,       // ingredient name
-        measure: String,    // tbsp, tsp, pinch
-        amount: Number      
-    }], 
-    notes: [{
-        author: String,
-        message: String
-    }],
-    steps: [{
-        directions: String,
-        imageUrl: String
-    }],
-    copyright: {
-        holder: String,
-        date: Date
-    }
+    ingredients: [Ingredient], 
+    steps: [CookingStep],
+    copyright: { holder: String, date: Date }
 });
 
 // create the Recipe collection
