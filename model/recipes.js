@@ -51,10 +51,18 @@ exports.findById = function(req, res) {
  */
 exports.addRecipe = function(req, res) {
 	var recipe;
-	console.log("POST: ");
-	console.log(req.body);
+	//console.log("POST: ");
+	//console.log(req.body);
 	recipe = new Recipe({
-		name: req.body.name
+		name: req.body.name,
+		version: req.body.version ? req.body.version : 0,
+		imageUrl: req.body.imageUrl,
+		prepTime: req.body.prepTime,
+		cookTime: req.body.cookTime,
+		tags: req.body.tags,
+		ingredients: req.body.ingredients,
+		steps: req.body.steps,
+		copyright: req.body.copyright
 	});
 	recipe.save(function (err) {
 		if (!err) {
@@ -72,6 +80,14 @@ exports.addRecipe = function(req, res) {
 exports.updateRecipe = function(req, res) {
 	return Recipe.findById(req.params.id, function (err, recipe) {
 		recipe.name = req.body.name;
+		recipe.version += 1;
+		recipe.imageUrl = req.body.imageUrl;
+		recipe.prepTime = req.body.prepTime;
+		recipe.cookTime = req.body.cookTime;
+		recipe.tags = req.body.tags;
+		recipe.ingredients = req.body.ingredients;
+		recipe.steps = req.body.steps;
+		recipe.copyright = req.body.copyright;
 		return recipe.save(function (err) {
 			if (!err) {
 				console.log("updated");
@@ -97,12 +113,4 @@ exports.deleteRecipe = function(req, res) {
 			}
 		});
 	});
-};
-
-
-/**
- * This function searches the database.  Not sure what this is going to render, though.  Most likely JSON.
- */
-exports.search = function(req, res) {
-
 };
