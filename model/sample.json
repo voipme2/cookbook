@@ -12,13 +12,10 @@
     "ingredients": [
         { "name": "garlic", "measure": "head", "amount": "1" },
         { "name": "butter", "measure": "tbsp", "amount": "4" },
-        { "name": "kosher salt", "measure": "tsp", "amount": "1/2" },
-        { "name": "black pepper", "measure": "tsp", "amount": "1/4" },
-        { "name": "oregano", "measure": "tsp", "amount": "1/4" },
-        { "name": "bread", "measure": "loaf", "amount": "1/2" }
-    ],
-    "notes": [
-        { "name": "Pat", "message": "Freaking delicious!", "date": new Date("May 19, 2013") }
+        { "name": "kosher salt", "measure": "tsp", "amount": "0.5" },
+        { "name": "black pepper", "measure": "tsp", "amount": "0.25" },
+        { "name": "oregano", "measure": "tsp", "amount": "0.25" },
+        { "name": "bread", "measure": "loaf", "amount": "0.5" }
     ],
     "steps": [
         { "directions": "Combine garlic, butter, salt, and pepper in a small sauce pot, over medium-low heat.  Stir until butter is melted, and garlic is fragrant." },
