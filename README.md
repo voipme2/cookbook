@@ -4,27 +4,18 @@
 
 Searching through a binder full of printed recipes is a chore.  I want to make it easier to find what you’re looking for, and start cooking.
 
-The app itself is a Node.js app, running with Express (for the HTTP side) and Mongoose (for the database side).  We're using MongoDB on the backend, since that's the one I'm most familiar with.
-
-* Node.js - http://nodejs.org/
-* Express - http://expressjs.com/
-* Mongoose - http://mongoosejs.com/
-* MongoDB - http://www.mongodb.org/
+This app is meant to run as a standalone server (running server.py), which provides both the interface and REST endpoint.  Its written in Python 2.5.6, and should be compatible with later versions of Python.  It uses sqlite3 as its database, since I didn't want a large footprint (its a small NAS).
 
 ## Getting started
 
-Assuming the clone of your repo is in ``cookbook_repo``
-
-1. Download and install Node.js, and MongoDB.  Follow the guides there to get them running.
-1. From your ``cookbook_repo``, run ``npm install`` in order to grab all of the dependencies.
-1. Run ``node cookbook``, then browse to http://localhost:3000/
+Just run ``python server.py``, then visit http://localhost:8000/cookbook/ to get started!
 
 That's it!
 
 
 ## REST API
 
-This documents the REST API - which will be pretty simple.  See [the schema file](model/db.js) for the ``Recipe`` object.  The ID for a recipe will be a sanitized version of the name, shortened to some character length.  Or something else.
+This documents the REST API - which will be pretty simple.  See [the schema file](data/schema.sql) for the ``Recipe`` object.  The ID for a recipe will be a sanitized version of the name, shortened to some character length.  Or something else.
 
 Formats supported will initially be JSON and XML.
 

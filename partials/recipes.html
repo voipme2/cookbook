@@ -1,0 +1,13 @@
+<!-- recipe list -->
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-2">
+			<ul class="recipe-list list-group">
+				<li class="recipe list-group-item" ng-repeat="recipe in recipes | filter:{ title: search }" 
+				ng-click="selectRecipe()"
+				ng-class="{ active: recipe == selectedRecipe }">
+				{{recipe.title}}
+			</li>
+		</ul>
+	</div>
+</div>
