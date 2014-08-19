@@ -2,7 +2,7 @@
 
 import sqlite3
 
-from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
+from SimpleHTTPServer import SimpleHTTPRequestHandler,HTTPServer
 from SocketServer import ThreadingMixIn
 import threading
 import re
@@ -13,12 +13,12 @@ class LocalData(object):
 	nextID = 1
 	records = {}
  
-class HTTPRequestHandler(BaseHTTPRequestHandler):
+class CookbookHandler(SimpleHTTPRequestHandler):
  
 	def do_POST(self):
 		# TODO: autogenerate ID if we don't already have one
 		print "do_POST"
- 		if None != re.search('/cookbook/*', self.path):
+ 		if None != re.search('/cookbook/api/*', self.path):
  			ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
  			if ctype == 'application/json':
  				length = int(self.headers.getheader('content-length'))
@@ -45,7 +45,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
  
 	def do_DELETE(self):
 		print "do_DELETE"
-		if None != re.search('/cookbook/*', self.path):
+		if None != re.search('/cookbook/api/*', self.path):
 			recordID = self.path.split('/')[-1]
 			if LocalData.records.has_key(recordID):
 				LocalData.records.pop(recordID, None);
@@ -64,7 +64,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
 	def do_GET(self):
 		print "do_GET"
-		if None != re.search('/cookbook/*', self.path):
+		if None != re.search('/cookbook/api/*', self.path):
  			recordID = self.path.split('/')[-1]
  			print "recordID: %s" % recordID
  			if (len(recordID) == 0):
@@ -85,11 +85,10 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 	 				self.send_response(404, 'Bad Request: record does not exist')
 					self.send_header('Content-Type', 'application/json')
 					self.end_headers()
+			return
  		else:
-			self.send_response(403)
- 			self.send_header('Content-Type', 'application/json')
- 			self.end_headers()
- 		return
+ 			# just serve up files for the directory if not an API call
+			return SimpleHTTPRequestHandler.do_GET(self)
  
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
 	allow_reuse_address = True
@@ -98,9 +97,9 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
 		self.socket.close()
 		HTTPServer.shutdown(self)
  
-class SimpleHttpServer():
+class CookbookServer():
 	def __init__(self, ip, port):
- 		self.server = ThreadedHTTPServer((ip,port), HTTPRequestHandler)
+ 		self.server = ThreadedHTTPServer((ip,port), CookbookHandler)
  
 	def start(self):
  		self.server_thread = threading.Thread(target=self.server.serve_forever)
@@ -119,7 +118,7 @@ class SimpleHttpServer():
  
 if __name__=='__main__':
  
-	server = SimpleHttpServer("", 8000)
-	print 'HTTP Server Running...........'
+	server = CookbookServer("", 8000)
+	print 'Start cooking at http://localhost:8000/'
 	server.start()
 	server.waitForThread()
