@@ -2,7 +2,8 @@
 
 import sqlite3
 
-from SimpleHTTPServer import SimpleHTTPRequestHandler,HTTPServer
+from SimpleHTTPServer import SimpleHTTPRequestHandler
+from BaseHTTPServer import HTTPServer
 from SocketServer import ThreadingMixIn
 import threading
 import re
@@ -10,24 +11,30 @@ import cgi
 import simplejson
  
 class LocalData(object):
-	nextID = 1
-	records = {}
+	records = []
+
+	def load(self):
+		# TODO: read in the JSON file
+		pass
+
+	def save(self):
+		# TODO: write out all records
+		pass
  
 class CookbookHandler(SimpleHTTPRequestHandler):
  
 	def do_POST(self):
 		# TODO: autogenerate ID if we don't already have one
-		print "do_POST"
- 		if None != re.search('/cookbook/api/*', self.path):
+ 		if None != re.search('/cookbook/api/recipes/*', self.path):
  			ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
  			if ctype == 'application/json':
- 				length = int(self.headers.getheader('content-length'))
- 				data = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
- 				recordID = self.path.split('/')[-1]
- 				if recordID == None:
- 					recordID = LocalData.nextID
- 					LocalData.nextID += 1
- 				LocalData.records[recordID] = data
+ 				self.data_string = self.rfile.read(int(self.headers['Content-Length']))
+ 				data = simplejson.loads(self.data_string)
+				recordID = self.path.split('/')[-1]
+ 				if recordID == None or recordID == "recipes":
+ 					recordID = len(LocalData.records)
+ 					data['id'] = recordID
+ 				LocalData.records.insert(recordID, data)
  				print "record %s is added/updated successfully" % recordID
  			else:
  				data = {}
@@ -45,7 +52,7 @@ class CookbookHandler(SimpleHTTPRequestHandler):
  
 	def do_DELETE(self):
 		print "do_DELETE"
-		if None != re.search('/cookbook/api/*', self.path):
+		if None != re.search('/cookbook/api/recipes/*', self.path):
 			recordID = self.path.split('/')[-1]
 			if LocalData.records.has_key(recordID):
 				LocalData.records.pop(recordID, None);
@@ -64,17 +71,14 @@ class CookbookHandler(SimpleHTTPRequestHandler):
 
 	def do_GET(self):
 		print "do_GET"
-		if None != re.search('/cookbook/api/*', self.path):
+		if None != re.search('/cookbook/api/recipes/*', self.path):
  			recordID = self.path.split('/')[-1]
  			print "recordID: %s" % recordID
- 			if (len(recordID) == 0):
+ 			if (len(recordID) == 0 or recordID == "recipes"):
  				self.send_response(200)
 	 			self.send_header('Content-Type', 'application/json')
 				self.end_headers()
-				self.wfile.write("[")
-				for k,v in LocalData.records.iteritems():
-					self.wfile.write(v)
-				self.wfile.write("]")
+				simplejson.dump(LocalData.records, self.wfile)
  			else:
 	 			if LocalData.records.has_key(recordID):
 	 				self.send_response(200)

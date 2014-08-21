@@ -3,7 +3,24 @@
 	<h3 class="modal-title">New Recipe</h3>
 </div>
 <div class="modal-body">
-	I'm used to create recipes.
+	<form class="form-horizontal" role="form">
+		<div class="form-group">
+			<label>Recipe</label>
+			<input type="text" class="form-control" ng-model="newRecipe.name">
+		</div>
+		<div class="form-group">
+			<label>Description</label>
+			<input type="text" class="form-control" ng-model="newRecipe.description">
+		</div>
+		<div class="form-group">
+			<label>Prep time</label>
+			<input type="number" class="form-control" ng-model="newRecipe.prepTime">
+		</div>
+		<div class="form-group">
+			<label>Cook time</label>
+			<input type="number" class="form-control" ng-model="newRecipe.cookTime">
+		</div>
+	</form>
 </div>
 <div class="modal-footer">
 	<button class="btn btn-primary" ng-click="save()">OK</button>

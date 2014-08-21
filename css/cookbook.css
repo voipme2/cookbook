@@ -1,9 +1,8 @@
-
-.recipe {
-	font-size: 14pt;
-	cursor: pointer;
+.recipe .title {
+	text-indent: 10px;
+	font-size: 18pt;
 }
 
-.recipe:hover {
-	background-color: #A9BCF5;
-};
+.recipe .description {
+	font-size: 12pt;
+}

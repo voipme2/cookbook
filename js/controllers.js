@@ -1,17 +1,19 @@
 angular.module("cookbook.controllers", [])
 .controller("ListCtrl", ['$scope', 'Recipe', function($scope, Recipe) {
-	console.log("listctrl")
-	Recipe.query(function(data) {
-		console.log("success", data);
-		//$scope.recipes = recipes;
+	Recipe.query(function(recipes) {
+		$scope.recipes = recipes;
 	}, function() {
 		console.log("error", arguments[0].status);
 	});
+
+	$scope.selectRecipe = function() {
+		$scope.recipe = this.recipe;
+	}
 }])
 .controller("ShowCtrl", ["$scope", "Recipe", function($scope, Recipe) {
 
 }])
-.controller("MenuCtrl", ['$scope', '$modal', function($scope, $modal) {
+.controller("MenuCtrl", ['$scope', '$modal', 'Recipe', function($scope, $modal, Recipe) {
 
 	$scope.createRecipe = function() {
 		// pop up a modal to create a recipe
@@ -19,17 +21,14 @@ angular.module("cookbook.controllers", [])
 		{
 			templateUrl: 'partials/new-recipe.html',
 			controller: 'NewRecipeCtrl',
-			size: 'lg',
-			/*resolve: {
-				items: function () {
-					return $scope.items;
-				}
-			}*/
+			size: 'lg'
 		}
 		);
 
 		rModal.result.then(function(recipe) {
 			console.log("recipe added: ", recipe);
+			var newRecipe = new Recipe(recipe);
+			newRecipe.$save();
 		}, function() {
 			// cancel.
 		});
@@ -41,12 +40,7 @@ angular.module("cookbook.controllers", [])
 		{
 			templateUrl: 'partials/download-recipe.html',
 			controller: 'DownloadRecipeCtrl',
-			size: 'lg',
-			/*resolve: {
-				items: function () {
-					return $scope.items;
-				}
-			}*/
+			size: 'lg'
 		}
 		);
 
@@ -59,9 +53,12 @@ angular.module("cookbook.controllers", [])
 	}
 }])
 .controller("NewRecipeCtrl", [ '$scope', '$modalInstance', function($scope, $modalInstance) {
+
+	$scope.newRecipe = {};
+
 	$scope.save = function() {
 		// save the recipe
-		$modalInstance.close({ "title": "New Recipe" });
+		$modalInstance.close($scope.newRecipe);
 	};
 
 	$scope.cancel = function() {
