@@ -12,17 +12,20 @@ class LocalData(object):
 	records = []
 	outfile = "data/recipes.json"
 	
+	@staticmethod
 	def add(recordID, data):
 		LocalData.records.insert(recordID, data)
 		LocalData.save()
 	
+	@staticmethod
 	def load():
-		f = open(outfile, "r")
+		f = open(LocalData.outfile, "r")
 		LocalData.records = simplejson.load(f)
 		f.close()
 
+	@staticmethod
 	def save():
-		f = open(outfile, "w")
+		f = open(LocalData.outfile, "w")
 		simplejson.dump(LocalData.records, f)
 		f.close()
  
@@ -57,7 +60,6 @@ class CookbookHandler(SimpleHTTPRequestHandler):
 		return
  
 	def do_DELETE(self):
-		print "do_DELETE"
 		if None != re.search('/cookbook/api/recipes/*', self.path):
 			recordID = self.path.split('/')[-1]
 			if recordID != 'recipes' and LocalData.records[recordID]:
@@ -76,7 +78,6 @@ class CookbookHandler(SimpleHTTPRequestHandler):
  		return
 
 	def do_GET(self):
-		print "do_GET"
 		if None != re.search('/cookbook/api/recipes/*', self.path):
  			recordID = self.path.split('/')[-1]
  			if (len(recordID) == 0 or recordID == "recipes"):

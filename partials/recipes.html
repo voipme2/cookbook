@@ -1,9 +1,8 @@
 <!-- recipe list -->
 <div class="container-fluid">
-	<div class="row recipe" ng-repeat="recipe in recipes | filter:{ name: search }" 
-	ng-class="{ active: recipe == selectedRecipe }">
+	<div class="row recipe" ng-repeat="recipe in recipes" >
 		<div class="col-md-3">
-			<a href class="title" ng-click="selectRecipe()">{{recipe.name}}</a>
+			<a href="#/recipes/{{recipe.id}}" class="title">{{recipe.name}}</a>
 		</div>
 		<div class="col-md-9">
 			<span>{{recipe.description}}</span>

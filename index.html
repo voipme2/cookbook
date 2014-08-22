@@ -6,13 +6,10 @@
 <!--[if gt IE 8]><!--> <html ng-app="cookbook"> <!--<![endif]-->
 <!-- 
 TODO
-
- - make sure the basic parts of the app work
  - do the UI for:
   - displaying a single recipe
   - displaying a list of recipes
   - creating/editing recips
-  - write the PHP REST api (http://www.raywenderlich.com/2941/how-to-write-a-simple-phpmysql-web-service-for-an-ios-app)
  - implement the download functionality
 
 -->
@@ -42,31 +39,32 @@ TODO
 			</div>
 
 			<!-- Collect the nav links, forms, and other content for toggling -->
-			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" ng-controller="MenuCtrl">
+			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 				<ul class="nav navbar-nav">
-					<li><a href="#/recipes">Recipes</a></li>
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">New <span class="caret"></span></a>
 						<ul class="dropdown-menu" role="menu">
-							<li><a href="#" ng-click="createRecipe()">Create...</a></li>
-							<li><a href="#" ng-click="downloadRecipe()">Download...</a></li>
+							<li><a ui-sref="recipes.add">Create...</a></li>
+							<li><a ui-sref="recipes.download">Download...</a></li>
 						</ul>
 					</li>
 				</ul>
 				<form class="navbar-form navbar-left" role="search">
 					<div class="form-group">
-						<input type="text" class="form-control" placeholder="Search" ng-model="search">
+						<input type="text" class="form-control" placeholder="Search" ng-model="search" size="50" 
+						typeahead="recipe for recipe in recipes | filter:{name:$viewValue} | limitTo:12" class="form-control"
+						typeahead-template-url="partials/search-result.html"></input>
 					</div>
 				</form>
 			</div><!-- /.navbar-collapse -->
 		</div><!-- /.container-fluid -->
 	</nav>
 	
-	<div ng-view></div>
+	<div ui-view></div>
 
-	<script type="text/javascript" src="js/angular.min.js"></script>
-	<script type="text/javascript" src="js/angular-route.min.js"></script>
+	<script type="text/javascript" src="js/angular.js"></script>
 	<script type="text/javascript" src="js/angular-resource.min.js"></script>
+	<script type="text/javascript" src="js/angular-ui-router.min.js"></script>
 	<script type="text/javascript" src="js/ui-bootstrap-tpls-0.11.0.min.js"></script>
 	<script type="text/javascript" src="js/app.js"></script>
 	<script type="text/javascript" src="js/services.js"></script>
