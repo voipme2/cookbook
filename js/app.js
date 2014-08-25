@@ -6,18 +6,14 @@ angular.module('cookbook', [
 	'cookbook.controllers'])
 .config(function($stateProvider, $urlRouterProvider) {
 
-  //
-  // Now set up the states
   $stateProvider.state('recipes', {
   	url: "/recipes",
-  	abstract: true,
   	resolve: {
-  		recipes: function(Recipe) {
+  		recipes: ['Recipe', function(Recipe) {
   			return Recipe.query();
-  		}
+  		}]
   	},
   	controller: function($scope, recipes) {
-      console.log(recipes);
   		$scope.recipes = recipes;
 	 }
   })
