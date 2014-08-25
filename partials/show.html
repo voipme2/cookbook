@@ -1,3 +1,17 @@
-<div>
-Show
+<div class="container-fluid">
+  <div class="col-md-3 ingredients">
+    <ul>
+      <li class="ingredient" ng-repeat="ingredient in recipe.ingredients">
+        {{ingredient.amount}} {{ingredient.name}}
+      </li>
+    </ul>
+  </div>
+  <div class="col-md-9 recipe-detail">
+    <div class="name">{{recipe.name}}</div>
+    <div class="description">{{recipe.description}}</div>
+    <img ng-if="recipe.imageUrl" class="recipe-image" src="{{recipe.imageUrl}}" />
+    <div class="row recipe-step" ng-repeat="step in recipe.steps">
+      {{step}}
+    </div>
+  </div>
 </div>
