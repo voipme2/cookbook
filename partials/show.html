@@ -1,5 +1,6 @@
 <div class="container-fluid">
     <div class="col-md-3 ingredients">
+        <h4>Ingredients</h4>
         <ul>
             <li class="ingredient" ng-repeat="ingredient in recipe.ingredients">
                 {{ingredient.text}}
@@ -7,7 +8,7 @@
         </ul>
     </div>
     <div class="col-md-9 recipe-detail">
-        <div class="name">{{recipe.name}}</div>
+        <h4>{{recipe.name}}</h4>
         <div class="description">{{recipe.description}}</div>
         <!-- <img ng-if="recipe.imageUrl" class="recipe-image" src="{{recipe.imageUrl}}"/> -->
 

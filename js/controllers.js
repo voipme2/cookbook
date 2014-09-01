@@ -6,12 +6,35 @@ angular.module("cookbook.controllers", [])
             steps: []
         };
 
-        $scope.addIngredient = function (index) {
+        $scope.addIngredient = function (index, data) {
             if (index == undefined) {
                 index = $scope.newRecipe.ingredients.length - 1;
             }
+            var text = data ? data : '';
             $scope.newRecipe.ingredients.splice(index + 1, 0,
-                { text: ''});
+                { text: text});
+        };
+
+        $scope.handleIngredientPaste = function(event, index) {
+            var data = event.clipboardData.getData("text/plain");
+            var itemsToAdd = data.split("\n");
+            $scope.removeIngredient(index);
+            itemsToAdd.forEach(function(item) {
+                if (item.length > 0 && item.indexOf("Read more") == -1) {
+                    $scope.addIngredient(undefined, item);
+                }
+            });
+        };
+
+        $scope.handleStepPaste = function(event, index) {
+            var data = event.clipboardData.getData("text/plain");
+            var itemsToAdd = data.split("\n");
+            $scope.removeStep(index);
+            itemsToAdd.forEach(function(item) {
+                if (item.length > 0 && item.indexOf("Read more") == -1) {
+                    $scope.addStep(undefined, item);
+                }
+            });
         };
 
         $scope.checkEnterIng = function (event, index) {
@@ -30,12 +53,13 @@ angular.module("cookbook.controllers", [])
             $scope.newRecipe.ingredients.splice(index, 1);
         };
 
-        $scope.addStep = function (index) {
+        $scope.addStep = function (index, data) {
             if (index == undefined) {
                 index = $scope.newRecipe.steps.length - 1;
             }
+            var text = data ? data : '';
             $scope.newRecipe.steps.splice(index + 1, 0,
-                { text: ''});
+                { text: text});
         };
 
         $scope.removeStep = function (index) {

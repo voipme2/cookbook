@@ -1,0 +1,8 @@
+* Edit recipes
+* CSS/formatting improvements
+* Mobile formatting
+* Ingredients/Steps
+    * Break ingredients out into amounts/names (for modifying recipes)
+    * On enter, focus on newly created ingredient
+* On create, should update list of recipes
+* Make new-recipe not modal
