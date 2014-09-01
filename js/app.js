@@ -3,7 +3,8 @@ angular.module('cookbook', [
     'ui.router',
     'ngResource',
     'cookbook.services',
-    'cookbook.controllers'])
+    'cookbook.controllers',
+    'cookbook.filters'])
     .run([ '$rootScope', '$state', '$stateParams',
         function ($rootScope, $state, $stateParams) {
             $rootScope.$state = $state;
@@ -27,9 +28,13 @@ angular.module('cookbook', [
                 }]
             },
             template: "<div ui-view />",
-            controller: function ($scope, $state, recipes) {
-                $scope.recipes = recipes;
-                console.log(recipes);
+            controller: function ($rootScope, $state, recipes) {
+                // always have the recipes available.
+                $rootScope.recipes = recipes;
+
+                $rootScope.selectRecipe = function(item, model, label) {
+                    $state.go('recipes.detail', { id: model.id });
+                }
             }
         })
             .state('recipes.list', {
