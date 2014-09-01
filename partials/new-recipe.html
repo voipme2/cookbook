@@ -40,7 +40,8 @@
     </div>
     <div class="row" ng-repeat="ingredient in newRecipe.ingredients">
         <div class="col-md-10">
-            <input type="text" ng-model="ingredient" class="form-control">
+            <input type="text" ng-model="ingredient.text" class="form-control"
+                   ng-keypress="checkEnterIng($event, $index)">
         </div>
         <div class="col-md-2">
             <button type="button" class="btn btn-default" ng-click="removeIngredient($index)">
@@ -58,7 +59,7 @@
     </div>
     <div class="row" ng-repeat="step in newRecipe.steps">
         <div class="col-md-10">
-            <input type="text" ng-model="step" class="form-control">
+            <textarea ng-model="step.text" class="form-control" ng-keypress="checkEnterStep($event, $index)"></textarea>
         </div>
         <div class="col-md-2">
             <button type="button" class="btn btn-default" ng-click="removeStep($index)">

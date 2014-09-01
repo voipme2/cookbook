@@ -6,3 +6,21 @@
 .recipe .description {
 	font-size: 12pt;
 }
+
+.ingredients .ingredient {
+    list-style-type: none;
+}
+
+.recipe-detail .name {
+    font-size: 20pt;
+}
+
+.recipe-detail .description {
+    text-indent: 18px;
+    font-size: 10pt;
+}
+
+.recipe-detail .recipe-steps {
+    margin: 10px 0px;
+    padding: 10px 0px;
+}

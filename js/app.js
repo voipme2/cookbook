@@ -4,22 +4,38 @@ angular.module('cookbook', [
     'ngResource',
     'cookbook.services',
     'cookbook.controllers'])
+    .run([ '$rootScope', '$state', '$stateParams',
+        function ($rootScope, $state, $stateParams) {
+            $rootScope.$state = $state;
+            $rootScope.$stateParams = $stateParams;
+        }
+    ]
+)
     .config(function ($stateProvider, $urlRouterProvider) {
 
-        $urlRouterProvider.when("", "/recipes");
+        $urlRouterProvider.when("", "/recipes/list");
+        $urlRouterProvider.when("/", "/recipes/list");
+
+        $urlRouterProvider.otherwise("/recipes/list")
 
         $stateProvider.state('recipes', {
+            abstract: true,
             url: "/recipes",
             resolve: {
                 recipes: ['Recipe', function (Recipe) {
                     return Recipe.query();
                 }]
             },
-            controller: function ($scope, recipes) {
-                console.log("recipes: ", recipes);
+            template: "<div ui-view />",
+            controller: function ($scope, $state, recipes) {
                 $scope.recipes = recipes;
+                console.log(recipes);
             }
         })
+            .state('recipes.list', {
+                url: '/list',
+                templateUrl: "partials/recipes.html"
+            })
             .state('recipes.detail', {
                 url: "/:id",
                 templateUrl: "partials/show.html",

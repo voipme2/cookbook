@@ -52,8 +52,8 @@ TODO
 				<form class="navbar-form navbar-left" role="search">
 					<div class="form-group">
 						<input type="text" class="form-control" placeholder="Search" ng-model="search" size="50" 
-						typeahead="recipe for recipe in recipes | filter:{name:$viewValue} | limitTo:12" class="form-control"
-						typeahead-template-url="partials/search-result.html"></input>
+						typeahead="recipe as recipe.name for recipe in recipes | filter:$viewValue | limitTo:12"
+						typeahead-template-url="partials/search-result.html">
 					</div>
 				</form>
 			</div><!-- /.navbar-collapse -->
@@ -65,7 +65,7 @@ TODO
 	<script type="text/javascript" src="js/angular.js"></script>
 	<script type="text/javascript" src="js/angular-resource.min.js"></script>
 	<script type="text/javascript" src="js/angular-ui-router.min.js"></script>
-	<script type="text/javascript" src="js/ui-bootstrap-tpls-0.11.0.min.js"></script>
+	<script type="text/javascript" src="js/ui-bootstrap-tpls-0.11.0.js"></script>
 	<script type="text/javascript" src="js/app.js"></script>
 	<script type="text/javascript" src="js/services.js"></script>
 	<script type="text/javascript" src="js/controllers.js"></script>
