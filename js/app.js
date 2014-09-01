@@ -14,6 +14,7 @@ angular.module('cookbook', [
   		}]
   	},
   	controller: function($scope, recipes) {
+      console.log("recipes: ", recipes);
   		$scope.recipes = recipes;
 	 }
   })
