@@ -28,12 +28,18 @@ angular.module('cookbook', [
                 }]
             },
             template: "<div ui-view />",
-            controller: function ($rootScope, $state, recipes) {
+            controller: function ($rootScope, $state, recipes, Recipe) {
                 // always have the recipes available.
                 $rootScope.recipes = recipes;
 
                 $rootScope.selectRecipe = function(item, model, label) {
                     $state.go('recipes.detail', { id: model.id });
+                };
+
+                $rootScope.getRecipes = function() {
+                    Recipe.query(function(recipes) {
+                        $rootScope.recipes = recipes;
+                    })
                 }
             }
         })
@@ -50,7 +56,7 @@ angular.module('cookbook', [
             })
             .state("recipes.add", {
                 url: "/add",
-                onEnter: ['$stateParams', '$state', '$modal', 'Recipe', function ($stateParams, $state, $modal, Recipe) {
+                onEnter: ['$stateParams', '$state', '$rootScope', '$modal', 'Recipe', function ($stateParams, $state, $rootScope, $modal, Recipe) {
                     var rModal = $modal.open(
                         {
                             templateUrl: 'partials/new-recipe.html',
@@ -61,7 +67,10 @@ angular.module('cookbook', [
 
                     rModal.result.then(function (recipe) {
                         var newRecipe = new Recipe(recipe);
-                        newRecipe.$save();
+                        newRecipe.$save(function() {
+                            $rootScope.getRecipes();
+                        });
+
                         $state.go('recipes.list');
                     }, function () {
                         // cancel.
