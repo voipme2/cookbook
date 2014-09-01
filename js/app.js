@@ -6,6 +6,8 @@ angular.module('cookbook', [
     'cookbook.controllers'])
     .config(function ($stateProvider, $urlRouterProvider) {
 
+        $urlRouterProvider.when("", "/recipes");
+
         $stateProvider.state('recipes', {
             url: "/recipes",
             resolve: {
