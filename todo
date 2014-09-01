@@ -6,3 +6,7 @@
     * On enter, focus on newly created ingredient
 * On create, should update list of recipes
 * Make new-recipe not modal
+* Collapsed menu doesn't work when not full screen
+* Serving amount
+* Inactive time?  Total time?
+* Allow ingredients/steps to be dragged/dropped/sorted
