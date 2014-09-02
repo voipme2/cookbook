@@ -1,3 +1,4 @@
+
 .recipe .title {
 	text-indent: 10px;
 	font-size: 18pt;
@@ -7,8 +8,14 @@
 	font-size: 12pt;
 }
 
+.ingredients ul {
+    margin: 0;
+    padding: 0;
+}
+
 .ingredients .ingredient {
-    list-style-type: none;
+    padding:3px;
+    margin:2px;
 }
 
 .recipe-detail .name {

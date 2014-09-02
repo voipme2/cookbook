@@ -56,7 +56,7 @@ TODO
             <form class="navbar-form navbar-left" role="search">
                 <div class="form-group">
                     <input type="text" class="form-control" placeholder="Search" ng-model="search" size="50"
-                           typeahead="recipe as recipe.name for recipe in recipes | recipeSearch:$viewValue | limitTo:12"
+                           typeahead="recipe as recipe.name for recipe in recipes | recipeSearch:$viewValue | limitTo:12 | orderBy: 'name' "
                            typeahead-template-url="partials/search-result.html"
                            typeahead-on-select="selectRecipe($item, $model, $label)">
                 </div>

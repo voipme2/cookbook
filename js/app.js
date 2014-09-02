@@ -36,6 +36,12 @@ angular.module('cookbook', [
                     $state.go('recipes.detail', { id: model.id });
                 };
 
+                $rootScope.deleteRecipe = function(recipe) {
+                    recipe.$remove(function() {
+                        console.log("deleted?");
+                    })
+                };
+
                 $rootScope.getRecipes = function() {
                     Recipe.query(function(recipes) {
                         $rootScope.recipes = recipes;
@@ -45,10 +51,11 @@ angular.module('cookbook', [
         })
             .state('recipes.list', {
                 url: '/list',
-                templateUrl: "partials/recipes.html"
+                templateUrl: "partials/recipes.html",
+
             })
             .state('recipes.detail', {
-                url: "/:id",
+                url: "/show/:id",
                 templateUrl: "partials/show.html",
                 controller: function ($scope, $stateParams) {
                     $scope.recipe = $scope.recipes[$stateParams.id];
@@ -56,26 +63,13 @@ angular.module('cookbook', [
             })
             .state("recipes.add", {
                 url: "/add",
-                onEnter: ['$stateParams', '$state', '$rootScope', '$modal', 'Recipe', function ($stateParams, $state, $rootScope, $modal, Recipe) {
-                    var rModal = $modal.open(
-                        {
-                            templateUrl: 'partials/new-recipe.html',
-                            controller: 'NewRecipeCtrl',
-                            size: 'lg'
-                        }
-                    );
-
-                    rModal.result.then(function (recipe) {
-                        var newRecipe = new Recipe(recipe);
-                        newRecipe.$save(function() {
-                            $rootScope.getRecipes();
-                        });
-
-                        $state.go('recipes.list');
-                    }, function () {
-                        // cancel.
-                    });
-                }]
+                templateUrl: "partials/new-recipe.html",
+                controller: 'NewRecipeCtrl'
+            })
+            .state("recipe.edit", {
+                url: "/edit/:id",
+                templateUrl: "partials/new-recipe.html",
+                controller: "ModifyRecipeCtrl"
             })
             .state("recipes.download", {
                 url: "/download",

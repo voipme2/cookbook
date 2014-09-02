@@ -1,11 +1,21 @@
 <!-- recipe list -->
 <div class="container-fluid">
-	<div class="row recipe" ng-repeat="recipe in recipes" >
-		<div class="col-md-3">
-			<a href="#/recipes/{{recipe.id}}" class="title">{{recipe.name}}</a>
-		</div>
-		<div class="col-md-9">
-			<span>{{recipe.description}}</span>
-		</div>
-	</div>
+    <div class="row recipe" ng-repeat="recipe in recipes | orderBy: 'name' ">
+        <div class="col-md-3">
+            <a href="#/recipes/show/{{recipe.id}}" class="title">{{recipe.name}}</a>
+        </div>
+        <div class="col-md-7">
+            <span>{{recipe.description}}</span>
+        </div>
+        <div class="col-sm-2">
+            <div class="btn-group">
+                <a class="btn btn-sm btn-primary" href="#/recipes/edit/{{recipe.id}}">
+                    <i class="glyphicon glyphicon-edit"></i> Edit
+                </a>
+                <button type="button" class="btn btn-sm btn-danger" ng-click="deleteRecipe(recipe)">
+                    <i class="glyphicon glyphicon-remove"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
 </div>

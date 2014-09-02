@@ -1,5 +1,5 @@
 <div class="container-fluid">
-    <div class="col-md-3 ingredients">
+    <div class="col-sm-3 ingredients">
         <h4>Ingredients</h4>
         <ul>
             <li class="ingredient" ng-repeat="ingredient in recipe.ingredients">
@@ -7,11 +7,16 @@
             </li>
         </ul>
     </div>
-    <div class="col-md-9 recipe-detail">
-        <h4>{{recipe.name}}</h4>
+    <div class="col-sm-9 recipe-detail">
+        <h2>{{recipe.name}}</h2>
+        <div class="author">{{recipe.author}}</div>
         <div class="description">{{recipe.description}}</div>
         <!-- <img ng-if="recipe.imageUrl" class="recipe-image" src="{{recipe.imageUrl}}"/> -->
-
+        <div class="pull-right">
+            <div>Prep: {{ recipe.prepTime | asTime }}</div>
+            <div>Inactive: {{ recipe.inactiveTime | asTime }}</div>
+            <div>Cook: {{ recipe.cookTime | asTime }}</div>
+        </div>
         <div class="recipe-steps">
             <ol>
                 <li class="recipe-step" ng-repeat="step in recipe.steps">
