@@ -5,7 +5,7 @@ angular.module("cookbook.directives", [])
     transclude: true,
     template: '<input type="text" ng-model="input" ng-keypress="checkEnter($event)" ng-paste="handlePaste($event)">'
       + '<ul><li ng-repeat="item in list">{{item}} <button type="button" class="btn btn-sm btn-default" '
-      + 'ng-click="removeItem($index)"><i class="glyphicon glyphicon-delete"></i></button></li></ul>",
+      + 'ng-click="removeItem($index)"><i class="glyphicon glyphicon-delete"></i></button></li></ul>',
     scope: {
       'list' : "="
     },
