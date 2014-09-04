@@ -43,41 +43,15 @@
         </div>
     </div>
     <div class="row form-group">
-        <div class="col-sm-12">Ingredients
-            <button type="button" class="btn btn-primary btn-small" ng-click="addIngredient()">
-                <i class="glyphicon glyphicon-plus"></i> Add
-            </button>
-        </div>
+        <div class="col-sm-3">Ingredients</div>
+        <div class="col-sm-9"><list-creator list="newRecipe.ingredients"></list-creator></div>
     </div>
-    <div class="row" ng-repeat="ingredient in newRecipe.ingredients">
-        <div class="col-sm-10">
-            <input type="text" ng-model="ingredient.text" class="form-control"
-                   ng-keypress="checkEnterIng($event, $index)" ng-paste="handleIngredientPaste($event, $index)">
-        </div>
-        <div class="col-sm-2">
-            <button type="button" class="btn btn-default" ng-click="removeIngredient($index)">
-                <i class="glyphicon glyphicon-remove"></i>
-            </button>
-        </div>
-    </div>
+    
     <div class="row form-group">
-        <div class="col-sm-12">Steps
-            <button type="button" class="btn btn-primary btn-small" ng-click="addStep()">
-                <i class="glyphicon glyphicon-plus"></i> Add
-            </button>
-        </div>
+        <div class="col-sm-3">Steps</div>
+        <div class="col-sm-9"><list-creator list="newRecipe.steps"></list-creator></div>
     </div>
-    <div class="row" ng-repeat="step in newRecipe.steps">
-        <div class="col-sm-10">
-            <textarea ng-model="step.text" class="form-control" ng-paste="handleStepPaste($event, $index)"
-                      ng-keypress="checkEnterStep($event, $index)"></textarea>
-        </div>
-        <div class="col-sm-2">
-            <button type="button" class="btn btn-default" ng-click="removeStep($index)">
-                <i class="glyphicon glyphicon-remove"></i>
-            </button>
-        </div>
-    </div>
+    
     <div class="row form-group">
         <div class="btn-group col-sm-offset-5 col-sm-6">
             <button class="btn btn-primary" ng-click="save()">OK</button>
