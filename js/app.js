@@ -4,7 +4,8 @@ angular.module('cookbook', [
     'ngResource',
     'cookbook.services',
     'cookbook.controllers',
-    'cookbook.filters'])
+    'cookbook.filters',
+    'cookbook.directives'])
     .run([ '$rootScope', '$state', '$stateParams',
         function ($rootScope, $state, $stateParams) {
             $rootScope.$state = $state;
