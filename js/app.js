@@ -66,7 +66,7 @@ angular.module('cookbook', [
                 templateUrl: "partials/new-recipe.html",
                 controller: 'NewRecipeCtrl'
             })
-            .state("recipe.edit", {
+            .state("recipes.edit", {
                 url: "/edit/:id",
                 templateUrl: "partials/new-recipe.html",
                 controller: "ModifyRecipeCtrl"
