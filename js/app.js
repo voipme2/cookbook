@@ -39,7 +39,7 @@ angular.module('cookbook', [
 
                 $rootScope.deleteRecipe = function(recipe) {
                     recipe.$remove(function() {
-                        console.log("deleted?");
+                        $rootScope.getRecipes();
                     })
                 };
 
