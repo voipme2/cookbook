@@ -14,7 +14,14 @@ class LocalData(object):
 
     @staticmethod
     def add(recordID, data):
-        LocalData.records.insert(recordID, data)
+        recID = int(recordID)
+        try:
+            if LocalData.records[recID]:
+                LocalData.records.pop(recID)
+        except IndexError:
+            pass
+
+        LocalData.records.insert(recID, data)
         LocalData.save()
 
     @staticmethod
@@ -37,7 +44,6 @@ class LocalData(object):
 class CookbookHandler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
-        # TODO: autogenerate ID if we don't already have one
         if None != re.search('/cookbook/api/recipes/*', self.path):
             ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
             if ctype == 'application/json':
@@ -47,12 +53,14 @@ class CookbookHandler(SimpleHTTPRequestHandler):
                 if recordID == None or recordID == "recipes":
                     recordID = len(LocalData.records)
                     data['id'] = recordID
+                else:
+                    recordID = int(recordID)
                 LocalData.add(recordID, data)
 
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
-                self.wfile.write(LocalData.records[recordID])
+                simplejson.dump(LocalData.records[recordID], self.wfile)
             else:
                 self.send_response(415)
                 self.send_header('Content-Type', 'application/json')

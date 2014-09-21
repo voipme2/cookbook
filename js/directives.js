@@ -3,16 +3,18 @@ angular.module("cookbook.directives", [])
   return {
     restrict: 'E',
     transclude: true,
-    template: '<input type="text" ng-model="input" ng-keypress="checkEnter($event)" ng-paste="handlePaste($event)">'
-      + '<ul><li ng-repeat="item in list">{{item}} <button type="button" class="btn btn-sm btn-default" '
-      + 'ng-click="removeItem($index)"><i class="glyphicon glyphicon-delete"></i></button></li></ul>',
+      template: '<input type="text" ng-model="input" class="form-control" ng-keypress="checkEnter($event)" ng-paste="handlePaste($event)">'
+          + '<div class="input-group" ng-repeat="item in list">'
+          + '<input type="text" class="form-control" value="{{item.text}}" ng-model="item.text" />'
+          + '<span class="input-group-btn"><button type="button" class="btn btn-danger" ng-click="removeItem($index)">'
+          + '<i class="glyphicon glyphicon-remove"></i></button></span></div>',
     scope: {
       'list' : "="
     },
     controller: function($scope) {
       $scope.checkEnter = function(event) {
         if (event.keyCode == 13) {
-          $scope.list.push($scope.input);
+            $scope.list.push({ text: $scope.input });
           $scope.input = '';
         }
       };
@@ -35,4 +37,4 @@ angular.module("cookbook.directives", [])
       };
     }
   }
-}])
+    }]);

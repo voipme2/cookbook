@@ -13,7 +13,6 @@ angular.module("cookbook.filters", [])
         return function (timeInMin) {
             var hours = parseInt(timeInMin / 60) % 24;
             var minutes = timeInMin % 60;
-            console.log(timeInMin);
             var dString = "";
             if (hours > 0) {
                 dString += hours + " hr ";

@@ -1,80 +1,32 @@
 angular.module("cookbook.controllers", [])
-    .controller("NewRecipeCtrl", [ '$scope', '$modalInstance', function ($scope, $modalInstance) {
+    .controller("ModifyRecipeCtrl", [ '$scope', '$state', '$stateParams', 'Recipe',
+        function ($scope, $state, $stateParams, Recipe) {
 
-        $scope.newRecipe = {
-            ingredients: [],
-            steps: []
-        };
-
-        $scope.addIngredient = function (index, data) {
-            if (index == undefined) {
-                index = $scope.newRecipe.ingredients.length - 1;
+            if ($stateParams.id) {
+                $scope.newRecipe = $scope.recipes[$stateParams.id];
+            } else {
+                $scope.newRecipe = {
+                    ingredients: [],
+                    steps: []
+                };
             }
-            var text = data ? data : '';
-            $scope.newRecipe.ingredients.splice(index + 1, 0,
-                { text: text});
-        };
 
-        $scope.handleIngredientPaste = function(event, index) {
-            var data = event.clipboardData.getData("text/plain");
-            var itemsToAdd = data.split("\n");
-            $scope.removeIngredient(index);
-            itemsToAdd.forEach(function(item) {
-                if (item.length > 0 && item.indexOf("Read more") == -1) {
-                    $scope.addIngredient(undefined, item);
-                }
-            });
-        };
+            $scope.save = function () {
+                // save the recipe
+                var recipe = new Recipe($scope.newRecipe);
 
-        $scope.handleStepPaste = function(event, index) {
-            var data = event.clipboardData.getData("text/plain");
-            var itemsToAdd = data.split("\n");
-            $scope.removeStep(index);
-            itemsToAdd.forEach(function(item) {
-                if (item.length > 0 && item.indexOf("Read more") == -1) {
-                    $scope.addStep(undefined, item);
-                }
-            });
-        };
+                // refresh the list of recipes.
+                recipe.$save(function () {
+                    $scope.updateRecipes();
+                    $state.go('recipes.list');
+                });
+            };
 
-        $scope.checkEnterIng = function (event, index) {
-            if (event.keyCode == 13) {
-                $scope.addIngredient(index);
+            $scope.cancel = function () {
+                $state.go('recipes.list');
             }
-        };
+        }])
 
-        $scope.checkEnterStep = function (event, index) {
-            if (event.keyCode == 13) {
-                $scope.addStep(index)
-            }
-        };
-
-        $scope.removeIngredient = function (index) {
-            $scope.newRecipe.ingredients.splice(index, 1);
-        };
-
-        $scope.addStep = function (index, data) {
-            if (index == undefined) {
-                index = $scope.newRecipe.steps.length - 1;
-            }
-            var text = data ? data : '';
-            $scope.newRecipe.steps.splice(index + 1, 0,
-                { text: text});
-        };
-
-        $scope.removeStep = function (index) {
-            $scope.newRecipe.steps.splice(index, 1);
-        };
-
-        $scope.save = function () {
-            // save the recipe
-            $modalInstance.close($scope.newRecipe);
-        };
-
-        $scope.cancel = function () {
-            $modalInstance.dismiss();
-        }
-    }])
     .controller("DownloadRecipeCtrl", [ '$scope', '$modalInstance', function ($scope, $modalInstance) {
 
         $scope.dl = {
