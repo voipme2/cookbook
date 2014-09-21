@@ -4,8 +4,7 @@ angular.module('cookbook', [
     'ngResource',
     'cookbook.services',
     'cookbook.controllers',
-    'cookbook.filters',
-    'cookbook.directives'])
+    'cookbook.filters'])
     .run([ '$rootScope', '$state', '$stateParams',
         function ($rootScope, $state, $stateParams) {
             $rootScope.$state = $state;
@@ -28,35 +27,22 @@ angular.module('cookbook', [
                     return Recipe.query();
                 }]
             },
-            template: "<div ui-view />",
-            controller: function ($rootScope, $state, recipes, Recipe) {
+            template: "<ui-view />",
+            controller: function ($rootScope, $state, recipes) {
                 // always have the recipes available.
                 $rootScope.recipes = recipes;
 
                 $rootScope.selectRecipe = function(item, model, label) {
                     $state.go('recipes.detail', { id: model.id });
-                };
-
-                $rootScope.deleteRecipe = function(recipe) {
-                    recipe.$remove(function() {
-                        $rootScope.getRecipes();
-                    })
-                };
-
-                $rootScope.getRecipes = function() {
-                    Recipe.query(function(recipes) {
-                        $rootScope.recipes = recipes;
-                    })
                 }
             }
         })
             .state('recipes.list', {
                 url: '/list',
-                templateUrl: "partials/recipes.html",
-
+                templateUrl: "partials/recipes.html"
             })
             .state('recipes.detail', {
-                url: "/show/:id",
+                url: "/:id",
                 templateUrl: "partials/show.html",
                 controller: function ($scope, $stateParams) {
                     $scope.recipe = $scope.recipes[$stateParams.id];
@@ -64,13 +50,23 @@ angular.module('cookbook', [
             })
             .state("recipes.add", {
                 url: "/add",
-                templateUrl: "partials/new-recipe.html",
-                controller: 'NewRecipeCtrl'
-            })
-            .state("recipes.edit", {
-                url: "/edit/:id",
-                templateUrl: "partials/new-recipe.html",
-                controller: "ModifyRecipeCtrl"
+                onEnter: ['$stateParams', '$state', '$modal', 'Recipe', function ($stateParams, $state, $modal, Recipe) {
+                    var rModal = $modal.open(
+                        {
+                            templateUrl: 'partials/new-recipe.html',
+                            controller: 'NewRecipeCtrl',
+                            size: 'lg'
+                        }
+                    );
+
+                    rModal.result.then(function (recipe) {
+                        var newRecipe = new Recipe(recipe);
+                        newRecipe.$save();
+                        $state.go('recipes.list');
+                    }, function () {
+                        // cancel.
+                    });
+                }]
             })
             .state("recipes.download", {
                 url: "/download",
