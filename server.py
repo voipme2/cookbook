@@ -11,13 +11,14 @@ import simplejson
 class LocalData(object):
     records = []
     outfile = "data/recipes.json"
+    NEXT_ID = 0
 
     @staticmethod
     def add(recordID, data):
         recID = int(recordID)
         try:
-            if LocalData.records[recID]:
-                LocalData.records.pop(recID)
+            if LocalData.find(recID):
+                LocalData.remove(recID)
         except IndexError:
             pass
 
@@ -26,13 +27,16 @@ class LocalData(object):
 
     @staticmethod
     def remove(recordID):
-        del LocalData.records[recordID]
+        recID = int(recordID)
+        #print "Removing: %d (%d)" % (recID, len(LocalData.records))
+        LocalData.records = [r for r in LocalData.records if r["id"] != recID]
         LocalData.save()
 
     @staticmethod
     def load():
         f = open(LocalData.outfile, "r")
         LocalData.records = simplejson.load(f)
+        LocalData.NEXT_ID = max([r["id"] for r in LocalData.records])
         f.close()
 
     @staticmethod
@@ -40,6 +44,17 @@ class LocalData(object):
         f = open(LocalData.outfile, "w")
         simplejson.dump(LocalData.records, f)
         f.close()
+
+    @staticmethod
+    def find(recordID):
+        recID = int(recordID)
+        #print "Looking for record: %d (%d)" % (recID, len(LocalData.records))
+        for record in LocalData.records:
+            if record["id"] == recID:
+                #print "Found: " + record["name"]
+                return record
+        #print "Not found"
+        return None
 
 class CookbookHandler(SimpleHTTPRequestHandler):
 
@@ -51,8 +66,9 @@ class CookbookHandler(SimpleHTTPRequestHandler):
                 data = simplejson.loads(self.data_string)
                 recordID = self.path.split('/')[-1]
                 if recordID == None or recordID == "recipes":
-                    recordID = len(LocalData.records)
-                    data['id'] = recordID
+                    recordID = LocalData.NEXT_ID
+                    data['id'] = LocalData.NEXT_ID
+                    LocalData.NEXT_ID = LocalData.NEXT_ID + 1
                 else:
                     recordID = int(recordID)
                 LocalData.add(recordID, data)
@@ -60,7 +76,7 @@ class CookbookHandler(SimpleHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
-                simplejson.dump(LocalData.records[recordID], self.wfile)
+                simplejson.dump(LocalData.find(recordID), self.wfile)
             else:
                 self.send_response(415)
                 self.send_header('Content-Type', 'application/json')
@@ -75,7 +91,7 @@ class CookbookHandler(SimpleHTTPRequestHandler):
     def do_DELETE(self):
         if None != re.search('/cookbook/api/recipes/*', self.path):
             recordID = int(self.path.split('/')[-1])
-            if recordID != 'recipes' and LocalData.records[recordID]:
+            if recordID != 'recipes' and LocalData.find(recordID):
                 LocalData.remove(recordID)
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
@@ -99,11 +115,12 @@ class CookbookHandler(SimpleHTTPRequestHandler):
                 self.end_headers()
                 simplejson.dump(LocalData.records, self.wfile)
             else:
-                if LocalData.records[recordID]:
+                rec = LocalData.find(recordID)
+                if rec:
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
-                    simplejson.dump(LocalData.records[recordID], self.wfile)
+                    simplejson.dump(rec, self.wfile)
                 else:
                     self.send_response(404, 'Bad Request: record does not exist')
                     self.send_header('Content-Type', 'application/json')

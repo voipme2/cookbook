@@ -58,15 +58,13 @@ angular.module('cookbook', [
             .state('recipes.detail', {
                 url: "/show/:id",
                 templateUrl: "partials/show.html",
-                controller: function ($scope, $stateParams) {
-                    if ($scope.recipes.length == 0) {
-                        var update = $scope.updateRecipes().$promise;
-                        update.then(function () {
-                            $scope.recipe = $scope.recipes[$stateParams.id];
-                        });
-                    } else {
-                        $scope.recipe = $scope.recipes[$stateParams.id];
-                    }
+                resolve: {
+                    recipe: ['Recipe', '$stateParams', function(Recipe, $stateParams) {
+                        return Recipe.get({ recipeId: $stateParams.id});
+                    }]
+                },
+                controller: function ($scope, recipe) {
+                    $scope.recipe = recipe;
                 }
             })
             .state("recipes.add", {
