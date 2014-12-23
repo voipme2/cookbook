@@ -14,12 +14,13 @@
 }
 
 .ingredients .ingredient {
-    padding:3px;
-    margin:2px;
+    padding: 3px;
+    margin: 2px;
+    font-size: 12pt;
 }
 
 .recipe-detail .name {
-    font-size: 20pt;
+    font-size: 22pt;
 }
 
 .recipe-detail .description {
@@ -30,4 +31,9 @@
 .recipe-detail .recipe-steps {
     margin: 10px 0px;
     padding: 10px 0px;
+}
+
+.recipe-step {
+    font-size: 14pt;
+    margin: 15px 5px;
 }

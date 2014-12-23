@@ -70,11 +70,21 @@ angular.module('cookbook', [
             .state("recipes.add", {
                 url: "/add",
                 templateUrl: "partials/new-recipe.html",
+                resolve: {
+                    recipe: function() {
+                        return { ingredients: [], steps: [] }
+                    }
+                },
                 controller: 'ModifyRecipeCtrl'
             })
             .state("recipes.edit", {
                 url: "/edit/:id",
                 templateUrl: "partials/new-recipe.html",
+                resolve: {
+                    recipe: ['Recipe', '$stateParams', function(Recipe, $stateParams) {
+                        return Recipe.get({ recipeId: $stateParams.id});
+                    }]
+                },
                 controller: 'ModifyRecipeCtrl'
             })
             .state("recipes.download", {

@@ -9,19 +9,19 @@
     </div>
     <div class="col-sm-9 recipe-detail">
         <h2>{{recipe.name}}
-            <div class="btn-group">
+            <div class="btn-group pull-right">
                 <a class="btn btn-sm btn-primary" href="#/recipes/edit/{{recipe.id}}">
                     <i class="glyphicon glyphicon-edit"></i> Edit
                 </a>
             </div>
         </h2>
-        <div class="author">Author: {{recipe.author}}</div>
-        <div class="description">{{recipe.description}}</div>
+        <p class="text-muted"><span ng-if="recipe.description.length > 0">{{recipe.description}}, </span>by {{recipe.author}}</p>
+        <hr/>
         <!-- <img ng-if="recipe.imageUrl" class="recipe-image" src="{{recipe.imageUrl}}"/> -->
-        <div class="pull-right">
-            <div>Prep: {{ recipe.prepTime | asTime }}</div>
-            <div>Inactive: {{ recipe.inactiveTime | asTime }}</div>
-            <div>Cook: {{ recipe.cookTime | asTime }}</div>
+        <div>
+            Prep: <b>{{ recipe.prepTime | asTime }}</b>,
+            Inactive: <b>{{ recipe.inactiveTime | asTime }}</b>,
+            Cook: <b>{{ recipe.cookTime | asTime }}</b>
         </div>
         <div class="recipe-steps">
             <ol>

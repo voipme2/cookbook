@@ -1,15 +1,7 @@
 angular.module("cookbook.controllers", [])
-    .controller("ModifyRecipeCtrl", [ '$scope', '$state', '$stateParams', 'Recipe',
-        function ($scope, $state, $stateParams, Recipe) {
-
-            if ($stateParams.id) {
-                $scope.newRecipe = $scope.recipes[$stateParams.id];
-            } else {
-                $scope.newRecipe = {
-                    ingredients: [],
-                    steps: []
-                };
-            }
+    .controller("ModifyRecipeCtrl", [ '$scope', '$state', 'recipe', 'Recipe',
+        function ($scope, $state, recipe, Recipe) {
+            $scope.newRecipe = recipe;
 
             $scope.save = function () {
                 // save the recipe
