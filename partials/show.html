@@ -26,6 +26,9 @@
             Inactive: <b>{{ recipe.inactiveTime | asTime }}</b>,
             Cook: <b>{{ recipe.cookTime | asTime }}</b>
         </div>
+        <div>
+            Servings: <b>{{recipe.servings || 0}}</b>
+        </div>
         <div class="recipe-steps">
             <ol>
                 <li class="recipe-step" ng-repeat="step in recipe.steps">
