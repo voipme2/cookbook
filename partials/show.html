@@ -24,7 +24,8 @@
         <div>
             Prep: <b>{{ recipe.prepTime | asTime }}</b>,
             Inactive: <b>{{ recipe.inactiveTime | asTime }}</b>,
-            Cook: <b>{{ recipe.cookTime | asTime }}</b>
+            Cook: <b>{{ recipe.cookTime | asTime }}</b> -
+            Total: <b>{{ recipe.prepTime + recipe.inactiveTime + recipe.cookTime | asTime }}</b>
         </div>
         <div>
             Servings: <b>{{recipe.servings || 0}}</b>

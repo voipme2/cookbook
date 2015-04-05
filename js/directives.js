@@ -14,8 +14,11 @@ angular.module("cookbook.directives", [])
             controller: function ($scope) {
                 $scope.checkEnter = function (event) {
                     if (event.keyCode == 13) {
-                        $scope.list.push({ text: $scope.input });
-                        $scope.input = '';
+                        if ($scope.input && $scope.input.length > 0) {
+                            $scope.list.push({ text: $scope.input });
+                            $scope.input = '';
+                        }
+                        event.preventDefault();
                     }
                 };
 
@@ -27,8 +30,9 @@ angular.module("cookbook.directives", [])
                     var data = event.clipboardData.getData('text/plain');
                     var toAdd = data.split("\n");
                     toAdd.forEach(function (item) {
-                        if (item.length > 0 && item.indexOf("Read more") == -1) {
-                            $scope.list.push({ text: item });
+                        var ind = item.trim();
+                        if (ind.length > 0 && ind.indexOf("Read more") == -1) {
+                            $scope.list.push({ text: ind });
                         }
                     });
                     event.preventDefault();
