@@ -9,7 +9,9 @@ angular.module("cookbook.controllers", [])
 
                 // refresh the list of recipes.
                 recipe.$save(function (r) {
-                    $state.go('recipes.detail', { id: r.id });
+                    $scope.updateRecipes(function() {
+                        $state.go('recipes.detail', { id: r.id });
+                    });
                 });
             };
 
