@@ -9,6 +9,11 @@
     </div>
     <div class="col-sm-9 recipe-detail">
         <h2>{{recipe.name}}
+            <span ng-if="recipe.options.isVegetarian" class="label label-success" tooltip="Vegetarian">VEG</span>
+            <span ng-if="recipe.options.isVegan" class="label label-info" tooltip="Vegan">V</span>
+            <span ng-if="recipe.options.isCrockPot" class="label label-danger" tooltip="Crock Pot">C</span>
+            <span ng-if="recipe.options.isGlutenFree" class="label label-warning" tooltip="Gluten free">GF</span>
+            <span ng-if="recipe.options.isDairyFree" class="label label-primary" tooltip="Dairy free">DF</span>
             <div class="btn-group pull-right">
                 <a class="btn btn-sm btn-primary" href="#/recipes/edit/{{recipe.id}}">
                     <i class="glyphicon glyphicon-edit"></i> Edit

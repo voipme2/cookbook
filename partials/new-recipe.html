@@ -44,6 +44,26 @@
             </div>
         </div>
         <div class="row form-group">
+            <label class="col-md-2">Options</label>
+            <div class="col-sm-10">
+                <label class="checkbox-inline">
+                    <input type="checkbox" ng-model="newRecipe.options.isCrockPot"> Crock Pot
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" ng-model="newRecipe.options.isVegetarian"> Vegetarian
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" ng-model="newRecipe.options.isVegan"> Vegan
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" ng-model="newRecipe.options.isGlutenFree"> Gluten-free
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" ng-model="newRecipe.options.isDairyFree"> Dairy-free
+                </label>
+            </div>
+        </div>
+        <div class="row form-group">
             <div class="col-sm-3">Ingredients</div>
             <div class="col-sm-9">
                 <list-creator list="newRecipe.ingredients"></list-creator>
