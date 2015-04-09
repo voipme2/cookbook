@@ -9,11 +9,11 @@
         <tr ng-repeat="recipe in recipes | orderBy: 'name'">
             <td>
                 <a href="#/recipes/show/{{recipe.id}}" class="title">{{recipe.name}}</a>
-                <span ng-if="recipe.options.isVegetarian" class="label label-success" tooltip="Vegetarian">VEG</span>
-                <span ng-if="recipe.options.isVegan" class="label label-info" tooltip="Vegan">V</span>
-                <span ng-if="recipe.options.isCrockPot" class="label label-danger" tooltip="Crock Pot">C</span>
-                <span ng-if="recipe.options.isGlutenFree" class="label label-warning" tooltip="Gluten free">GF</span>
-                <span ng-if="recipe.options.isDairyFree" class="label label-primary" tooltip="Dairy free">DF</span>
+                <i ng-if="recipe.options.isVegetarian" class="glyphicon glyphicon-leaf" style="color: green" tooltip="Vegetarian"></i>
+                <i ng-if="recipe.options.isVegan" class="glyphicon glyphicon-leaf" style="color: brown" tooltip="Vegan"></i>
+                <i ng-if="recipe.options.isCrockPot" class="glyphicon glyphicon-time" tooltip="Crock Pot"></i>
+                <i ng-if="recipe.options.isGlutenFree" class="glyphicon glyphicon-grain" style="color: #a08300" tooltip="Gluten free"></i>
+                <i ng-if="recipe.options.isDairyFree" class="glyphicon glyphicon-tint" style="color: blue" tooltip="Dairy free"></i>
             </td>
             <td>
                 {{recipe.description}}
