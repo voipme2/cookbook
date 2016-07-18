@@ -1,0 +1,56 @@
+
+const DB_FILE = "recipes.json";
+
+var fs = require('fs');
+var recipes = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+
+function idList() {
+    return recipes.map(function(r) { return r.id; });
+}
+
+function nextId() {
+    var ids = idList().sort();
+    return ids[ids.length - 1]++;
+}
+
+function findIndex(id) {
+    var ids = idList();
+    return ids.indexOf(id);
+}
+
+module.exports = {
+    find: function (id) {
+        var ind = findIndex(id);
+        if (ind !== -1) {
+            return recipes[ind];
+        }
+    },
+
+    list: function() {
+        return recipes;
+    },
+
+    save: function(recipe) {
+
+        if (!recipe.id) {
+            recipe.id = nextId();
+        } 
+        var index = findIndex(recipe.id);
+        if (index === -1) {
+            index = recipes.length;
+        }
+        
+        recipes.splice(index, 1, recipe);
+
+        fs.writeFileSync(DB_FILE, JSON.stringify(recipes));
+        return recipe.id;
+    },
+
+    remove: function(id) {
+        var ind = findIndex(id);
+        if (ind !== -1) {
+            recipes.splice(ind, 1);
+            fs.writeFileSync(DB_FILE, JSON.stringify(recipes));
+        }
+    }
+};
