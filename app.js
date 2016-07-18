@@ -8,7 +8,7 @@ var recipes = require('./routes/recipes')(cookbookdb);
 app.use(bodyParser.json());
 
 app.use('/cookbook/', express.static(__dirname + '/public'));
-app.use('/api/recipes', recipes);
+app.use('/api', recipes);
 
 app.listen(8000, function() {
     console.info("cookbook is running on port 8000");

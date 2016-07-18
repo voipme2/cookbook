@@ -25,7 +25,7 @@ TODO
     <link rel="icon"
           type="image/png"
           href="img/cookbook.ico">
-    <link href="css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="libs/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="css/cookbook.css" rel="stylesheet"/>
 </head>
 
@@ -52,9 +52,15 @@ TODO
             <form class="navbar-form navbar-left" role="search">
                 <div class="form-group">
                     <input type="text" class="form-control" placeholder="Search" ng-model="search" size="50"
-                           typeahead="recipe as recipe.name for recipe in recipes | recipeSearch:$viewValue | limitTo:12 | orderBy: 'name' "
+                           uib-typeahead="recipe as recipe.name for recipe in getRecipes($viewValue) | limitTo:12"
                            typeahead-template-url="partials/search-result.html"
-                           typeahead-on-select="selectRecipe($item, $model, $label)">
+                           typeahead-on-select="selectRecipe($item, $model, $label)"
+                           typeahead-loading="loadingLocations"
+                           typeahead-no-results="noResults">
+                        <i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
+                    <div ng-show="noResults">
+                      <i class="glyphicon glyphicon-remove"></i> No results
+                    </div>
                 </div>
             </form>
         </div>
@@ -65,16 +71,20 @@ TODO
 
 <div ui-view></div>
 
-<script type="text/javascript" src="js/angular.min.js"></script>
-<script type="text/javascript" src="js/angular-resource.min.js"></script>
-<script type="text/javascript" src="js/angular-ui-router.min.js"></script>
-<script type="text/javascript" src="js/ui-bootstrap-tpls-0.11.0.js"></script>
-<script type="text/javascript" src="js/pace.min.js"></script>
-<script type="text/javascript" src="js/app.js"></script>
+<!-- dependencies -->
+<script type="text/javascript" src="libs/angular/1.5.7/angular.min.js"></script>
+<script type="text/javascript" src="libs/angular/1.5.7/angular-resource.min.js"></script>
+<script type="text/javascript" src="libs/angular-ui-router/0.2.14/angular-ui-router.min.js"></script>
+<script type="text/javascript" src="libs/angular-ui-bootstrap/1.3.3/ui-bootstrap-tpls-1.3.3.min.js"></script>
+<script type="text/javascript" src="libs/pace/1.0.0/pace.min.js"></script>
+
+<!-- app code -->
 <script type="text/javascript" src="js/services.js"></script>
 <script type="text/javascript" src="js/controllers.js"></script>
 <script type="text/javascript" src="js/filters.js"></script>
 <script type="text/javascript" src="js/directives.js"></script>
+<script type="text/javascript" src="js/app.js"></script>
+
 </body>
 </html>
 

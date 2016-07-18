@@ -10,7 +10,7 @@ function idList() {
 
 function nextId() {
     var ids = idList().sort();
-    return ids[ids.length - 1]++;
+    return ids[ids.length - 1] + 1;
 }
 
 function findIndex(id) {
@@ -27,7 +27,14 @@ module.exports = {
     },
 
     list: function() {
-        return recipes;
+        return recipes.map(function(r) { 
+            return { 
+                id: r.id, 
+                name: r.name, 
+                description: r.description,
+                options: r.options
+             }; 
+        });
     },
 
     save: function(recipe) {
@@ -35,11 +42,11 @@ module.exports = {
         if (!recipe.id) {
             recipe.id = nextId();
         } 
+        
         var index = findIndex(recipe.id);
         if (index === -1) {
             index = recipes.length;
         }
-        
         recipes.splice(index, 1, recipe);
 
         fs.writeFileSync(DB_FILE, JSON.stringify(recipes));
@@ -52,5 +59,14 @@ module.exports = {
             recipes.splice(ind, 1);
             fs.writeFileSync(DB_FILE, JSON.stringify(recipes));
         }
+    },
+    search: function(search) {
+        var re = new RegExp(search, "i");
+        var found = recipes.filter(function (r) {
+            return r.name.match(re) || r.author.match(re) || r.ingredients.some(function (i) {
+                return i.text.match(re);
+            });
+        });
+        return found.map(function(r) { return { id: r.id, name: r.name }; });
     }
 };

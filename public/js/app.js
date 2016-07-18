@@ -29,7 +29,7 @@ angular.module('cookbook', [
                 }]
             },
             template: "<ui-view />",
-            controller: function ($rootScope, $state, recipes, Recipe) {
+            controller: function ($rootScope, $state, $http, recipes, Recipe) {
                 // always have the recipes available.
                 $rootScope.recipes = recipes;
 
@@ -43,6 +43,19 @@ angular.module('cookbook', [
                 $rootScope.selectRecipe = function (item, model, label) {
                     $state.go('recipes.detail', { id: model.id });
                 };
+
+                $rootScope.getRecipes = function(search) {
+                    return $http.get('/api/search', {
+                            params: {
+                                query: search
+                            }
+                         }).then(function(response){
+                            return response.data.sort(function(a,b) {
+                                return (a.name < b.name) ? -1 : (a.name > b.name) ? 1 : 0;
+                            });
+                    });
+                }
+
             }
         })
             .state('recipes.list', {
