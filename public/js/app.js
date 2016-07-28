@@ -73,6 +73,10 @@ angular.module('cookbook', [
                 controller: function ($scope, $state, recipe) {
                     $scope.recipe = recipe;
 
+                    $scope.uploadImage = function () {
+                        alert("Upload an image!");
+                    };
+
                     $scope.deleteRecipe = function () {
                         $scope.recipe.$remove(function () {
                             $scope.updateRecipes(function() {

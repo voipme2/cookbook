@@ -15,23 +15,25 @@
             <i ng-if="recipe.options.isGlutenFree" class="glyphicon glyphicon-grain" style="color: #a08300" tooltip="Gluten free"></i>
             <i ng-if="recipe.options.isDairyFree" class="glyphicon glyphicon-tint" style="color: blue" tooltip="Dairy free"></i>
             <div class="btn-group pull-right">
-                <a class="btn btn-sm btn-primary" href="#/recipes/edit/{{recipe.id}}">
-                    <i class="glyphicon glyphicon-edit"></i> Edit
+                <a class="btn btn-sm btn-primary" title="Edit recipe" href="#/recipes/edit/{{recipe.id}}">
+                    <i class="glyphicon glyphicon-edit"></i>
                 </a>
-                <button type="button" class="btn btn-sm btn-danger" ng-click="deleteRecipe()">
-                    <i class="glyphicon glyphicon-remove"></i> Delete
+                <button type="button" class="btn btn-sm btn-danger" title="Delete recipe" ng-click="deleteRecipe()">
+                    <i class="glyphicon glyphicon-remove"></i>
                 </button>
             </div>
         </h2>
         <p class="text-muted"><span ng-if="recipe.description.length > 0">{{recipe.description}}, </span>by {{recipe.author}}</p>
         <hr/>
-        <!-- <img ng-if="recipe.imageUrl" class="recipe-image" src="{{recipe.imageUrl}}"/> -->
+        <img class="pull-right" ng-click="uploadImage()" src={{recipe.imageUrl}} ng-if="recipe.imageUrl" />
+        <img class="pull-right" ng-click="uploadImage()" src="holder.js/200x200?text=Click to upload a picture." ng-if="!recipe.imageUrl" />
         <div>
             Prep: <b>{{ recipe.prepTime | asTime }}</b>,
             Inactive: <b>{{ recipe.inactiveTime | asTime }}</b>,
             Cook: <b>{{ recipe.cookTime | asTime }}</b> -
             Total: <b>{{ recipe.prepTime + recipe.inactiveTime + recipe.cookTime | asTime }}</b>
         </div>
+
         <div>
             Servings: <b>{{recipe.servings || 0}}</b>
         </div>
