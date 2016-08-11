@@ -1,5 +1,6 @@
 var express = require('express');
 var router = new express.Router();
+var Nightmare = require('nightmare');
 
 var db;
 
@@ -8,7 +9,7 @@ module.exports = function (database) {
     return router;
 };
 
-router.get('/recipes', function(req, res) {
+router.get('/recipes', function (req, res) {
     var recipes = db.list();
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(recipes));
@@ -23,8 +24,8 @@ router.get('/recipes/:recipeId', function (req, res) {
     res.send(JSON.stringify(recipe));
 });
 
-router.post("/recipes", function(req, res) {
-   var newRecipe = req.body;
+router.post("/recipes", function (req, res) {
+    var newRecipe = req.body;
     var recipeId = saveRecipe(newRecipe);
     res.setHeader("Content-Type", "application/json");
     res.send(JSON.stringify({id: recipeId}));
@@ -37,10 +38,10 @@ router.post('/recipes/:recipeId', function (req, res) {
     saveRecipe(newRecipe);
 
     res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({ id: recipeId } ));
+    res.send(JSON.stringify({id: recipeId}));
 });
 
-router.delete("/recipes/:recipeId", function(req, res) {
+router.delete("/recipes/:recipeId", function (req, res) {
     var recipeId = parseInt(req.params.recipeId);
 
     removeRecipe(recipeId);
@@ -48,13 +49,33 @@ router.delete("/recipes/:recipeId", function(req, res) {
     res.send(JSON.stringify({success: true}));
 });
 
-router.get("/search", function(req, res) {
+router.get("/search", function (req, res) {
     var search = req.query.query;
     var results = searchRecipes(search);
 
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(results));
-})
+});
+
+router.get("/download", function (req, res) {
+    var recipeUrl = req.query.url;
+    var nightmare = Nightmare({show: true});
+    nightmare.goto(recipeUrl)
+        .wait()
+        .evaluate(function () {
+            return {
+                title: document.querySelector("div.title h1").textContent
+            };
+        })
+        .end()
+        .then(function (result) {
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(result));
+        })
+        .catch(function (err) {
+            console.error("Unable to get recipe from " + recipeUrl + ":", err);
+        })
+});
 
 function saveRecipe(recipe) {
     return db.save(recipe);
