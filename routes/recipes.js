@@ -1,7 +1,6 @@
 var express = require('express');
 var router = new express.Router();
-var Nightmare = require('nightmare');
-
+var scraper = require('../scraper');
 var db;
 
 module.exports = function (database) {
@@ -57,24 +56,15 @@ router.get("/search", function (req, res) {
     res.send(JSON.stringify(results));
 });
 
-router.get("/download", function (req, res) {
+router.get("/fetch", function (req, res) {
     var recipeUrl = req.query.url;
-    var nightmare = Nightmare({show: true});
-    nightmare.goto(recipeUrl)
-        .wait()
-        .evaluate(function () {
-            return {
-                title: document.querySelector("div.title h1").textContent
-            };
-        })
-        .end()
-        .then(function (result) {
-            res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify(result));
-        })
-        .catch(function (err) {
-            console.error("Unable to get recipe from " + recipeUrl + ":", err);
-        })
+
+    scraper.fetch(recipeUrl, function(result) {
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify(result));
+    }, function(err) {
+        res.status(404).send('Not found');
+    });
 });
 
 function saveRecipe(recipe) {

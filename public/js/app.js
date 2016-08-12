@@ -18,7 +18,7 @@ angular.module('cookbook', [
         $urlRouterProvider.when("", "/recipes/list");
         $urlRouterProvider.when("/", "/recipes/list");
 
-        $urlRouterProvider.otherwise("/recipes/list")
+        $urlRouterProvider.otherwise("/recipes/list");
 
         $stateProvider.state('recipes', {
             abstract: true,
