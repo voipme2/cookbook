@@ -57,8 +57,8 @@ router.get("/search", function (req, res) {
 });
 
 router.get("/fetch", function (req, res) {
-    var recipeUrl = req.query.url;
-
+    var recipeUrl = req.query.recipeUrl;
+    console.log(new Date(), "[ fetch ]", recipeUrl);
     scraper.fetch(recipeUrl, function(result) {
         res.setHeader('Content-Type', 'application/json');
         res.send(JSON.stringify(result));

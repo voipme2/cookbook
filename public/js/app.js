@@ -6,13 +6,13 @@ angular.module('cookbook', [
     'cookbook.controllers',
     'cookbook.filters',
     'cookbook.directives'])
-    .run([ '$rootScope', '$state', '$stateParams',
-        function ($rootScope, $state, $stateParams) {
-            $rootScope.$state = $state;
-            $rootScope.$stateParams = $stateParams;
-        }
-    ]
-)
+    .run(['$rootScope', '$state', '$stateParams',
+            function ($rootScope, $state, $stateParams) {
+                $rootScope.$state = $state;
+                $rootScope.$stateParams = $stateParams;
+            }
+        ]
+    )
     .config(function ($stateProvider, $urlRouterProvider) {
 
         $urlRouterProvider.when("", "/recipes/list");
@@ -41,18 +41,18 @@ angular.module('cookbook', [
                 };
 
                 $rootScope.selectRecipe = function (item, model, label) {
-                    $state.go('recipes.detail', { id: model.id });
+                    $state.go('recipes.detail', {id: model.id});
                 };
 
-                $rootScope.getRecipes = function(search) {
+                $rootScope.getRecipes = function (search) {
                     return $http.get('/api/search', {
-                            params: {
-                                query: search
-                            }
-                         }).then(function(response){
-                            return response.data.sort(function(a,b) {
-                                return (a.name < b.name) ? -1 : (a.name > b.name) ? 1 : 0;
-                            });
+                        params: {
+                            query: search
+                        }
+                    }).then(function (response) {
+                        return response.data.sort(function (a, b) {
+                            return (a.name < b.name) ? -1 : (a.name > b.name) ? 1 : 0;
+                        });
                     });
                 }
 
@@ -67,7 +67,7 @@ angular.module('cookbook', [
                 templateUrl: "partials/show.html",
                 resolve: {
                     recipe: ['Recipe', '$stateParams', function (Recipe, $stateParams) {
-                        return Recipe.get({ recipeId: $stateParams.id});
+                        return Recipe.get({recipeId: $stateParams.id});
                     }]
                 },
                 controller: function ($scope, $state, recipe) {
@@ -79,7 +79,7 @@ angular.module('cookbook', [
 
                     $scope.deleteRecipe = function () {
                         $scope.recipe.$remove(function () {
-                            $scope.updateRecipes(function() {
+                            $scope.updateRecipes(function () {
                                 $state.go("recipes.list");
                             });
                         });
@@ -91,7 +91,7 @@ angular.module('cookbook', [
                 templateUrl: "partials/new-recipe.html",
                 resolve: {
                     recipe: function () {
-                        return { ingredients: [], steps: [] }
+                        return {ingredients: [], steps: []}
                     }
                 },
                 controller: 'ModifyRecipeCtrl'
@@ -101,32 +101,29 @@ angular.module('cookbook', [
                 templateUrl: "partials/new-recipe.html",
                 resolve: {
                     recipe: ['Recipe', '$stateParams', function (Recipe, $stateParams) {
-                        return Recipe.get({ recipeId: $stateParams.id});
+                        return Recipe.get({recipeId: $stateParams.id});
                     }]
                 },
                 controller: 'ModifyRecipeCtrl'
             })
             .state("recipes.download", {
                 url: "/download",
-                onEnter: ['$stateParams', '$state', '$modal', 'Recipe', function ($stateParams, $state, $modal, Recipe) {
-                    var rModal = $modal.open(
-                        {
-                            templateUrl: 'partials/download-recipe.html',
-                            controller: 'DownloadRecipeCtrl',
-                            size: 'lg'
-                        }
-                    );
+                onEnter: ['$uibModal', '$state',
+                    function ($uibModal, $state) {
+                        var rModal = $uibModal.open(
+                            {
+                                templateUrl: 'partials/download-recipe.html',
+                                controller: 'DownloadRecipeCtrl',
+                                size: 'lg'
+                            }
+                        );
 
-                    rModal.result.then(function (recipe) {
-                        // the recipe passed in is the newly downloaded recipe.
-                        var newRecipe = new Recipe(recipe);
-                        newRecipe.$save(function () {
-                            $state.go("recipes.list");
-                        })
-                    }, function () {
-                        // cancel.
-                    });
-                }]
+                        rModal.result.then(function (recipe) {
+                            $state.go("recipes.add", { recipe: recipe });
+                        }, function (err) {
+                            // dismiss
+                        });
+                    }]
             });
 
     });

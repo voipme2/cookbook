@@ -1,7 +1,7 @@
 <!-- recipe list -->
 <div class="container recipe-list">
     <div class="row" ng-repeat="recipe in recipes | orderBy: 'name'">
-        <div class="col-md-5">
+        <div class="col-md-12 col-sm-12 col-lg-12 col-xs-12">
             <a href="#/recipes/show/{{recipe.id}}" class="title">{{recipe.name}}</a>
             <i ng-if="recipe.options.isVegetarian" class="glyphicon glyphicon-leaf" style="color: green"
                tooltip="Vegetarian"></i>
@@ -12,14 +12,5 @@
             <i ng-if="recipe.options.isDairyFree" class="glyphicon glyphicon-tint" style="color: blue"
                tooltip="Dairy free"></i>
         </div>
-        <div class="col-md-5">
-            {{recipe.description}}
-        </div>
-        <div class="col-md-2 text-center">
-            <a class="btn btn-sm btn-primary" tooltip="Edit this recipe" href="#/recipes/edit/{{recipe.id}}">
-                <i class="glyphicon glyphicon-edit"></i> Edit
-            </a>
-        </div>
-        </tr>
     </div>
 </div>

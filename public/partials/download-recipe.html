@@ -1,12 +1,20 @@
 <!-- Template for downloading recipes -->
 <div class="modal-header">
-	<h3 class="modal-title">Download Recipe</h3>
+    <h3 class="modal-title">Download</h3>
 </div>
 <div class="modal-body">
-	<span>URL</span>
-	<input type="text" size="90" ng-model="dl.url" />
+    <div class="form-horizontal">
+        <div class="form-group">
+            <div class="col-md-offset-1 col-md-10">
+                <input class="form-control" ng-disabled="isDownloading" ng-model="recipeUrl"
+                       placeholder="Enter the recipe URL here.">
+            </div>
+        </div>
+    </div>
 </div>
 <div class="modal-footer">
-	<button class="btn btn-primary" ng-click="download()">OK</button>
-	<button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    <button class="btn btn-primary" ng-disabled="isDownloading" ng-click="download()">
+        <i class="glyphicon glyphicon-repeat normal-right-spinner" ng-show="isDownloading"></i> OK
+    </button>
+    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

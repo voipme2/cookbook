@@ -1,8 +1,12 @@
 angular.module("cookbook.controllers", [])
-    .controller("ModifyRecipeCtrl", [ '$scope', '$state', 'recipe', 'Recipe',
-        function ($scope, $state, recipe, Recipe) {
+    .controller("ModifyRecipeCtrl", [ '$scope', '$state', '$stateParams', 'recipe', 'Recipe',
+        function ($scope, $state, $stateParams, recipe, Recipe) {
             $scope.newRecipe = recipe;
-
+            console.log($scope.newRecipe);
+            if ($stateParams.recipe) {
+                console.log("stateparams", $stateParams.recipe);
+                $scope.newRecipe = $stateParams.recipe;
+            }
             // hold off on this for now.
 //            if (Array.isArray($scope.newRecipe.ingredients)) {
 //                var oldIng = $scope.newRecipe.ingredients;
@@ -27,31 +31,27 @@ angular.module("cookbook.controllers", [])
                 $state.go('recipes.list');
             }
         }])
-    .controller("DownloadRecipeCtrl", [ '$scope', '$state', 'recipe', 'Recipe',
-        function ($scope, $state, recipe, Recipe) {
-            $scope.newRecipe = recipe;
-
-            // hold off on this for now.
-//            if (Array.isArray($scope.newRecipe.ingredients)) {
-//                var oldIng = $scope.newRecipe.ingredients;
-//                $scope.newRecipe.ingredients = {
-//                    "Ingredients": oldIng
-//                };
-//            }
-
-            $scope.save = function () {
+    .controller("DownloadRecipeCtrl", [ '$scope', '$uibModalInstance', '$http',
+        function ($scope, $uibModalInstance, $http) {
+            
+            $scope.isDownloading = false;
+            
+            $scope.download = function () {
+                $scope.isDownloading = true;
                 // save the recipe
-                var recipe = new Recipe($scope.newRecipe);
-
-                // refresh the list of recipes.
-                recipe.$save(function (r) {
-                    $scope.updateRecipes(function() {
-                        $state.go('recipes.detail', { id: r.id });
-                    });
+                $http({
+                    method: 'GET',
+                    url: '/api/fetch',
+                    params: { recipeUrl: $scope.recipeUrl }
+                }).then(function(foundRecipe) {
+                    $uibModalInstance.close(foundRecipe);
+                }, function(err) {
+                    console.log("error downloading: ", err);
+                    $uibModalInstance.dismiss();
                 });
             };
 
             $scope.cancel = function () {
-                $state.go('recipes.list');
-            }
+                $uibModalInstance.dismiss();
+            };
         }]);
