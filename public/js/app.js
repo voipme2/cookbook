@@ -89,10 +89,18 @@ angular.module('cookbook', [
             .state("recipes.add", {
                 url: "/add",
                 templateUrl: "partials/new-recipe.html",
+                params: { "recipe": null },
                 resolve: {
-                    recipe: function () {
-                        return {ingredients: [], steps: []}
-                    }
+                    recipe: ['$stateParams', function ($stateParams) {
+                        console.log("stateParams", $stateParams);
+                        if ($stateParams.recipe) {
+                            console.log("downloaded recipe");
+                            return $stateParams.recipe;
+                        } else {
+                            console.log("new recipe");
+                            return {ingredients: [], steps: []};
+                        }
+                    }]
                 },
                 controller: 'ModifyRecipeCtrl'
             })
@@ -100,8 +108,9 @@ angular.module('cookbook', [
                 url: "/edit/:id",
                 templateUrl: "partials/new-recipe.html",
                 resolve: {
-                    recipe: ['Recipe', '$stateParams', function (Recipe, $stateParams) {
-                        return Recipe.get({recipeId: $stateParams.id});
+                    recipe: ['Recipe', '$stateParams', 
+                        function (Recipe, $stateParams) {
+                            return Recipe.get({recipeId: $stateParams.id});
                     }]
                 },
                 controller: 'ModifyRecipeCtrl'
@@ -118,8 +127,8 @@ angular.module('cookbook', [
                             }
                         );
 
-                        rModal.result.then(function (recipe) {
-                            $state.go("recipes.add", { recipe: recipe });
+                        rModal.result.then(function (resp) {
+                            $state.go("recipes.add", { recipe: resp.data });
                         }, function (err) {
                             // dismiss
                         });

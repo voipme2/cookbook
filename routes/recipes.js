@@ -3,6 +3,13 @@ var router = new express.Router();
 var scraper = require('../scraper');
 var db;
 
+var parseDuration = require('parse-duration');
+var moment = require('moment');
+
+function convertToMinutes(timeStr) {
+    return moment.duration(parseDuration(timeStr)).asMinutes();
+}
+
 module.exports = function (database) {
     db = database;
     return router;
@@ -68,6 +75,12 @@ router.get("/fetch", function (req, res) {
 });
 
 function saveRecipe(recipe) {
+    ['prepTime', 'inactiveTime', 'cookTime'].forEach(function(t) {
+        if (recipe[t]) {
+            recipe[t] = convertToMinutes(recipe[t]);
+        }
+    });
+
     return db.save(recipe);
 }
 
