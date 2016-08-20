@@ -5,6 +5,7 @@ var db;
 
 var parseDuration = require('parse-duration');
 var moment = require('moment');
+require('moment-duration-format');
 
 function convertToMinutes(timeStr) {
     return moment.duration(parseDuration(timeStr)).asMinutes();
@@ -25,6 +26,9 @@ router.get('/recipes/:recipeId', function (req, res) {
     var recipeId = parseInt(req.params.recipeId);
 
     var recipe = getRecipe(recipeId);
+    ['prepTime', 'inactiveTime', 'cookTime'].forEach(function(t) {
+        recipe[t] = moment.duration(recipe[t], "minutes").format("d [d] h [hr] m [min]");
+    });
 
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(recipe));
