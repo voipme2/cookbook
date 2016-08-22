@@ -23,9 +23,7 @@ router.get('/recipes', function (req, res) {
 });
 
 router.get('/recipes/:recipeId', function (req, res) {
-    var recipeId = parseInt(req.params.recipeId);
-
-    var recipe = getRecipe(recipeId);
+    var recipe = getRecipe(req.params.recipeId);
     ['prepTime', 'inactiveTime', 'cookTime'].forEach(function(t) {
         recipe[t] = moment.duration(recipe[t], "minutes").format("d [d] h [hr] m [min]");
     });
@@ -42,7 +40,7 @@ router.post("/recipes", function (req, res) {
 });
 
 router.post('/recipes/:recipeId', function (req, res) {
-    var recipeId = parseInt(req.params.recipeId);
+    var recipeId = req.params.recipeId;
     var newRecipe = req.body;
     newRecipe.id = recipeId;
     saveRecipe(newRecipe);
@@ -52,9 +50,7 @@ router.post('/recipes/:recipeId', function (req, res) {
 });
 
 router.delete("/recipes/:recipeId", function (req, res) {
-    var recipeId = parseInt(req.params.recipeId);
-
-    removeRecipe(recipeId);
+    removeRecipe(req.params.recipeId);
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({success: true}));
 });
