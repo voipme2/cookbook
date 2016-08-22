@@ -8,9 +8,10 @@ function idList() {
     return recipes.map(function(r) { return r.id; });
 }
 
-function nextId() {
-    var ids = idList().sort();
-    return ids[ids.length - 1] + 1;
+function getId(name) {
+    return name.toLowerCase()
+        .replace(/[^\w\s]|_/g, "")
+        .replace(/\s+/g, "_");
 }
 
 function findIndex(id) {
@@ -40,7 +41,7 @@ module.exports = {
     save: function(recipe) {
 
         if (!recipe.id) {
-            recipe.id = nextId();
+            recipe.id = getId(recipe.name);
         } 
         
         var index = findIndex(recipe.id);
@@ -68,5 +69,6 @@ module.exports = {
             });
         });
         return found.map(function(r) { return { id: r.id, name: r.name }; });
-    }
+    },
+    getId: getId
 };
