@@ -1,15 +1,45 @@
 var request = require('request'),
     jsdom = require('jsdom');
 
-var fetchFoodNetwork = function (recipeUrl, success, error) {
-    var opts = {
-        url: recipeUrl,
-        headers: {
-            'User-Agent': "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36"
-        }
-    };
+const HEADERS = {
+    'User-Agent': "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36"
+};
 
-    request(opts, function (err, resp, body) {
+var fetchAllRecipes = function (recipeUrl, success, error) {
+    request({url: recipeUrl, headers: HEADERS}, function (err, resp, body) {
+        if (!err && resp.statusCode === 200) {
+            jsdom.env(body, function (err, window) {
+                var document = window.document;
+                var sNumber = document.querySelector("meta[itemprop='recipeYield']").content;
+                var recipeData = {
+                    name: document.querySelector("h1.recipe-summary__h1").textContent,
+                    author: document.querySelector("span.submitter__name").textContent,
+                    servings: sNumber + " " + document.querySelector("span.servings-count").textContent.trim(),
+                    ingredients: Array.prototype.slice.call(document.querySelectorAll("span.recipe-ingred_txt[itemprop='ingredients']")).map(function (ing) {
+                        return {text: ing.textContent};
+                    }).filter(function (ing) {
+                        return ing.text.length > 0 && ing.text !== "Add all ingredients to list";
+                    }),
+                    steps: Array.prototype.slice.call(document.querySelectorAll("span.recipe-directions__list--item")).map(function (step) {
+                        return {text: step.textContent};
+                    }).filter(function (ste) {
+                        return ste.text.length > 0
+                    }),
+                    prepTime: document.querySelector("time[itemprop='prepTime']").textContent,
+                    cookTime: document.querySelector("time[itemprop='cookTime']").textContent
+                };
+
+                success(recipeData);
+
+            })
+        } else {
+            error(err);
+        }
+    });
+}
+
+var fetchFoodNetwork = function (recipeUrl, success, error) {
+    request({url: recipeUrl, headers: HEADERS}, function (err, resp, body) {
         if (!err && resp.statusCode === 200) {
             jsdom.env(body, function (err, window) {
                 var document = window.document;
@@ -54,10 +84,13 @@ var fetchFoodNetwork = function (recipeUrl, success, error) {
 module.exports = {
 
     fetch: function (url, success, error) {
-        if (url.indexOf("foodnetwork.com") != -1) {
+        if (url.indexOf("foodnetwork.com") !== -1) {
             return fetchFoodNetwork(url, success, error)
+        } else if (url.indexOf("allrecipes.com") !== -1) {
+            return fetchAllRecipes(url, success, error);
         }
     },
 
-    fetchFoodNetwork: fetchFoodNetwork
+    fetchFoodNetwork: fetchFoodNetwork,
+    fetchAllRecipes: fetchAllRecipes
 };
