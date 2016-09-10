@@ -25,12 +25,14 @@ router.get('/recipes', function (req, res) {
 router.get('/recipes/:recipeId', function (req, res) {
     var recipe = getRecipe(req.params.recipeId);
     var totalTime = 0;
-
     ['prepTime', 'inactiveTime', 'cookTime'].forEach(function(t) {
+        recipe[t] = recipe[t] || 0;
         totalTime += recipe[t];
         recipe[t] = moment.duration(recipe[t], "minutes").format("d [d] h [hr] m [min]");
     });
+
     recipe.totalTime = moment.duration(totalTime, "minutes").format("d [d] h [hr] m [min]");
+
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(recipe));
 });
