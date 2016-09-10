@@ -24,10 +24,13 @@ router.get('/recipes', function (req, res) {
 
 router.get('/recipes/:recipeId', function (req, res) {
     var recipe = getRecipe(req.params.recipeId);
+    var totalTime = 0;
+
     ['prepTime', 'inactiveTime', 'cookTime'].forEach(function(t) {
+        totalTime += recipe[t];
         recipe[t] = moment.duration(recipe[t], "minutes").format("d [d] h [hr] m [min]");
     });
-
+    recipe.totalTime = moment.duration(totalTime, "minutes").format("d [d] h [hr] m [min]");
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(recipe));
 });
@@ -81,11 +84,16 @@ function saveRecipe(recipe) {
         }
     });
 
+    // no need to save this
+    if (recipe.totalTime) {
+        delete recipe.totalTime;
+    }
+
     return db.save(recipe);
 }
 
 function getRecipe(id) {
-    return db.find(id);
+    return Object.assign({}, db.find(id));
 }
 
 function removeRecipe(id) {
@@ -94,4 +102,27 @@ function removeRecipe(id) {
 
 function searchRecipes(search) {
     return db.search(search);
+}
+
+// polyfill
+if (typeof Object.assign != 'function') {
+    Object.assign = function(target) {
+        'use strict';
+        if (target == null) {
+            throw new TypeError('Cannot convert undefined or null to object');
+        }
+
+        target = Object(target);
+        for (var index = 1; index < arguments.length; index++) {
+            var source = arguments[index];
+            if (source != null) {
+                for (var key in source) {
+                    if (Object.prototype.hasOwnProperty.call(source, key)) {
+                        target[key] = source[key];
+                    }
+                }
+            }
+        }
+        return target;
+    };
 }

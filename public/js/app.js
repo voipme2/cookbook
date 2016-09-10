@@ -25,7 +25,7 @@ angular.module('cookbook', [
             url: "/recipes",
             resolve: {
                 recipes: ['Recipe', function (Recipe) {
-                    return Recipe.query();
+                    return Recipe.query().$promise;
                 }]
             },
             template: "<ui-view />",
@@ -67,7 +67,7 @@ angular.module('cookbook', [
                 templateUrl: "partials/show.html",
                 resolve: {
                     recipe: ['Recipe', '$stateParams', function (Recipe, $stateParams) {
-                        return Recipe.get({recipeId: $stateParams.id});
+                        return Recipe.get({recipeId: $stateParams.id}).$promise;
                     }]
                 },
                 controller: function ($scope, $state, recipe) {
@@ -94,10 +94,8 @@ angular.module('cookbook', [
                     recipe: ['$stateParams', function ($stateParams) {
                         console.log("stateParams", $stateParams);
                         if ($stateParams.recipe) {
-                            console.log("downloaded recipe");
                             return $stateParams.recipe;
                         } else {
-                            console.log("new recipe");
                             return {ingredients: [], steps: []};
                         }
                     }]
@@ -110,7 +108,7 @@ angular.module('cookbook', [
                 resolve: {
                     recipe: ['Recipe', '$stateParams', 
                         function (Recipe, $stateParams) {
-                            return Recipe.get({recipeId: $stateParams.id});
+                            return Recipe.get({recipeId: $stateParams.id}).$promise;
                     }]
                 },
                 controller: 'ModifyRecipeCtrl'

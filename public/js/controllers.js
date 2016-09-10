@@ -9,7 +9,6 @@ angular.module("cookbook.controllers", [])
 //                    "Ingredients": oldIng
 //                };
 //            }
-
             $scope.save = function () {
                 // save the recipe
                 var recipe = new Recipe($scope.newRecipe);

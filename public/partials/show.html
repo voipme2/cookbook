@@ -28,10 +28,10 @@
         <img class="pull-right" ng-click="uploadImage()" src={{recipe.imageUrl}} ng-if="recipe.imageUrl" />
         <img class="pull-right" ng-click="uploadImage()" src="holder.js/200x200?text=Click to upload a picture." ng-if="!recipe.imageUrl" />
         <div>
-            Prep: <b>{{ recipe.prepTime | asTime }}</b>,
-            Inactive: <b>{{ recipe.inactiveTime | asTime }}</b>,
-            Cook: <b>{{ recipe.cookTime | asTime }}</b> -
-            Total: <b>{{ recipe.prepTime + recipe.inactiveTime + recipe.cookTime | asTime }}</b>
+            Prep: <b>{{ recipe.prepTime }}</b>,
+            Inactive: <b>{{ recipe.inactiveTime }}</b>,
+            Cook: <b>{{ recipe.cookTime }}</b> -
+            Total: <b>{{ recipe.totalTime }}</b>
         </div>
 
         <div>
