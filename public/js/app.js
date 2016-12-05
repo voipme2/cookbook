@@ -5,6 +5,7 @@ angular.module('cookbook', [
     'cookbook.services',
     'cookbook.controllers',
     'cookbook.filters',
+    'cookbook.components',
     'cookbook.directives'])
     .run(['$rootScope', '$state', '$stateParams',
             function ($rootScope, $state, $stateParams) {
