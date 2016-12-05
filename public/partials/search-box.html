@@ -1,1 +1,7 @@
-<div></div>
+<input type="text" class="form-control" placeholder="Search" ng-model="search" size="50"
+                           uib-typeahead="recipe as recipe.name for recipe in getRecipes($viewValue) | limitTo:12"
+                           typeahead-template-url="partials/search-result.html"
+                           typeahead-on-select="selectRecipe($item, $model, $label)"
+                           typeahead-loading="loadingLocations"
+                           typeahead-no-results="noResults">
+                        <!-- <i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i></input> -->
