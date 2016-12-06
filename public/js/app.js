@@ -16,43 +16,51 @@ angular.module('cookbook', [
     )
     .config(function ($stateProvider, $urlRouterProvider) {
 
-        $urlRouterProvider.when("", "/recipes/list");
-        $urlRouterProvider.when("/", "/recipes/list");
+        $urlRouterProvider.when("", "/home");
+        $urlRouterProvider.when("/", "/home");
 
-        $urlRouterProvider.otherwise("/recipes/list");
+        $urlRouterProvider.otherwise("/home");
 
-        $stateProvider.state('recipes', {
-            abstract: true,
-            url: "/recipes",
-            resolve: {
-                recipes: ['Recipe', function (Recipe) {
-                    return Recipe.query().$promise;
-                }]
-            },
-            template: "<ui-view />",
-            controller: function ($rootScope, $state, $http, recipes, Recipe) {
-                // always have the recipes available.
-                $rootScope.recipes = recipes;
+        $stateProvider.state('home', {
+                url: "/home",
+                resolve: {
+                    recipes: ['Recipe', function (Recipe) {
+                        return Recipe.query().$promise;
+                    }]
+                },
+                templateUrl: "partials/home.html",
+                controller: function ($rootScope, $state, $http, recipes, Recipe) {
+                    // always have the recipes available.
+                    $rootScope.recipeCount = recipes.length;
 
-                $rootScope.updateRecipes = function (callback) {
-                    return Recipe.query(function (recipes) {
-                        $rootScope.recipes = recipes;
-                        callback();
-                    });
-                };
+                    $rootScope.selectRecipe = function (recipe) {
+                        $state.go('view', {id: recipe.id});
+                    };
+                    
+                    $rootScope.createRecipe = function() {
+                        $state.go('add');
+                    }
+                    
+                    $rootScope.downloadRecipe = function() {
+                        var rModal = $uibModal.open(
+                            {
+                                templateUrl: 'partials/download-recipe.html',
+                                controller: 'DownloadRecipeCtrl',
+                                size: 'lg'
+                            }
+                        );
 
-                $rootScope.selectRecipe = function (recipe) {
-                    $state.go('recipes.detail', {id: recipe.id});
-                };
-            }
-        })
-            .state('recipes.list', {
-                url: '/list',
-                templateUrl: "partials/recipes.html"
+                        rModal.result.then(function (resp) {
+                            $state.go('add', { recipe: resp.data });
+                        }, function (err) {
+                            // dismiss
+                        });
+                    }
+                }
             })
-            .state('recipes.detail', {
-                url: "/show/:id",
-                templateUrl: "partials/show.html",
+            .state('view', {
+                url: "/view/:id",
+                templateUrl: "partials/view-recipe.html",
                 resolve: {
                     recipe: ['Recipe', '$stateParams', function (Recipe, $stateParams) {
                         return Recipe.get({recipeId: $stateParams.id}).$promise;
@@ -68,19 +76,18 @@ angular.module('cookbook', [
                     $scope.deleteRecipe = function () {
                         $scope.recipe.$remove(function () {
                             $scope.updateRecipes(function () {
-                                $state.go("recipes.list");
+                                $state.go("home");
                             });
                         });
                     }
                 }
             })
-            .state("recipes.add", {
+            .state("add", {
                 url: "/add",
                 templateUrl: "partials/new-recipe.html",
                 params: { "recipe": null },
                 resolve: {
                     recipe: ['$stateParams', function ($stateParams) {
-                        console.log("stateParams", $stateParams);
                         if ($stateParams.recipe) {
                             return $stateParams.recipe;
                         } else {
@@ -90,7 +97,7 @@ angular.module('cookbook', [
                 },
                 controller: 'ModifyRecipeCtrl'
             })
-            .state("recipes.edit", {
+            .state("edit", {
                 url: "/edit/:id",
                 templateUrl: "partials/new-recipe.html",
                 resolve: {
@@ -100,25 +107,5 @@ angular.module('cookbook', [
                     }]
                 },
                 controller: 'ModifyRecipeCtrl'
-            })
-            .state("recipes.download", {
-                url: "/download",
-                onEnter: ['$uibModal', '$state',
-                    function ($uibModal, $state) {
-                        var rModal = $uibModal.open(
-                            {
-                                templateUrl: 'partials/download-recipe.html',
-                                controller: 'DownloadRecipeCtrl',
-                                size: 'lg'
-                            }
-                        );
-
-                        rModal.result.then(function (resp) {
-                            $state.go("recipes.add", { recipe: resp.data });
-                        }, function (err) {
-                            // dismiss
-                        });
-                    }]
             });
-
     });
