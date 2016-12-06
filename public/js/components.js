@@ -1,7 +1,7 @@
 angular.module("cookbook.components", [])
     .component("searchBox", {
         templateUrl: "partials/search-box.html",
-        controller: ($http) {
+        controller: function($http) {
             var ctrl = this;
 
             ctrl.selectRecipe = function (item, model, label) {
@@ -26,7 +26,7 @@ angular.module("cookbook.components", [])
     })
     .component("topBar", {
         templateUrl: "partials/top-bar.html",
-        controller: ($http) {
+        controller: function($http) {
             var ctrl = this;
 
             ctrl.selectRecipe = function (item, model, label) {
@@ -51,3 +51,27 @@ angular.module("cookbook.components", [])
             onSelect: '&'
         }
     })
+    .component("ingredientList", {
+        templateUrl: "partials/edit/ingredient-list.html",
+        controller: function() {
+        
+        }
+    })
+    .component("ingredient", {
+        templateUrl: "partials/edit/ingredient.html",
+        controller: function() {
+        
+        }
+    })
+    .component("stepList", {
+        templateUrl: "partials/edit/step-list.html",
+        controller: function() {
+        
+        }
+    })
+    .component("step", {
+        templateUrl: "partials/edit/step.html",
+        controller: function() {
+        
+        }
+    });
