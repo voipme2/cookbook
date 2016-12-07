@@ -1,8 +1,8 @@
 
-const DB_FILE = "recipes.json";
+const DB_FILE = "./recipes.json";
 
 var fs = require('fs');
-var recipes = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+var recipes = require(DB_FILE)
 
 function idList() {
     return recipes.map(function(r) { return r.id; });

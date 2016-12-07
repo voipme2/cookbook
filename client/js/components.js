@@ -54,24 +54,25 @@ angular.module("cookbook.components", [])
     .component("ingredientList", {
         templateUrl: "partials/edit/ingredient-list.html",
         controller: function() {
-        
+            var ctrl = this;
+
         }
     })
     .component("ingredient", {
         templateUrl: "partials/edit/ingredient.html",
         controller: function() {
-        
+            var ctrl = this;
         }
     })
     .component("stepList", {
         templateUrl: "partials/edit/step-list.html",
         controller: function() {
-        
+            var ctrl = this;
         }
     })
     .component("step", {
         templateUrl: "partials/edit/step.html",
         controller: function() {
-        
+            var ctrl = this;
         }
     });
