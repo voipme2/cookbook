@@ -1,7 +1,15 @@
-<input type="text" class="form-control" placeholder="Search" ng-model="search" size="50"
-                           uib-typeahead="recipe as recipe.name for recipe in $ctrl.getRecipes($viewValue) | limitTo:12"
-                           typeahead-template-url="partials/search-result.html"
-                           typeahead-on-select="$ctrl.selectRecipe($item, $model, $label)"
-                           typeahead-loading="loadingLocations"
-                           typeahead-no-results="noResults">
-                        <!-- <i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i></input> -->
+<md-autocomplete
+        md-no-cache="true"
+        md-selected-item="$ctrl.selectedItem"
+        md-selected-item-change="$ctrl.selectRecipe(recipe)"
+        md-items="recipe in $ctrl.getRecipes(ctrl.searchText)"
+        md-item-text="recipe.name"
+        md-min-length="0"
+        placeholder="Find some recipes">
+    <md-item-template>
+        <span md-highlight-text="$ctrl.searchText" md-highlight-flags="^i">{{recipe.name}}</span>
+    </md-item-template>
+    <md-not-found>
+        No recipes matching "{{$ctrl.searchText}}" were found.
+    </md-not-found>
+</md-autocomplete>

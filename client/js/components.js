@@ -4,8 +4,8 @@ angular.module("cookbook.components", [])
         controller: function($http) {
             var ctrl = this;
 
-            ctrl.selectRecipe = function (item, model, label) {
-                ctrl.onSelect({ recipe: model });
+            ctrl.selectRecipe = function (recipe) {
+                ctrl.onSelect({ recipe: recipe });
             };
 
             ctrl.getRecipes = function (search) {

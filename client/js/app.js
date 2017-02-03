@@ -1,12 +1,12 @@
 angular.module('cookbook', [
-    'ui.bootstrap',
     'ui.router',
     'ngResource',
     'cookbook.services',
     'cookbook.controllers',
     'cookbook.filters',
     'cookbook.components',
-    'cookbook.directives'])
+    'cookbook.directives',
+    'ngMaterial'])
     .run(['$rootScope', '$state', '$stateParams',
             function ($rootScope, $state, $stateParams) {
                 $rootScope.$state = $state;
