@@ -1,5 +1,7 @@
 var request = require('request'),
-    jsdom = require('jsdom');
+    jsdom = require('jsdom'),
+    moment = require('moment'),
+    parseDuration = require('parse-duration');
 
 const HEADERS = {
     'User-Agent': "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36"
@@ -45,32 +47,25 @@ var fetchFoodNetwork = function (recipeUrl, success, error) {
                 var document = window.document;
 
                 var recipeData = {
-                    name: document.querySelector("div.title h1").textContent,
-                    author: document.querySelector("div.lead-overview .media h6").textContent.replace("Recipe courtesy of ", ""),
-                    servings: document.querySelector("div.difficulty > dl > dd").textContent,
-                    ingredients: Array.prototype.slice.call(document.querySelectorAll("div.ingredients li")).map(function (ing) {
+                    name: document.querySelector("span.o-AssetTitle__a-HeadlineText").textContent,
+                    author: document.querySelector("span.o-Attribution__a-Name > a").textContent,
+                    servings: document.querySelector("section.o-RecipeInfo.o-Yield dd.o-RecipeInfo__a-Description").textContent.trim(),
+                    ingredients: Array.prototype.slice.call(document.querySelectorAll("label.o-Ingredients__a-ListItemText")).map(function (ing) {
                         return {text: ing.textContent};
                     }),
-                    steps: Array.prototype.slice.call(document.querySelectorAll("ul.recipe-directions-list > li > p")).map(function (step) {
-                        return {text: step.textContent};
+                    steps: Array.prototype.slice.call(document.querySelectorAll("div.o-Method__m-Body > p"), 1).map(function (step) {
+                        return {text: step.textContent.trim() };
                     })
                 };
 
-                var timeLabels = Array.prototype.slice.call(document.querySelectorAll("div.cooking-times > dl > dt"))
-                    .slice(1).map(function (n) {
-                        return n.textContent.replace(":", "");
-                    });
-                var timeValues = Array.prototype.slice.call(document.querySelectorAll("div.cooking-times > dl > dd"))
-                    .slice(1).map(function (n) {
-                        return n.textContent.replace(":", "");
+                // only should have 'total' and 'active'
+                var timeValues = Array.prototype.slice.call(document.querySelectorAll("section.o-RecipeInfo.o-Time > dl > dd"))
+                    .map(function (n) {
+                        return moment.duration(parseDuration(n.textContent.replace(":", "")));
                     });
 
-                timeLabels.forEach(function (l, i) {
-                    // TODO convert the times to minutes
-                    if (l != "Total time") {
-                        recipeData[l.toLowerCase() + "Time"] = timeValues[i];
-                    }
-                });
+                recipeData.inactiveTime = timeValues[0].subtract(timeValues[1]).asMinutes();
+                recipeData.cookTime = timeValues[1].asMinutes();
 
                 success(recipeData);
 
