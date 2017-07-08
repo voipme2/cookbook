@@ -4,6 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "dev": "webpack-dev-server --colors",
+    "build": "webpack -p",
     "test": "jasmine-node tests/*.spec.js"
   },
   "author": "Pat Laughlin",
@@ -11,15 +13,23 @@
   "dependencies": {
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
-    "jsdom": "^9.4.2",
     "moment": "^2.14.1",
     "moment-duration-format": "^1.3.0",
-    "nightmare": "^2.6.1",
     "parse-duration": "^0.1.1",
     "request": "^2.74.0",
     "uuid": "^3.0.1"
   },
   "devDependencies": {
-    "jasmine-node": "^1.14.5"
+    "babel": "^6.23.0",
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "html-webpack-plugin": "^2.29.0",
+    "jasmine-node": "^1.14.5",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "webpack": "^3.1.0",
+    "webpack-dev-server": "^2.5.1"
   }
 }
