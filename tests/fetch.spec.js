@@ -6,6 +6,8 @@ describe("scraper tests", function() {
         scraper.fetchAllRecipes("http://allrecipes.com/recipe/15057/overnight-blueberry-french-toast/",
             function(recipe) {
                 expect(recipe.name).toEqual("Overnight Blueberry French Toast");
+                expect(recipe.prepTime).toEqual(15);
+                expect(recipe.cookTime).toEqual(75);
                 done();
             }
         );
@@ -15,6 +17,8 @@ describe("scraper tests", function() {
         scraper.fetchFoodNetwork("http://www.foodnetwork.com/recipes/ellie-krieger/fettuccine-with-creamy-red-pepper-feta-sauce-recipe-1946840",
             function(recipe) {
                 expect(recipe.name).toEqual("Fettuccine with Creamy Red Pepper-Feta Sauce");
+                expect(recipe.inactiveTime).toEqual(25);
+                expect(recipe.cookTime).toEqual(12);
                 done();
             }
         );
