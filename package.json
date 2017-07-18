@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "dev": "webpack-dev-server --colors",
+    "dev": "webpack-dev-server --colors --hot",
     "build": "webpack -p",
     "test": "jasmine"
   },
@@ -30,6 +30,7 @@
     "jasmine": "^2.6.0",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
+    "react-router-dom": "^4.1.1",
     "webpack": "^3.1.0",
     "webpack-dev-server": "^2.5.1"
   }
