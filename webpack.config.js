@@ -26,5 +26,10 @@ module.exports = {
             }
         ]
     },
-    plugins: [HtmlWebpackPluginConfig]
+    plugins: [HtmlWebpackPluginConfig],
+    devServer: {
+        proxy: {
+            "/api/" : "http://localhost:8000"
+        }
+    }
 };

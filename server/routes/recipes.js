@@ -1,6 +1,6 @@
 var express = require('express');
 var router = new express.Router();
-var scraper = require('../server/scraper');
+var scraper = require('../scraper');
 var db;
 
 var parseDuration = require('parse-duration');

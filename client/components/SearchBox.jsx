@@ -19,15 +19,17 @@ export default class SearchBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {search: '', recipes: this.props.recipes};
-        this.onSearch.bind(this);
+        this.onSearch = this.onSearch.bind(this);
     }
 
     onSearch(event) {
         let query = event.target.value;
         this.setState({search: query});
+        let self = this;
 
         fetch("/api/search?query=" + encodeURIComponent(query))
-            .then(r);
+            .then(r => r.json())
+            .then(r => self.setState({recipes: r}) );
     }
 
     render() {

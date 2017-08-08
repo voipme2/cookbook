@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "dev": "webpack-dev-server --colors --hot",
+    "dev": "webpack-dev-server --colors --inline --progress",
     "build": "webpack -p",
     "test": "jasmine"
   },
