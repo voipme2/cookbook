@@ -2,8 +2,17 @@ import React from 'react';
 
 class SearchItems extends React.Component {
     render() {
+        let style = {
+            listStyleType: "none",
+            width: "100%",
+            marginLeft: -20,
+            padding: "6px",
+            borderBottom: "1px solid #ddd",
+            cursor: "pointer"
+        };
+
         const recipes = this.props.recipes.map(r => {
-            return <li key={r.id}>{r.name}</li>;
+            return <li style={style}  key={r.id}>{r.name}</li>;
         });
 
         return (
@@ -33,9 +42,14 @@ export default class SearchBox extends React.Component {
     }
 
     render() {
+        let style = {
+            padding: "6px",
+            textAlign: "center",
+            width: "100%"
+        };
         return (
             <div className="searchbox">
-                <input type="text" value={this.state.search}
+                <input type="text" style={style} value={this.state.search}
                        onChange={this.onSearch} placeholder="Search"/>
                 {this.state.search.length > 0 &&
                 <SearchItems recipes={this.state.recipes}/>
