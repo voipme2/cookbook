@@ -11,7 +11,7 @@ export default class ViewRecipe extends React.Component {
 
     componentWillMount() {
         let self = this;
-        fetch("/api/recipes/" + this.props.recipe.id)
+        fetch("/api/recipes/" + this.props.match.params.id)
             .then(r => r.json())
             .then(r => self.setState({recipe: r}));
     }

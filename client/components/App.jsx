@@ -1,8 +1,7 @@
 import React from 'react';
-import { BrowserRouter as Router, Route} from 'react-router-dom';
+import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import SearchBox from './SearchBox.jsx';
 import ViewRecipe from './ViewRecipe.jsx';
-import EditRecipe from './EditRecipe.jsx';
 
 export default class App extends React.Component {
 
@@ -19,17 +18,15 @@ export default class App extends React.Component {
     render() {
         return (
             <Router>
-            <div className="row">
-                <div className="center-xs col-xs-8 col-xs-offset-2">
-                    <div className="box">
-                        <h1><img src="holder.js/30x30"/> cookbook</h1>
-                        <SearchBox selectRecipe={this.selectRecipe}/>
+                <div className="row">
+                    <div className="center-xs col-xs-8 col-xs-offset-2">
+                        <div className="box">
+                            <h1><img src="holder.js/30x30"/> cookbook</h1>
+                            <SearchBox selectRecipe={this.selectRecipe}/>
+                        </div>
+                        <Route path="/view/:id" component={ViewRecipe}/>
                     </div>
-                    <Route path="/edit/:id" component={EditRecipe} />
-                    <Route path="/view/:id" component={ViewRecipe} />
                 </div>
-
-            </div>
             </Router>);
     }
 }

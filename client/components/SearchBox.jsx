@@ -17,16 +17,15 @@ export default class SearchBox extends React.Component {
 
         fetch("/api/search?query=" + encodeURIComponent(searchText))
             .then(r => r.json())
-            .then(r => self.setState({recipes: r, dataSource: r.map(re => re.name)}) );
+            .then(r => self.setState({recipes: r, dataSource: r.map(re => re.name)}));
     };
 
     handleNewRequest(chosen, index) {
-        // TODO go to the recipe view
         this.setState({
-            searchText: '',
+            searchText: ''
         });
         // console.log(this.state.recipes, this.state.recipes[index])
-        this.props.selectRecipe({ recipe: this.state.recipes[index] });
+        this.props.router.push('/view/' + this.state.recipes[index].id);
     };
 
     render() {
@@ -37,7 +36,7 @@ export default class SearchBox extends React.Component {
                     searchText={this.state.searchText}
                     onUpdateInput={this.handleUpdateInput}
                     onNewRequest={this.handleNewRequest}
-                    dataSourceConfig={{ text: 'text', }}
+                    dataSourceConfig={{text: 'text',}}
                     dataSource={this.state.dataSource}
                     maxSearchResults={10}
                     filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) !== -1)}
