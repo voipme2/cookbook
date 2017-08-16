@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
     template: './client/index.html',
     filename: 'index.html',
@@ -23,10 +24,17 @@ module.exports = {
                 test: /\.jsx?$/,
                 loader: 'babel-loader',
                 exclude: /node_modules/
+            },
+            {
+                test: /\.css$/,
+                use: ExtractTextPlugin.extract({
+                    fallback: "style-loader",
+                    use: "css-loader"
+                })
             }
         ]
     },
-    plugins: [HtmlWebpackPluginConfig],
+    plugins: [HtmlWebpackPluginConfig, new ExtractTextPlugin("styles.css")],
     devServer: {
         proxy: {
             "/api/" : "http://localhost:8000"

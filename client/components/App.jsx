@@ -1,34 +1,35 @@
 import React from 'react';
+import { BrowserRouter as Router, Route} from 'react-router-dom';
 import SearchBox from './SearchBox.jsx';
 import ViewRecipe from './ViewRecipe.jsx';
+import EditRecipe from './EditRecipe.jsx';
 
 export default class App extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { recipe: null };
+        this.state = {recipe: null};
         this.selectRecipe = this.selectRecipe.bind(this);
     }
 
     selectRecipe({recipe}) {
-        this.setState({ recipe: recipe });
+        this.setState({recipe: recipe});
     }
 
     render() {
-        let style = {
-            textAlign: "center",
-            display: "flex"
-        };
-        let gutter = (<div style={{flex: 1}} />)
         return (
-            <div style={style}>
-                {gutter}
-                <div style={{flex: 1}}>
-                    <h1><img src="holder.js/30x30"/> cookbook</h1>
-                    <SearchBox selectRecipe={this.selectRecipe} />
-                    {this.state.recipe ? <ViewRecipe recipe={this.state.recipe} /> : '' }
+            <Router>
+            <div className="row">
+                <div className="center-xs col-xs-8 col-xs-offset-2">
+                    <div className="box">
+                        <h1><img src="holder.js/30x30"/> cookbook</h1>
+                        <SearchBox selectRecipe={this.selectRecipe}/>
+                    </div>
+                    <Route path="/edit/:id" component={EditRecipe} />
+                    <Route path="/view/:id" component={ViewRecipe} />
                 </div>
-                {gutter}
-            </div>);
+
+            </div>
+            </Router>);
     }
 }
