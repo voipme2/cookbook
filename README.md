@@ -8,6 +8,21 @@ Written with a NodeJS backend (powered by ExpressJS).  Everything is stored in a
 
 ## Getting started
 
-Just run ``node app``, then visit http://localhost:8000/cookbook/ to get started!
+Make sure you have all your dependencies!
 
-That's it!
+    npm install
+
+### Development
+
+First terminal: `cd server/ && node cookbook.js`
+Second terminal: `npm run dev`
+
+Load up http://localhost:8080, and start developing.
+
+### Running
+
+    npm run build
+    node server/cookbook.js
+    
+Visit http://localhost:8000/cookbook/ to start making recipes.
+
