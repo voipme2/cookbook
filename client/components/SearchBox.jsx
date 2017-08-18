@@ -14,18 +14,13 @@ export default class SearchBox extends React.Component {
             searchText: searchText
         });
         let self = this;
-
         fetch("/api/search?query=" + encodeURIComponent(searchText))
             .then(r => r.json())
             .then(r => self.setState({recipes: r, dataSource: r.map(re => re.name)}));
     };
 
     handleNewRequest(chosen, index) {
-        this.setState({
-            searchText: ''
-        });
-        // console.log(this.state.recipes, this.state.recipes[index])
-        this.props.router.push('/view/' + this.state.recipes[index].id);
+        this.props.selectRecipe({ id: this.state.recipes[index].id });
     };
 
     render() {

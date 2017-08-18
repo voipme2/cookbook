@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "webpack-dev-server --colors --inline --progress",
     "build": "webpack -p",
-    "test": "jasmine"
+    "test": "jasmine",
+    "server": "node server/cookbook.js"
   },
   "author": "Pat Laughlin",
   "license": "ISC",

@@ -1,32 +1,32 @@
 import React from 'react';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
-import SearchBox from './SearchBox.jsx';
+import Home from './Home.jsx';
 import ViewRecipe from './ViewRecipe.jsx';
+import ListRecipes from "./ListRecipes.jsx";
 
 export default class App extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {recipe: null};
-        this.selectRecipe = this.selectRecipe.bind(this);
+        this.state = {recipe: null, recipes: []};
     }
 
-    selectRecipe({recipe}) {
-        this.setState({recipe: recipe});
+    componentWillMount() {
+        let self = this;
+        fetch("/api/recipes")
+            .then(r => r.json())
+            .then(r => self.setState({recipes: r}));
     }
 
     render() {
         return (
             <Router>
-                <div className="row">
-                    <div className="center-xs col-xs-8 col-xs-offset-2">
-                        <div className="box">
-                            <h1><img src="holder.js/30x30"/> cookbook</h1>
-                            <SearchBox selectRecipe={this.selectRecipe}/>
-                        </div>
-                        <Route path="/view/:id" component={ViewRecipe}/>
-                    </div>
-                </div>
-            </Router>);
+                <Switch>
+                    <Route exact path="/" render={(props) => <Home {...props} recipes={this.state.recipes}/>}/>
+                    <Route path="/list" render={(props) => <ListRecipes {...props} recipes={this.state.recipes}/>}/>
+                    <Route path="/view/:id" component={ViewRecipe}/>
+                </Switch>
+            </Router>
+        );
     }
 }
