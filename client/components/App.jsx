@@ -3,6 +3,7 @@ import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import Home from './Home.jsx';
 import ViewRecipe from './ViewRecipe.jsx';
 import ListRecipes from "./ListRecipes.jsx";
+import EditRecipe from './EditRecipe.jsx';
 
 export default class App extends React.Component {
 
@@ -24,7 +25,8 @@ export default class App extends React.Component {
                 <Switch>
                     <Route exact path="/" render={(props) => <Home {...props} recipes={this.state.recipes}/>}/>
                     <Route path="/list" render={(props) => <ListRecipes {...props} recipes={this.state.recipes}/>}/>
-                    <Route path="/view/:id" component={ViewRecipe}/>
+                    <Route path="/edit/:id" render={(props) => <EditRecipe {...props} /> } />
+                    <Route path="/view/:id" render={(props) => <ViewRecipe {...props} /> } />
                 </Switch>
             </Router>
         );
