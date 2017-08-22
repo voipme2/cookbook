@@ -4,23 +4,19 @@ import TextField from 'material-ui/TextField';
 class ControlledInput extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            value: this.props.defaultValue || ""
-        };
         this.handleChange = this.handleChange.bind(this);
     }
 
     handleChange(event) {
-        this.setState({
-            value: event.target.value
-        });
+        this.props.updateProp(this.props.id, event.target.value)
     }
 
     render() {
         return (
             <div>
                 <TextField id={this.props.id}
-                           value={this.state.value}
+                           value={this.props.value}
+                           hintText={this.props.hintText}
                            onChange={this.handleChange} />
             </div>
         )
@@ -32,6 +28,13 @@ export default class EditRecipe extends React.Component {
     constructor(props) {
         super(props);
         this.state = {recipe: {}};
+        this.updateProp = this.updateProp.bind(this);
+    }
+
+    updateProp(key, value) {
+        let recipe = this.state.recipe;
+        recipe[key] = value;
+        this.setState({ recipe: recipe });
     }
 
     componentWillMount() {
@@ -43,7 +46,12 @@ export default class EditRecipe extends React.Component {
 
     render() {
         return (
-            <div><pre>{JSON.stringify(this.state.recipe, null, 2)}</pre></div>
+            <div>
+                <ControlledInput id="name" value={this.state.recipe.name} hintText="Name" updateProp={this.updateProp} />
+                <ControlledInput id="author" value={this.state.recipe.author} hintText="Author" updateProp={this.updateProp} />
+                <ControlledInput id="description" value={this.state.recipe.description} hintText="Description" updateProp={this.updateProp} />
+                <pre>{JSON.stringify(this.state.recipe, null, 2)}</pre>
+            </div>
         )
     }
 }
