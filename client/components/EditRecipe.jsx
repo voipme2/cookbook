@@ -1,40 +1,17 @@
 import React from 'react';
-import TextField from 'material-ui/TextField';
-
-class ControlledInput extends React.Component {
-    constructor(props) {
-        super(props);
-        this.handleChange = this.handleChange.bind(this);
-    }
-
-    handleChange(event) {
-        this.props.updateProp(this.props.id, event.target.value)
-    }
-
-    render() {
-        return (
-            <div>
-                <TextField id={this.props.id}
-                           value={this.props.value}
-                           hintText={this.props.hintText}
-                           onChange={this.handleChange} />
-            </div>
-        )
-    }
-}
+import Input from 'react-toolbox/lib/input';
 
 export default class EditRecipe extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {recipe: {}};
-        this.updateProp = this.updateProp.bind(this);
     }
 
-    updateProp(key, value) {
+    handleChange(name, value) {
         let recipe = this.state.recipe;
-        recipe[key] = value;
-        this.setState({ recipe: recipe });
+        recipe[name] = value;
+        this.setState({recipe: recipe});
     }
 
     componentWillMount() {
@@ -45,11 +22,21 @@ export default class EditRecipe extends React.Component {
     }
 
     render() {
+
         return (
-            <div>
-                <ControlledInput id="name" value={this.state.recipe.name} hintText="Name" updateProp={this.updateProp} />
-                <ControlledInput id="author" value={this.state.recipe.author} hintText="Author" updateProp={this.updateProp} />
-                <ControlledInput id="description" value={this.state.recipe.description} hintText="Description" updateProp={this.updateProp} />
+            <div className="col-lg-offset-1 col-lg-10">
+                <Input type='text' label='Name' name='name' value={this.state.recipe.name}
+                       onChange={this.handleChange.bind(this, 'name')} />
+                <Input type='text' label='Description' name='description' value={this.state.recipe.description}
+                       onChange={this.handleChange.bind(this, 'description')} />
+                <Input type='text' label='Author' name='author' value={this.state.recipe.author}
+                       onChange={this.handleChange.bind(this, 'author')} />
+                <Input type='text' label='Prep time' name='prepTime' value={this.state.recipe.prepTime}
+                       onChange={this.handleChange.bind(this, 'prepTime')} />
+                <Input type='text' label='Inactive time' name='inactiveTime' value={this.state.recipe.inactiveTime}
+                       onChange={this.handleChange.bind(this, 'inactiveTime')} />
+                <Input type='text' label='Cook time' name='cookTime' value={this.state.recipe.cookTime}
+                       onChange={this.handleChange.bind(this, 'cookTime')} />
                 <pre>{JSON.stringify(this.state.recipe, null, 2)}</pre>
             </div>
         )
