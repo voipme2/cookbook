@@ -1,6 +1,7 @@
 import React from 'react';
 import SearchBox from './SearchBox.jsx';
 import {Link} from 'react-router-dom';
+import { Layout, Panel } from 'react-toolbox'
 
 export default class Home extends React.Component {
     constructor(props) {
@@ -14,15 +15,15 @@ export default class Home extends React.Component {
 
     render() {
         return (
-            <div className="row">
-                <div className="center-xs col-xs-8 col-xs-offset-2">
-                    <div className="box">
+            <Layout>
+                <Panel>
+                    <div style={{ flex:1, padding: '1.8rem'}}>
                         <h1>cookbook</h1>
                         <span>Cooking up <Link to="/list">{this.props.recipes.length} recipes</Link></span>
                         <SearchBox selectRecipe={this.selectRecipe}/>
                     </div>
-                </div>
-            </div>
+                </Panel>
+            </Layout>
         );
     }
 }

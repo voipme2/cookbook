@@ -1,6 +1,29 @@
 import React from 'react';
 import Input from 'react-toolbox/lib/input';
 
+class EditableIngredient extends React.Component {
+
+}
+
+class IngredientEditor extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    addIngredient() {
+
+    }
+
+    removeIngredient() {
+
+    }
+    
+    render() {
+
+    }
+}
+
+
 export default class EditRecipe extends React.Component {
 
     constructor(props) {
@@ -12,6 +35,10 @@ export default class EditRecipe extends React.Component {
         let recipe = this.state.recipe;
         recipe[name] = value;
         this.setState({recipe: recipe});
+    }
+
+    saveRecipe() {
+        // TODO save the recipe
     }
 
     componentWillMount() {
@@ -37,6 +64,10 @@ export default class EditRecipe extends React.Component {
                        onChange={this.handleChange.bind(this, 'inactiveTime')} />
                 <Input type='text' label='Cook time' name='cookTime' value={this.state.recipe.cookTime}
                        onChange={this.handleChange.bind(this, 'cookTime')} />
+                <IngredientEditor ingredients={this.state.recipe.ingredients}
+                                  onAddIngredient={this.handleIngredientsChange.bind(this)} />
+                <StepEditor steps={this.state.recipe.steps}
+                            onChangeSteps={this.handleStepChange.bind(this)} />
                 <pre>{JSON.stringify(this.state.recipe, null, 2)}</pre>
             </div>
         )
