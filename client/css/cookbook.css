@@ -35,9 +35,6 @@ body {
     }
 }
 
-.recipe-list .row {
-    padding: 6px;
-}
 
 .recipe-list .row:nth-child(even) {
     background-color: rgba(0, 0, 0, 0.05)
@@ -51,14 +48,7 @@ body {
     font-size: 12pt;
 }
 
-.ingredients ul {
-    margin: 0;
-    padding: 0;
-}
-
 .ingredients .ingredient {
-    padding: 3px;
-    margin: 2px;
     font-size: 12pt;
 }
 
@@ -71,14 +61,8 @@ body {
     font-size: 10pt;
 }
 
-.recipe-detail .recipe-steps {
-    margin: 10px 0px;
-    padding: 10px 0px;
-}
-
 .recipe-step {
     font-size: 14pt;
-    margin: 15px 5px;
 }
 
 /* pace loading indicator */

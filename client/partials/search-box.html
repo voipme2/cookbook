@@ -2,14 +2,15 @@
         md-no-cache="true"
         md-selected-item="$ctrl.selectedItem"
         md-selected-item-change="$ctrl.selectRecipe(recipe)"
-        md-items="recipe in $ctrl.getRecipes(ctrl.searchText)"
+        md-items="recipe in $ctrl.getRecipes(searchText)"
         md-item-text="recipe.name"
+        md-search-text="searchText"
         md-min-length="0"
         placeholder="Find some recipes">
     <md-item-template>
-        <span md-highlight-text="$ctrl.searchText" md-highlight-flags="^i">{{recipe.name}}</span>
+        <span md-highlight-text="searchText" md-highlight-flags="^i">{{recipe.name}}</span>
     </md-item-template>
     <md-not-found>
-        No recipes matching "{{$ctrl.searchText}}" were found.
+        No recipes matching "{{searchText}}" were found.
     </md-not-found>
 </md-autocomplete>

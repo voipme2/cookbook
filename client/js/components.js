@@ -9,6 +9,7 @@ angular.module("cookbook.components", [])
             };
 
             ctrl.getRecipes = function (search) {
+                console.log("search", search);
                 return $http.get('/api/search',
                     {
                         params: {query: search}

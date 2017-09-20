@@ -1,87 +1,64 @@
-<div class="container">
-    <form name="newRecipeForm" class="form-horizontal">
-        <div class="row form-group">
-            <label class="col-sm-2">Recipe</label>
+<div layout="row" layout-align="center">
+    <div flex="80">
+        <div layout="column">
+            <form name="newRecipeForm">
+                <div layout="row">
+                    <md-input-container flex>
+                        <label for="name">Recipe</label>
+                        <input id="name" name="name" type="text" class="form-control" ng-model="newRecipe.name"
+                               required>
+                    </md-input-container>
+                </div>
+                <div layout="row">
+                    <md-input-container flex>
+                        <label for="author">Author</label>
+                        <input id="author" name="author" type="text" class="form-control" ng-model="newRecipe.author"
+                               required>
+                    </md-input-container>
+                    <md-input-container flex>
+                        <label for="description">Description</label>
+                        <input id="description" type="text" class="form-control" ng-model="newRecipe.description">
+                    </md-input-container>
+                </div>
+                <div layout="row">
+                    <md-input-container flex>
+                        <label for="prepTime">Prep time</label>
+                        <input id="prepTime" type="text" class="form-control" ng-model="newRecipe.prepTime">
+                    </md-input-container>
+                    <md-input-container flex>
+                        <label for="inactiveTime">Inactive Time</label>
+                        <input id="inactiveTime" type="text" class="form-control" ng-model="newRecipe.inactiveTime">
+                    </md-input-container>
+                    <md-input-container flex>
+                        <label for="cookTime">Cook time</label>
+                        <input id="cookTime" type="text" class="form-control" ng-model="newRecipe.cookTime">
+                    </md-input-container>
+                </div>
 
-            <div class="col-sm-10">
-                <input name="name" type="text" class="form-control" ng-model="newRecipe.name" required>
-            </div>
-        </div>
-        <div class="row form-group">
-            <label class="col-sm-2">Author</label>
-
-            <div class="col-sm-2">
-                <input name="author" type="text" class="form-control" ng-model="newRecipe.author" required>
-            </div>
-            <label class="col-sm-2">Description</label>
-
-            <div class="col-sm-6">
-                <input type="text" class="form-control" ng-model="newRecipe.description">
-            </div>
-        </div>
-        <div class="row form-group">
-            <label class="col-sm-2">Prep time</label>
-
-            <div class="col-sm-2">
-                <input type="text" class="form-control" ng-model="newRecipe.prepTime">
-            </div>
-            <label class="col-sm-2">Inactive time</label>
-
-            <div class="col-sm-2">
-                <input type="text" class="form-control" ng-model="newRecipe.inactiveTime">
-            </div>
-            <label class="col-sm-2">Cook time</label>
-
-            <div class="col-sm-2">
-                <input type="text" class="form-control" ng-model="newRecipe.cookTime">
-            </div>
-        </div>
-        <div class="row form-group">
-            <label class="col-sm-2">Servings</label>
-
-            <div class="col-sm-10">
-                <input type="text" class="form-control" ng-model="newRecipe.servings">
-            </div>
-        </div>
-        <div class="row form-group">
-            <label class="col-md-2">Options</label>
-            <div class="col-sm-10">
-                <label class="checkbox-inline">
-                    <input type="checkbox" ng-model="newRecipe.options.isCrockPot"> <i class="glyphicon glyphicon-time"></i> Crock Pot
-                </label>
-                <label class="checkbox-inline">
-                    <input type="checkbox" ng-model="newRecipe.options.isVegetarian"> <i class="glyphicon glyphicon-leaf" style="color: green"></i> Vegetarian
-                </label>
-                <label class="checkbox-inline">
-                    <input type="checkbox" ng-model="newRecipe.options.isVegan"> <i class="glyphicon glyphicon-leaf" style="color: brown"></i> Vegan
-                </label>
-                <label class="checkbox-inline">
-                    <input type="checkbox" ng-model="newRecipe.options.isGlutenFree"> <i class="glyphicon glyphicon-grain" style="color: #a08300"></i> Gluten-free
-                </label>
-                <label class="checkbox-inline">
-                    <input type="checkbox" ng-model="newRecipe.options.isDairyFree"> <i class="glyphicon glyphicon-tint" style="color: blue"></i> Dairy-free
-                </label>
-            </div>
-        </div>
-        <div class="row form-group">
-            <div class="col-sm-3">Ingredients</div>
-            <div class="col-sm-9">
+                <md-input-container>
+                    <label for="servings">Servings</label>
+                    <input id="servings" type="text" class="form-control" ng-model="newRecipe.servings">
+                </md-input-container>
+                <div layout="row">
+                    <md-checkbox flex ng-model="newRecipe.options.isCrockPot">Crock Pot</md-checkbox>
+                    <md-checkbox flex ng-model="newRecipe.options.isVegetarian">Vegetarian</md-checkbox>
+                    <md-checkbox flex ng-model="newRecipe.options.isVegan">Vegan</md-checkbox>
+                    <md-checkbox flex ng-model="newRecipe.options.isGlutenFree">Gluten-free</md-checkbox>
+                    <md-checkbox flex ng-model="newRecipe.options.isDairyFree">Dairy-free</md-checkbox>
+                </div>
                 <ingredient-list ingredients="newRecipe.ingredients"></ingredient-list>
-            </div>
-        </div>
-
-        <div class="row form-group">
-            <div class="col-sm-3">Steps</div>
-            <div class="col-sm-9">
                 <step-list steps="newRecipe.steps"></step-list>
-            </div>
-        </div>
 
-        <div class="row form-group">
-            <div class="btn-group col-sm-offset-5 col-sm-6">
-                <button class="btn btn-primary" ng-click="save()" ng-disabled="!newRecipeForm.$valid">OK</button>
-                <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
-            </div>
+                <div layout="row" layout-align="center">
+                    <div flex="20">
+                        <md-button class="md-primary md-raised" ng-click="save()" ng-disabled="!newRecipeForm.$valid">
+                            Save
+                        </md-button>
+                        <md-button class="md-warn md-raised" ng-click="cancel()">Cancel</md-button>
+                    </div>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
+

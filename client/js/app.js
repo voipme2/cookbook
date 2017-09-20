@@ -29,20 +29,20 @@ angular.module('cookbook', [
                     }]
                 },
                 templateUrl: "partials/home.html",
-                controller: function ($rootScope, $state, $http, recipes, Recipe) {
+                controller: function ($rootScope, $state, $http, $mdDialog, recipes, Recipe) {
                     // always have the recipes available.
                     $rootScope.recipeCount = recipes.length;
 
                     $rootScope.selectRecipe = function (recipe) {
-                        $state.go('view', {id: recipe.id});
+                        $state.go('view', {id: recipe.recipe.id});
                     };
                     
                     $rootScope.createRecipe = function() {
                         $state.go('add');
-                    }
+                    };
                     
                     $rootScope.downloadRecipe = function() {
-                        var rModal = $uibModal.open(
+                        var rModal = $mdDialog.open(
                             {
                                 templateUrl: 'partials/download-recipe.html',
                                 controller: 'DownloadRecipeCtrl',
@@ -82,9 +82,21 @@ angular.module('cookbook', [
                     }
                 }
             })
+            .state("list", {
+                url: "/list",
+                templateUrl: "partials/recipes.html",
+                resolve: {
+                    recipes: ['Recipe', function (Recipe) {
+                        return Recipe.query().$promise;
+                    }]
+                },
+                controller: function($scope, recipes) {
+                    $scope.recipes = recipes;
+                }
+            })
             .state("add", {
                 url: "/add",
-                templateUrl: "partials/new-recipe.html",
+                templateUrl: "partials/edit/new-recipe.html",
                 params: { "recipe": null },
                 resolve: {
                     recipe: ['$stateParams', function ($stateParams) {
@@ -99,7 +111,7 @@ angular.module('cookbook', [
             })
             .state("edit", {
                 url: "/edit/:id",
-                templateUrl: "partials/new-recipe.html",
+                templateUrl: "partials/edit/new-recipe.html",
                 resolve: {
                     recipe: ['Recipe', '$stateParams', 
                         function (Recipe, $stateParams) {

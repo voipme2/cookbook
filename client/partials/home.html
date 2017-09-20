@@ -1,12 +1,12 @@
-<div class="container">
-    <div class="row">
-        <div class="col-md-offset-4 col-md-4">
-            <h2 class="cookbook-logo"><img src="img/cookbook-logo.png"> cookbook</h2>
-            <h4><b>{{recipeCount}}</b> recipes inside</h4>
-            <search-box on-select="$root.selectRecipe({recipe: recipe })"></search-box>
-            <div class="btn-group">
-                <button class="btn btn-primary" ng-click="$root.createRecipe()">Create</button>
-                <button class="btn btn-success" ng-click="$root.downloadRecipe()">Download</button>
+<div layout="row" layout-align="center" class="zero">
+    <div flex="80">
+        <h2 class="cookbook-logo"><img src="img/cookbook.png" style="height: 50px"> cookbook</h2>
+        <h4><a href="#/list"><b>{{recipeCount}}</b> recipes inside</a></h4>
+        <search-box on-select="$root.selectRecipe({recipe: recipe })"></search-box>
+        <div layout="row" layout-align="center">
+            <div flex="20">
+                <md-button class="md-primary md-raised" ng-click="$root.createRecipe()">Create</md-button>
+                <md-button class="md-accent md-raised" ng-click="$root.downloadRecipe()">Download</md-button>
             </div>
         </div>
     </div>

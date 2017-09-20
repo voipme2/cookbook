@@ -1,48 +1,65 @@
-<div class="container-fluid" ng-cloak>
-    <div class="col-sm-3 ingredients">
-        <h4>Ingredients</h4>
-        <ul>
-            <li class="ingredient" ng-repeat="ingredient in recipe.ingredients">
-                {{ingredient.text}}
-            </li>
-        </ul>
-    </div>
-    <div class="col-sm-9 recipe-detail">
-        <h2>{{recipe.name}}
-            <i ng-if="recipe.options.isVegetarian" class="glyphicon glyphicon-leaf" style="color: green" tooltip="Vegetarian"></i>
-            <i ng-if="recipe.options.isVegan" class="glyphicon glyphicon-leaf" style="color: brown" tooltip="Vegan"></i>
-            <i ng-if="recipe.options.isCrockPot" class="glyphicon glyphicon-time" tooltip="Crock Pot"></i>
-            <i ng-if="recipe.options.isGlutenFree" class="glyphicon glyphicon-grain" style="color: #a08300" tooltip="Gluten free"></i>
-            <i ng-if="recipe.options.isDairyFree" class="glyphicon glyphicon-tint" style="color: blue" tooltip="Dairy free"></i>
-            <div class="btn-group pull-right">
-                <a class="btn btn-sm btn-primary" title="Edit recipe" href="#/recipes/edit/{{recipe.id}}">
-                    <i class="glyphicon glyphicon-edit"></i>
-                </a>
-                <button type="button" class="btn btn-sm btn-danger" title="Delete recipe" ng-click="deleteRecipe()">
-                    <i class="glyphicon glyphicon-remove"></i>
-                </button>
+<div layout="row" layout-align="center" ng-cloak>
+    <div flex="80">
+        <div layout="row">
+            <div flex="25" class="ingredients">
+                <h4>Ingredients</h4>
+                <md-list>
+                    <md-list-item class="ingredient" ng-repeat="ingredient in recipe.ingredients">
+                        <div class="md-list-item-text">{{ingredient.text}}</div>
+                    </md-list-item>
+                </md-list>
             </div>
-        </h2>
-        <p class="text-muted"><span ng-if="recipe.description.length > 0">{{recipe.description}}, </span>by {{recipe.author}}</p>
-        <hr/>
-        <img class="pull-right" ng-click="uploadImage()" src={{recipe.imageUrl}} ng-if="recipe.imageUrl" />
-        <img class="pull-right" ng-click="uploadImage()" src="holder.js/200x200?text=Click to upload a picture." ng-if="!recipe.imageUrl" />
-        <div>
-            Prep: <b>{{ recipe.prepTime }}</b>,
-            Inactive: <b>{{ recipe.inactiveTime }}</b>,
-            Cook: <b>{{ recipe.cookTime }}</b> -
-            Total: <b>{{ recipe.totalTime }}</b>
-        </div>
+            <div flex class="recipe-detail">
+                <div layout="row">
+                    <div flex="75">
+                        <h2>{{recipe.name}}
+                            <i ng-if="recipe.options.isVegetarian" class="glyphicon glyphicon-leaf" style="color: green"
+                               tooltip="Vegetarian"></i>
+                            <i ng-if="recipe.options.isVegan" class="glyphicon glyphicon-leaf" style="color: brown"
+                               tooltip="Vegan"></i>
+                            <i ng-if="recipe.options.isCrockPot" class="glyphicon glyphicon-time"
+                               tooltip="Crock Pot"></i>
+                            <i ng-if="recipe.options.isGlutenFree" class="glyphicon glyphicon-grain"
+                               style="color: #a08300"
+                               tooltip="Gluten free"></i>
+                            <i ng-if="recipe.options.isDairyFree" class="glyphicon glyphicon-tint" style="color: blue"
+                               tooltip="Dairy free"></i>
+                        </h2>
+                    </div>
+                    <div flex>
+                        <md-button class="md-primary md-raised" title="Edit recipe" href="#/edit/{{recipe.id}}">
+                            Edit
+                        </md-button>
+                        <md-button type="button" class="md-warn md-raised" title="Delete recipe"
+                                   ng-click="deleteRecipe()">
+                            Delete
+                        </md-button>
+                    </div>
+                </div>
+                <p class="text-muted"><span ng-if="recipe.description.length > 0">{{recipe.description}}, </span>by
+                    {{recipe.author}}</p>
+                <md-divider></md-divider>
+                <img class="pull-right" ng-click="uploadImage()" src={{recipe.imageUrl}} ng-if="recipe.imageUrl"/>
+                <img class="pull-right" ng-click="uploadImage()" src="holder.js/200x200?text=Click to upload a picture."
+                     ng-if="!recipe.imageUrl"/>
+                <div>
+                    Prep: <b>{{ recipe.prepTime }}</b>,
+                    Inactive: <b>{{ recipe.inactiveTime }}</b>,
+                    Cook: <b>{{ recipe.cookTime }}</b> -
+                    Total: <b>{{ recipe.totalTime }}</b>
+                </div>
 
-        <div>
-            Servings: <b>{{recipe.servings || 0}}</b>
-        </div>
-        <div class="recipe-steps">
-            <ol>
-                <li class="recipe-step" ng-repeat="step in recipe.steps">
-                    {{step.text}}
-                </li>
-            </ol>
+                <div>
+                    Servings: <b>{{recipe.servings || 0}}</b>
+                </div>
+                <div class="recipe-steps">
+                    <md-list>
+                        <md-list-item class="recipe-step" ng-repeat="step in recipe.steps">
+                            <div class="md-list-item-text">{{$index + 1}}. {{step.text}}</div>
+                        </md-list-item>
+                    </md-list>
+                </div>
+            </div>
         </div>
     </div>
 </div>
