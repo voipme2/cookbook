@@ -119,5 +119,21 @@ angular.module('cookbook', [
                     }]
                 },
                 controller: 'ModifyRecipeCtrl'
+            })
+            .state("print", {
+                url: "/print/:id",
+                templateUrl: "partials/print-recipe.html",
+                resolve: {
+                    recipe: ['Recipe', '$stateParams',
+                        function (Recipe, $stateParams) {
+                            return Recipe.get({recipeId: $stateParams.id}).$promise;
+                        }]
+                },
+                controller: function($scope, $state, recipe) {
+                    $scope.recipe = recipe;
+                    $scope.back = function() {
+                        $state.go("view", { id: recipe.id });
+                    }
+                }
             });
     });

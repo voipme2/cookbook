@@ -11,7 +11,7 @@
             </div>
             <div flex class="recipe-detail">
                 <div layout="row">
-                    <div flex="75">
+                    <div flex="60">
                         <h2>{{recipe.name}}
                             <i ng-if="recipe.options.isVegetarian" class="glyphicon glyphicon-leaf" style="color: green"
                                tooltip="Vegetarian"></i>
@@ -27,6 +27,7 @@
                         </h2>
                     </div>
                     <div flex>
+                        <md-button class="md-accent md-raised" href="#/print/{{recipe.id}}">Print</md-button>
                         <md-button class="md-primary md-raised" title="Edit recipe" href="#/edit/{{recipe.id}}">
                             Edit
                         </md-button>
