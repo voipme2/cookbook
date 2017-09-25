@@ -1,4 +1,4 @@
-<div class="lock-size" layout="row" layout-align="center center" >
+<div class="lock-size" layout="row" layout-align="center center">
     <md-fab-speed-dial md-direction="up" class="md-scale md-fab-bottom-right md-hover-full" md-open="menu.isOpen"
                        ng-mouseenter="menu.isOpen=true" ng-mouseleave="menu.isOpen=false">
         <md-fab-trigger>
@@ -12,20 +12,24 @@
             <md-button class="md-fab md-accent md-raised md-mini" aria-label="Edit"
                        href="#/edit/{{recipe.id}}">
                 <md-tooltip md-direction="left" md-visible="tooltipVisible"
-                            md-autohide="false">Edit</md-tooltip>
+                            md-autohide="false">Edit
+                </md-tooltip>
                 <md-icon md-svg-icon="img/edit.svg" aria-label="Edit"></md-icon>
             </md-button>
             <md-button class="md-fab md-accent md-raised md-mini" aria-label="Print"
                        href="#/print/{{recipe.id}}">
                 <md-tooltip md-direction="left" md-visible="tooltipVisible"
-                            md-autohide="false">Print</md-tooltip>
+                            md-autohide="false">Print
+                </md-tooltip>
                 <md-icon md-svg-icon="img/print.svg" aria-label="Print"></md-icon>
             </md-button>
             <md-button class="md-fab md-warn md-raised md-mini" aria-label="Delete"
                        ng-click="deleteRecipe()">
                 <md-tooltip md-direction="left" md-visible="tooltipVisible"
-                            md-autohide="false">Delete</md-tooltip>
-                <md-icon md-svg-icon="img/delete.svg" aria-label="Delete"</md-icon>
+                            md-autohide="false">Delete
+                </md-tooltip>
+                <md-icon md-svg-icon="img/delete.svg" aria-label="Delete"
+                </md-icon>
             </md-button>
         </md-fab-actions>
     </md-fab-speed-dial>
@@ -38,15 +42,18 @@
                 <md-list>
                     <md-list-item ng-repeat="ingredient in recipe.ingredients">
                         <div class="md-list-item-text">{{ingredient.text}}</div>
+                        <md-divider ng-if="!$last"></md-divider>
                     </md-list-item>
                 </md-list>
             </div>
             <div flex class="recipe-detail">
-                <div layout="row">
-                    <div flex="60">
-                        <h2>{{recipe.name}}
+
+                <md-card md-theme="'default'" md-theme-watch>
+                    <md-card-title>
+                        <md-card-title-text>
+                            <span class="md-headline">{{recipe.name}}
                             <span class="md-avatar-icon" ng-if="recipe.options.isVegetarian" style="color: green"
-                                    title="Vegetarian">V</span>
+                                  title="Vegetarian">V</span>
                             <span class="md-avatar" ng-if="recipe.options.isVegan" style="color: brown"
                                   title="Vegan">V</span>
                             <span class="md-avatar" ng-if="recipe.options.isCrockPot"
@@ -54,36 +61,34 @@
                             <span class="md-avatar" ng-if="recipe.options.isGlutenFree" style="color: green"
                                   title="Gluten-free">G</span>
                             <span class="md-avatar" ng-if="recipe.options.isDairyFree" style="color: green"
-                                  title="Dairy-free">D</span>
-                        </h2>
-                    </div>
-                </div>
-                <p class="text-muted"><span ng-if="recipe.description.length > 0">{{recipe.description}}, </span>by
-                    {{recipe.author}}</p>
-                <md-divider></md-divider>
-                <img class="pull-right" ng-click="uploadImage()" src={{recipe.imageUrl}} ng-if="recipe.imageUrl"/>
-                <img class="pull-right" ng-click="uploadImage()" src="holder.js/200x200?text=Click to upload a picture."
-                     ng-if="!recipe.imageUrl"/>
-                <div>
-                    Prep: <b>{{ recipe.prepTime }}</b>,
-                    Inactive: <b>{{ recipe.inactiveTime }}</b>,
-                    Cook: <b>{{ recipe.cookTime }}</b> -
-                    Total: <b>{{ recipe.totalTime }}</b>
-                </div>
+                                  title="Dairy-free">D</span></span>
+                            <span class="md-subhead">
+                                <span ng-if="recipe.description.length > 0">{{recipe.description}}, </span>by
+                    {{recipe.author}}
+                            </span>
+                        </md-card-title-text>
+                        <md-card-title-media>
+                            <div class="md-media-md card-media"></div>
+                        </md-card-title-media>
+                    </md-card-title>
+                    <md-card-content>
+                        <div layout="row" layout-align="space-around start">
+                            <div flex>Cook time <b>{{recipe.totalTime}}</b></div>
+                            <div flex>Yield <b>{{recipe.servings || 0}}</b></div>
+                        </div>
 
-                <div>
-                    Servings: <b>{{recipe.servings || 0}}</b>
-                </div>
-                <div class="recipe-steps">
-                    <md-list>
-                        <md-list-item class="md-long-text" ng-click="null" ng-repeat="step in recipe.steps">
-                            <h2 class="md-avatar">{{$index + 1}}</h2>
-                            <div class="md-list-item-text">
-                                <p>{{step.text}}</p>
-                            </div>
-                        </md-list-item>
-                    </md-list>
-                </div>
+                        <div class="recipe-steps">
+                            <md-list>
+                                <md-list-item class="md-long-text" ng-click="null" ng-repeat="step in recipe.steps">
+                                    <h2 class="md-avatar">{{$index + 1}}</h2>
+                                    <div class="md-list-item-text">
+                                        <p>{{step.text}}</p>
+                                    </div>
+                                </md-list-item>
+                            </md-list>
+                        </div>
+                    </md-card-content>
+                </md-card>
             </div>
         </div>
     </div>

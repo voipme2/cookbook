@@ -58,6 +58,17 @@
     font-size: 10pt;
 }
 
+md-grid-tile-footer figcaption {
+    width: 100%;
+}
+
+md-grid-tile-footer figcaption h4 {
+    margin: 0;
+    font-weight: 700;
+    text-align: center;
+    width: 100%;
+}
+
 md-fab-speed-dial.md-fab-bottom-right {
     position: fixed !important;
 }
