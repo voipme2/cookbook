@@ -22,42 +22,49 @@ angular.module('cookbook', [
         $urlRouterProvider.otherwise("/home");
 
         $stateProvider.state('home', {
-                url: "/home",
-                resolve: {
-                    recipes: ['Recipe', function (Recipe) {
-                        return Recipe.query().$promise;
-                    }]
-                },
-                templateUrl: "partials/home.html",
-                controller: function ($rootScope, $state, $http, $mdDialog, recipes, Recipe) {
-                    // always have the recipes available.
-                    $rootScope.recipeCount = recipes.length;
+            url: "/home",
+            resolve: {
+                recipes: ['Recipe', function (Recipe) {
+                    return Recipe.query().$promise;
+                }]
+            },
+            templateUrl: "partials/home.html",
+            controller: function ($rootScope, $state, $http, $mdDialog, recipes, Recipe) {
+                // always have the recipes available.
+                $rootScope.recipeCount = recipes.length;
 
-                    $rootScope.selectRecipe = function (recipe) {
-                        $state.go('view', {id: recipe.recipe.id});
-                    };
-                    
-                    $rootScope.createRecipe = function() {
-                        $state.go('add');
-                    };
-                    
-                    $rootScope.downloadRecipe = function() {
-                        var rModal = $mdDialog.open(
-                            {
-                                templateUrl: 'partials/download-recipe.html',
-                                controller: 'DownloadRecipeCtrl',
-                                size: 'lg'
-                            }
-                        );
+                $rootScope.selectRecipe = function (recipe) {
+                    $state.go('view', {id: recipe.recipe.id});
+                };
 
-                        rModal.result.then(function (resp) {
-                            $state.go('add', { recipe: resp.data });
-                        }, function (err) {
-                            // dismiss
+                $rootScope.createRecipe = function () {
+                    $state.go('add');
+                };
+
+                $rootScope.downloadRecipe = function () {
+                    var confirm = $mdDialog.prompt()
+                        .title('Download a recipe')
+                        .textContent('Enter the URL for the recipe to be downloaded.')
+                        .placeholder('Recipe URL (foodnetwork.com or allrecipes.com)')
+                        .ariaLabel('Recipe URL')
+                        .ok('Do it')
+                        .cancel('Cancel');
+
+                    $mdDialog.show(confirm).then(function(result) {
+                        // save the recipe
+                        $http({
+                            method: 'GET',
+                            url: '/api/fetch',
+                            params: { recipeUrl: result }
+                        }).then(function(foundRecipe) {
+                            $state.go('add', {recipe: foundRecipe.data});
+                        }, function(err) {
+                            console.log("error downloading: ", err);
                         });
-                    }
+                    });
                 }
-            })
+            }
+        })
             .state('view', {
                 url: "/view/:id",
                 templateUrl: "partials/view-recipe.html",
@@ -66,16 +73,21 @@ angular.module('cookbook', [
                         return Recipe.get({recipeId: $stateParams.id}).$promise;
                     }]
                 },
-                controller: function ($scope, $state, recipe) {
+                controller: function ($scope, $state, $mdDialog, recipe) {
                     $scope.recipe = recipe;
-
+                    $scope.menu = {isOpen: false};
                     $scope.uploadImage = function () {
                         alert("Upload an image!");
                     };
 
                     $scope.deleteRecipe = function () {
-                        $scope.recipe.$remove(function () {
-                            $scope.updateRecipes(function () {
+                        var confirm = $mdDialog.confirm()
+                            .title("Delete this recipe?")
+                            .textContent("This will completely remove this recipe.")
+                            .ok("Delete")
+                            .cancel("Cancel")
+                        $mdDialog.show(confirm).then(function () {
+                            $scope.recipe.$remove(function () {
                                 $state.go("home");
                             });
                         });
@@ -90,14 +102,14 @@ angular.module('cookbook', [
                         return Recipe.query().$promise;
                     }]
                 },
-                controller: function($scope, recipes) {
+                controller: function ($scope, recipes) {
                     $scope.recipes = recipes;
                 }
             })
             .state("add", {
                 url: "/add",
                 templateUrl: "partials/edit/new-recipe.html",
-                params: { "recipe": null },
+                params: {"recipe": null},
                 resolve: {
                     recipe: ['$stateParams', function ($stateParams) {
                         if ($stateParams.recipe) {
@@ -113,10 +125,10 @@ angular.module('cookbook', [
                 url: "/edit/:id",
                 templateUrl: "partials/edit/new-recipe.html",
                 resolve: {
-                    recipe: ['Recipe', '$stateParams', 
+                    recipe: ['Recipe', '$stateParams',
                         function (Recipe, $stateParams) {
                             return Recipe.get({recipeId: $stateParams.id}).$promise;
-                    }]
+                        }]
                 },
                 controller: 'ModifyRecipeCtrl'
             })
@@ -129,10 +141,10 @@ angular.module('cookbook', [
                             return Recipe.get({recipeId: $stateParams.id}).$promise;
                         }]
                 },
-                controller: function($scope, $state, recipe) {
+                controller: function ($scope, $state, recipe) {
                     $scope.recipe = recipe;
-                    $scope.back = function() {
-                        $state.go("view", { id: recipe.id });
+                    $scope.back = function () {
+                        $state.go("view", {id: recipe.id});
                     }
                 }
             });

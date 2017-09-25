@@ -34,11 +34,12 @@
                         <input id="cookTime" type="text" class="form-control" ng-model="newRecipe.cookTime">
                     </md-input-container>
                 </div>
-
-                <md-input-container>
-                    <label for="servings">Servings</label>
-                    <input id="servings" type="text" class="form-control" ng-model="newRecipe.servings">
-                </md-input-container>
+                <div layout="row">
+                    <md-input-container flex>
+                        <label for="servings">Servings</label>
+                        <input id="servings" type="text" class="form-control" ng-model="newRecipe.servings" flex>
+                    </md-input-container>
+                </div>
                 <div layout="row">
                     <md-checkbox flex ng-model="newRecipe.options.isCrockPot">Crock Pot</md-checkbox>
                     <md-checkbox flex ng-model="newRecipe.options.isVegetarian">Vegetarian</md-checkbox>

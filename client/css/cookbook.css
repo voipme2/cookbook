@@ -58,8 +58,8 @@
     font-size: 10pt;
 }
 
-.recipe-step {
-    font-size: 14pt;
+md-fab-speed-dial.md-fab-bottom-right {
+    position: fixed !important;
 }
 
 /* pace loading indicator */

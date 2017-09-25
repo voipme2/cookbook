@@ -1,2 +1,15 @@
 <h3>Steps</h3>
-<step ng-repeat="step in recipe.steps"></step>
+<md-list>
+    <md-list-item ng-repeat="step in $ctrl.steps" class="noright">
+        <md-input-container flex md-no-float>
+            <textarea ng-model="step.text"></textarea>
+        </md-input-container>
+        <md-icon ng-if="$index != 0" class="md-secondary md-hue-3" aria-label="Move up"
+                 md-svg-icon="img/up-black.svg" ng-click="$ctrl.moveUp($index)" ></md-icon>
+        <md-icon ng-if="$index != $ctrl.steps.length - 1" class="md-secondary md-hue-3"
+                 aria-label="Move down" md-svg-icon="img/down-black.svg"
+                 ng-click="$ctrl.moveDown($index)"></md-icon>
+        <md-icon class="md-secondary md-hue-3" md-svg-icon="img/delete-black.svg"
+                 aria-label="Delete" ng-click="$ctrl.remove($index)"></md-icon>
+    </md-list-item>
+</md-list>
