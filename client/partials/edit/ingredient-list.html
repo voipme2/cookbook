@@ -1,8 +1,14 @@
 <h3>Ingredients</h3>
 <md-list>
+    <md-list-item class="no-right">
+        <md-input-container flex md-no-float>
+            <input type="text" ng-paste="$ctrl.handlePaste($event)" ng-keypress="$ctrl.checkEnter($event)"
+                      placeholder="Start typing ingredients.">
+        </md-input-container>
+    </md-list-item>
     <md-list-item ng-repeat="ingredient in $ctrl.ingredients" class="noright">
         <md-input-container flex>
-            <input ng-model="ingredient.text">
+            <input type="text" ng-model="ingredient.text">
         </md-input-container>
         <md-icon ng-if="$index != 0" class="md-secondary md-hue-3" aria-label="Move up"
                  md-svg-icon="img/up-black.svg" ng-click="$ctrl.moveUp($index)" ></md-icon>

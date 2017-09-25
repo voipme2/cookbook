@@ -43,8 +43,28 @@ angular.module("cookbook.components", [])
                 ctrl.ingredients.splice(index + 1, 0, ing);
             };
 
-            ctrl.remove = function(index) {
-               ctrl.ingredients.splice(index, 1);
+            ctrl.remove = function (index) {
+                ctrl.ingredients.splice(index, 1);
+            };
+
+            ctrl.checkEnter = function (event) {
+                if (event.which === 13 && event.target.value.length > 0) {
+                    ctrl.ingredients.push({text: event.target.value});
+                    event.target.value = "";
+                    event.preventDefault();
+                }
+            };
+
+            ctrl.handlePaste = function ($event) {
+                var data = event.clipboardData.getData('text/plain');
+                var toAdd = data.split("\n");
+                toAdd.forEach(function (item) {
+                    var ind = item.trim();
+                    if (ind.length > 0 && ind.indexOf("Read more") == -1) {
+                        ctrl.ingredients.push({text: ind});
+                    }
+                });
+                event.preventDefault();
             }
         }
     })
@@ -67,8 +87,28 @@ angular.module("cookbook.components", [])
                 ctrl.steps.splice(index + 1, 0, ing);
             };
 
-            ctrl.remove = function(index) {
+            ctrl.remove = function (index) {
                 ctrl.steps.splice(index, 1);
-            }
+            };
+
+            ctrl.checkEnter = function (event) {
+                if (event.which === 13 && event.target.value.length > 0) {
+                    ctrl.steps.push({text: event.target.value});
+                    event.target.value = "";
+                    event.preventDefault();
+                }
+            };
+
+            ctrl.handlePaste = function ($event) {
+                var data = event.clipboardData.getData('text/plain');
+                var toAdd = data.split("\n");
+                toAdd.forEach(function (item) {
+                    var ind = item.trim();
+                    if (ind.length > 0 && ind.indexOf("Read more") == -1) {
+                        ctrl.steps.push({text: ind});
+                    }
+                });
+                event.preventDefault();
+            };
         }
     });

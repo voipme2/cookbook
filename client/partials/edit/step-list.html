@@ -1,5 +1,11 @@
 <h3>Steps</h3>
 <md-list>
+    <md-list-item class="no-right">
+        <md-input-container flex md-no-float>
+            <textarea ng-paste="$ctrl.handlePaste($event)" ng-keypress="$ctrl.checkEnter($event)"
+                      placeholder="Enter some text in here and press enter to add a step."></textarea>
+        </md-input-container>
+    </md-list-item>
     <md-list-item ng-repeat="step in $ctrl.steps" class="noright">
         <md-input-container flex md-no-float>
             <textarea ng-model="step.text"></textarea>
