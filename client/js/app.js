@@ -50,15 +50,14 @@ angular.module('cookbook', [
                         .ok('Do it')
                         .cancel('Cancel');
 
-                    $mdDialog.show(confirm).then(function(result) {
-                        // save the recipe
+                    $mdDialog.show(confirm).then(function (result) {
                         $http({
                             method: 'GET',
                             url: '/api/fetch',
-                            params: { recipeUrl: result }
-                        }).then(function(foundRecipe) {
+                            params: {recipeUrl: result}
+                        }).then(function (foundRecipe) {
                             $state.go('add', {recipe: foundRecipe.data});
-                        }, function(err) {
+                        }, function (err) {
                             console.log("error downloading: ", err);
                         });
                     });
