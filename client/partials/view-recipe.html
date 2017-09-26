@@ -48,7 +48,7 @@
             </div>
             <div flex class="recipe-detail">
 
-                <md-card md-theme="'default'" md-theme-watch>
+                <md-card md-theme="default" md-theme-watch>
                     <md-card-title>
                         <md-card-title-text>
                             <span class="md-headline">{{recipe.name}}
@@ -72,14 +72,18 @@
                         </md-card-title-media>
                     </md-card-title>
                     <md-card-content>
-                        <div layout="row" layout-align="space-around start">
-                            <div flex>Cook time <b>{{recipe.totalTime}}</b></div>
+                        <div layout="row" layout-margin layout-align="center center">
                             <div flex>Yield <b>{{recipe.servings || 0}}</b></div>
                         </div>
-
+                        <div layout="row" layout-margin layout-align="center center">
+                            <div flex>Total <b>{{recipe.totalTime}}</b></div>
+                            <div flex>Prep <b>{{recipe.prepTime}}</b></div>
+                            <div flex>Cook <b>{{recipe.cookTime}}</b></div>
+                            <div flex>Inactive <b>{{recipe.inactiveTime}}</b></div>
+                        </div>
                         <div class="recipe-steps">
                             <md-list>
-                                <md-list-item class="md-long-text" ng-click="null" ng-repeat="step in recipe.steps">
+                                <md-list-item ng-repeat="step in recipe.steps">
                                     <h2 class="md-avatar">{{$index + 1}}</h2>
                                     <div class="md-list-item-text">
                                         <p>{{step.text}}</p>

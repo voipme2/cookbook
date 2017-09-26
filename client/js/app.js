@@ -29,19 +29,19 @@ angular.module('cookbook', [
                 }]
             },
             templateUrl: "partials/home.html",
-            controller: function ($rootScope, $state, $http, $mdDialog, recipes, Recipe) {
+            controller: function ($scope, $state, $http, $mdDialog, recipes, Recipe) {
                 // always have the recipes available.
-                $rootScope.recipeCount = recipes.length;
+                $scope.recipeCount = recipes.length;
 
-                $rootScope.selectRecipe = function (recipe) {
+                $scope.selectRecipe = function (recipe) {
                     $state.go('view', {id: recipe.recipe.id});
                 };
 
-                $rootScope.createRecipe = function () {
+                $scope.createRecipe = function () {
                     $state.go('add');
                 };
 
-                $rootScope.downloadRecipe = function () {
+                $scope.downloadRecipe = function () {
                     var confirm = $mdDialog.prompt()
                         .title('Download a recipe')
                         .textContent('Enter the URL for the recipe to be downloaded.')

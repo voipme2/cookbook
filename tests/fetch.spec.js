@@ -6,6 +6,8 @@ describe("scraper tests", function() {
         scraper.fetchAllRecipes("http://allrecipes.com/recipe/15057/overnight-blueberry-french-toast/",
             function(recipe) {
                 expect(recipe.name).toEqual("Overnight Blueberry French Toast");
+                expect(recipe.prepTime).toEqual("15 min");
+                expect(recipe.cookTime).toEqual("75 min");
                 done();
             }
         );
@@ -15,6 +17,19 @@ describe("scraper tests", function() {
         scraper.fetchFoodNetwork("http://www.foodnetwork.com/recipes/ellie-krieger/fettuccine-with-creamy-red-pepper-feta-sauce-recipe-1946840",
             function(recipe) {
                 expect(recipe.name).toEqual("Fettuccine with Creamy Red Pepper-Feta Sauce");
+                expect(recipe.prepTime).toEqual("12 min");
+                expect(recipe.cookTime).toEqual("25 min");
+                done();
+            }
+        );
+    });
+
+    it("should return a recipe from foodnetwork", function(done) {
+        scraper.fetchFoodNetwork("http://www.foodnetwork.com/recipes/anne-burrell/orecchiette-with-pancetta-pumpkin-and-broccoli-rabe-3568201",
+            function(recipe) {
+                expect(recipe.name).toEqual("Orecchiette with Pancetta, Pumpkin and Broccoli Rabe");
+                expect(recipe.inactiveTime).toEqual("35 min");
+                expect(recipe.cookTime).toEqual("25 min");
                 done();
             }
         );

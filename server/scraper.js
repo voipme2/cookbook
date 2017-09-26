@@ -28,8 +28,8 @@ var fetchAllRecipes = function (recipeUrl, success, error) {
                 }).filter(function (ste) {
                     return ste.text.length > 0
                 }),
-                prepTime: moment.duration(parseDuration(document.querySelector("time[itemprop='prepTime']").textContent)).asMinutes(),
-                cookTime: moment.duration(parseDuration(document.querySelector("time[itemprop='cookTime']").textContent)).asMinutes()
+                prepTime: moment.duration(parseDuration(document.querySelector("time[itemprop='prepTime']").textContent)).asMinutes() + " min",
+                cookTime: moment.duration(parseDuration(document.querySelector("time[itemprop='cookTime']").textContent)).asMinutes() + " min"
             };
 
             success(recipeData);
@@ -38,7 +38,7 @@ var fetchAllRecipes = function (recipeUrl, success, error) {
             error(err);
         }
     });
-}
+};
 
 var fetchFoodNetwork = function (recipeUrl, success, error) {
     request({url: recipeUrl, headers: HEADERS}, function (err, resp, body) {
@@ -58,14 +58,26 @@ var fetchFoodNetwork = function (recipeUrl, success, error) {
                 })
             };
 
-            // only should have 'total' and 'active'
+            var timeLabels =  Array.prototype.slice.call(document.querySelectorAll("section.o-RecipeInfo.o-Time > dl > dt"))
+                .map(function (n) {
+                    return n.textContent.replace(":", "");
+                });
             var timeValues = Array.prototype.slice.call(document.querySelectorAll("section.o-RecipeInfo.o-Time > dl > dd"))
                 .map(function (n) {
                     return moment.duration(parseDuration(n.textContent.replace(":", "")));
                 });
 
-            recipeData.inactiveTime = timeValues[0].subtract(timeValues[1]).asMinutes();
-            recipeData.cookTime = timeValues[1].asMinutes();
+            var times = {};
+            timeLabels.forEach(function(label, ind) {
+                times[label] = timeValues[ind];
+            });
+            if (times["Active"]) {
+                recipeData.inactiveTime = times.Total.subtract(times.Active).asMinutes() + " min";
+                recipeData.cookTime = times.Active.asMinutes() + " min";
+            } else {
+                recipeData.prepTime = times.Prep.asMinutes() + " min";
+                recipeData.cookTime = times.Cook.asMinutes() + " min";
+            }
 
             success(recipeData);
         } else {

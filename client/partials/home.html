@@ -1,25 +1,24 @@
 <div layout="row" layout-align="center center">
-    <div flex="80">
+    <div flex="60">
         <md-card>
-            <md-card-header>
-                <md-card-avatar>
-                    <img src="img/cookbook.png">
-                </md-card-avatar>
-            </md-card-header>
+
             <md-card-title>
                 <md-card-title-text>
-                    <span class="md-headline">cookbook</span>
+                    <span class="md-headline">cookbook!</span>
                     <span class="md-subhead"><a href="#/list"><b>{{recipeCount}}</b> recipes inside</a></span>
                 </md-card-title-text>
+                <md-card-title-media>
+                    <img ng-src="img/cookbook.png" class="md-media-md card-media">
+                </md-card-title-media>
             </md-card-title>
             <md-card-content>
                 <p>
-                    <search-box on-select="$root.selectRecipe({recipe: recipe })"></search-box>
+                    <search-box on-select="selectRecipe({recipe: recipe })"></search-box>
                 </p>
             </md-card-content>
-            <md-card-actions layout="row" layout-align="center">
-                <md-button class="md-primary md-raised" ng-click="$root.createRecipe()">Create</md-button>
-                <md-button class="md-accent md-raised" ng-click="$root.downloadRecipe()">Download</md-button>
+            <md-card-actions layout="row" layout-align="center center">
+                <md-button class="md-primary md-raised" ng-click="createRecipe()">Create</md-button>
+                <md-button class="md-accent md-raised" ng-click="downloadRecipe()">Download</md-button>
             </md-card-actions>
         </md-card>
     </div>
