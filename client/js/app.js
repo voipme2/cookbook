@@ -19,7 +19,10 @@ angular.module('cookbook', [
         $urlRouterProvider.when("", "/home");
         $urlRouterProvider.when("/", "/home");
 
-        $urlRouterProvider.otherwise("/home");
+        $urlRouterProvider.otherwise(function($injector) {
+            var $state = $injector.get('$state');
+            $state.go('home');
+        });
 
         $stateProvider.state('home', {
             url: "/home",
