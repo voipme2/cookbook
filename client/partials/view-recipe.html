@@ -2,13 +2,17 @@
     <md-fab-speed-dial md-direction="up" class="md-scale md-fab-bottom-right md-hover-full" md-open="menu.isOpen"
                        ng-mouseenter="menu.isOpen=true" ng-mouseleave="menu.isOpen=false">
         <md-fab-trigger>
-            <md-button class="md-fab md-primary" aria-label="Search" href="#/home">
-                <md-tooltip md-direction="left" md-visible="tooltipVisible">Search</md-tooltip>
-                <md-icon md-svg-icon="img/search.svg"></md-icon>
+            <md-button class="md-fab md-primary" aria-label="Menu">
+                <md-tooltip md-direction="left" md-visible="tooltipVisible">Menu</md-tooltip>
+                <md-icon md-svg-icon="img/menu.svg"></md-icon>
             </md-button>
         </md-fab-trigger>
 
         <md-fab-actions>
+            <md-button class="md-fab md-primary md-raised md-mini" aria-label="Search" href="#/home">
+                <md-tooltip md-direction="left" md-visible="tooltipVisible">Search</md-tooltip>
+                <md-icon md-svg-icon="img/search.svg"></md-icon>
+            </md-button>
             <md-button class="md-fab md-accent md-raised md-mini" aria-label="Edit"
                        href="#/edit/{{recipe.id}}">
                 <md-tooltip md-direction="left" md-visible="tooltipVisible"
