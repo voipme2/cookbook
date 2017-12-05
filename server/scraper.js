@@ -71,12 +71,16 @@ var fetchFoodNetwork = function (recipeUrl, success, error) {
             timeLabels.forEach(function(label, ind) {
                 times[label] = timeValues[ind];
             });
-            if (times["Active"]) {
+            if (times.Active) {
                 recipeData.inactiveTime = times.Total.subtract(times.Active).asMinutes() + " min";
                 recipeData.cookTime = times.Active.asMinutes() + " min";
             } else {
-                recipeData.prepTime = times.Prep.asMinutes() + " min";
-                recipeData.cookTime = times.Cook.asMinutes() + " min";
+                if (times.Prep) {
+                    recipeData.prepTime = times.Prep.asMinutes() + " min";
+                }
+                if (times.Cook) {
+                    recipeData.cookTime = times.Cook.asMinutes() + " min";
+                }
             }
 
             success(recipeData);

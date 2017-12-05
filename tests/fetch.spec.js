@@ -34,4 +34,15 @@ describe("scraper tests", function() {
             }
         );
     });
+
+    it("should return a recipe from foodnetwork with no cooktime", function(done) {
+        scraper.fetchFoodNetwork("http://www.foodnetwork.com/recipes/food-network-kitchen/veggie-lovers-club-sandwich-recipe-2120987",
+            function(recipe) {
+                expect(recipe.name).toEqual("Veggie Lover's Club Sandwich");
+                expect(recipe.cookTime).toBeUndefined();
+                expect(recipe.prepTime).toEqual("30 min");
+                done();
+            }
+        );
+    });
 });
