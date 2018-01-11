@@ -30,6 +30,7 @@ angular.module('cookbook', [
             },
             templateUrl: "partials/home.html",
             controller: function ($scope, $state, $http, $mdDialog, recipes, Recipe) {
+                window.document.title = "cookbook";
                 // always have the recipes available.
                 $scope.recipeCount = recipes.length;
 
@@ -73,6 +74,7 @@ angular.module('cookbook', [
                     }]
                 },
                 controller: function ($scope, $state, $mdDialog, recipe) {
+                    window.document.title = recipe.name;
                     $scope.recipe = recipe;
                     $scope.menu = {isOpen: false};
                     $scope.uploadImage = function () {
@@ -102,6 +104,7 @@ angular.module('cookbook', [
                     }]
                 },
                 controller: function ($scope, recipes) {
+                    window.document.title = "cookbook";
                     $scope.recipes = recipes;
                 }
             })
@@ -141,6 +144,7 @@ angular.module('cookbook', [
                         }]
                 },
                 controller: function ($scope, $state, recipe) {
+                    window.document.title = recipe.name;
                     $scope.recipe = recipe;
                     $scope.back = function () {
                         $state.go("view", {id: recipe.id});

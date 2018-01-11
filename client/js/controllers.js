@@ -2,6 +2,7 @@ angular.module("cookbook.controllers", [])
 
     .controller("ModifyRecipeCtrl", [ '$scope', '$state', 'recipe', 'Recipe',
         function ($scope, $state, recipe, Recipe) {
+            window.document.title = "cookbook";
             $scope.newRecipe = recipe;
 
             $scope.save = function () {
