@@ -1,8 +1,14 @@
 // testing
-const DB_FILE = "./recipes.json";
+const path = require('path');
+const DB_FILE = path.resolve(__dirname + "/recipes.json");
 
 var fs = require('fs');
-var recipes = require(DB_FILE)
+var tryRequire = require('try-require');
+var recipes = tryRequire(DB_FILE);
+
+if (!recipes) {
+    recipes = [];
+}
 
 function idList() {
     return recipes.map(function(r) { return r.id; });
