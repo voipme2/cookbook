@@ -53,11 +53,11 @@
                     </md-input-container>
                 </div>
                 <div layout="row">
-                    <md-checkbox flex ng-model="newRecipe.options.isCrockPot">Crock Pot</md-checkbox>
-                    <md-checkbox flex ng-model="newRecipe.options.isVegetarian">Vegetarian</md-checkbox>
-                    <md-checkbox flex ng-model="newRecipe.options.isVegan">Vegan</md-checkbox>
-                    <md-checkbox flex ng-model="newRecipe.options.isGlutenFree">Gluten-free</md-checkbox>
-                    <md-checkbox flex ng-model="newRecipe.options.isDairyFree">Dairy-free</md-checkbox>
+                    <md-checkbox flex ng-model="newRecipe.options.isCrockPot">Crock Pot <md-icon md-svg-icon="img/crockpot.svg"></md-icon></md-checkbox>
+                    <md-checkbox flex ng-model="newRecipe.options.isVegetarian">Vegetarian <md-icon md-svg-icon="img/vegetarian.svg" style="color: green"></md-icon></md-checkbox>
+                    <md-checkbox flex ng-model="newRecipe.options.isVegan">Vegan <md-icon md-svg-icon="img/vegan.svg" style="color:saddlebrown"></md-icon></md-checkbox>
+                    <md-checkbox flex ng-model="newRecipe.options.isGlutenFree">Gluten-free <md-icon md-svg-icon="img/glutenfree.svg" style="color: darkorange"></md-icon></md-checkbox>
+                    <md-checkbox flex ng-model="newRecipe.options.isDairyFree">Dairy-free <md-icon md-svg-icon="img/dairyfree.svg" style="color: blue"></md-icon></md-checkbox>
                 </div>
                 <ingredient-list ingredients="newRecipe.ingredients"></ingredient-list>
                 <step-list steps="newRecipe.steps"></step-list>

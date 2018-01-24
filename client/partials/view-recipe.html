@@ -56,16 +56,16 @@
                     <md-card-title>
                         <md-card-title-text>
                             <span class="md-headline">{{recipe.name}}
-                            <span class="md-avatar-icon" ng-if="recipe.options.isVegetarian" style="color: green"
-                                  title="Vegetarian">V</span>
-                            <span class="md-avatar" ng-if="recipe.options.isVegan" style="color: brown"
-                                  title="Vegan">V</span>
+                            <span class="md-avatar-icon" ng-if="recipe.options.isVegetarian"
+                                  title="Vegetarian"><md-icon md-svg-icon="img/vegetarian.svg" style="color: green"></md-icon></span>
+                            <span class="md-avatar" ng-if="recipe.options.isVegan"
+                                  title="Vegan"><md-icon md-svg-icon="img/vegan.svg" style="color:saddlebrown"></md-icon></span>
                             <span class="md-avatar" ng-if="recipe.options.isCrockPot"
-                                  title="Crock Pot">C</span>
-                            <span class="md-avatar" ng-if="recipe.options.isGlutenFree" style="color: green"
-                                  title="Gluten-free">G</span>
-                            <span class="md-avatar" ng-if="recipe.options.isDairyFree" style="color: green"
-                                  title="Dairy-free">D</span></span>
+                                  title="Crock Pot"><md-icon md-svg-icon="img/crockpot.svg"></md-icon></span>
+                            <span class="md-avatar" ng-if="recipe.options.isGlutenFree"
+                                  title="Gluten-free"><md-icon md-svg-icon="img/glutenfree.svg" style="color: darkorange"></md-icon></span>
+                            <span class="md-avatar" ng-if="recipe.options.isDairyFree"
+                                  title="Dairy-free"><md-icon md-svg-icon="img/dairyfree.svg" style="color: blue"></md-icon></span></span>
                             <span class="md-subhead">
                                 <span ng-if="recipe.description.length > 0">{{recipe.description}}, </span>by
                     {{recipe.author}}
