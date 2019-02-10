@@ -53,7 +53,7 @@ var fetchFoodNetwork = function (recipeUrl, success, error) {
       var ldData = JSON.parse(document.querySelector("script[type='application/ld+json']").textContent);
       var recipeData = {
         name: ldData.name,
-        author: ldData.author[0].name,
+        author: ldData.author[0] ? ldData.author[0].name : '',
         servings: ldData.recipeYield,
         ingredients: ldData.recipeIngredient.map(function (ing) {
           return {text: ing};
