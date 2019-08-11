@@ -50,7 +50,7 @@ var fetchFoodNetwork = function (recipeUrl, success, error) {
       var env = new JSDOM(body);
       var document = env.window.document;
       // thanks, foodnetwork!
-      var ldData = JSON.parse(document.querySelector("script[type='application/ld+json']").textContent);
+      var ldData = JSON.parse(document.querySelector("script[type='application/ld+json']").textContent)[0];
       var recipeData = {
         name: ldData.name,
         author: ldData.author[0] ? ldData.author[0].name : '',
