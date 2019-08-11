@@ -51,6 +51,7 @@ var fetchFoodNetwork = function (recipeUrl, success, error) {
       var document = env.window.document;
       // thanks, foodnetwork!
       var ldData = JSON.parse(document.querySelector("script[type='application/ld+json']").textContent)[0];
+      //console.log(JSON.stringify(ldData, null, 2));
       var recipeData = {
         name: ldData.name,
         author: ldData.author[0] ? ldData.author[0].name : '',
@@ -59,7 +60,7 @@ var fetchFoodNetwork = function (recipeUrl, success, error) {
           return {text: ing};
         }),
         steps: ldData.recipeInstructions.map(function (step) {
-          return {text: step};
+          return {text: step.text};
         })
       };
       if (ldData.prepTime) {

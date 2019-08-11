@@ -60,6 +60,7 @@ describe("scraper tests", function() {
       function (recipe) {
         expect(recipe.name).toEqual("Zucchini-Corn Fritters");
         expect(recipe.author).toEqual("Food Network Kitchen");
+        expect(recipe.steps[0].text).toEqual("Toss the zucchini with 1/2 teaspoon salt in a bowl; let stand 10 minutes. Wrap the zucchini in a kitchen towel and squeeze dry.");
         done();
       }
     );
