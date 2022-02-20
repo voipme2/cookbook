@@ -27,6 +27,7 @@ router.get('/recipes/:recipeId', async function (req, res) {
   });
 
   recipe.totalTime = duration(totalTime, "minutes").format("d [d] h [hr] m [min]");
+  recipe.id = req.params.recipeId;
 
   res.setHeader('Content-Type', 'application/json');
   res.send(JSON.stringify(recipe));

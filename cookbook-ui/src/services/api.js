@@ -17,7 +17,31 @@ export const api = createApi({
       providesTags: ['SearchRecipe']
     }),
     getOne: build.query({
-      query: id => `/recipes/${id}`
+      query: id => `/recipes/${id}`,
+      providesTags: ['Recipe']
+    }),
+    saveRecipe: build.mutation({
+      query: ({ ...recipe }) => ({
+        url: '/recipes',
+        method: 'POST',
+        body: recipe
+      }),
+      invalidatesTags: ['SearchRecipe']
+    }),
+    updateRecipe: build.mutation({
+      query: ({ id, ...recipe }) => ({
+        url: `/recipes/${id}`,
+        method: 'POST',
+        body: recipe
+      }),
+      invalidatesTags: ['Recipe'],
+    }),
+    deleteRecipe: build.mutation({
+      query: ({ id }) => ({
+        url: `/recipes/${id}`,
+        method: 'DELETE'
+      }),
+      invalidatesTags: ['SearchRecipe']
     })
   })
 })
@@ -25,5 +49,8 @@ export const api = createApi({
 export const {
   useGetRecipesQuery,
   useSearchQuery,
-  useGetOneQuery
+  useGetOneQuery,
+  useSaveRecipeMutation,
+  useUpdateRecipeMutation,
+  useDeleteRecipeMutation,
 } = api;

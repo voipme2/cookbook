@@ -72,6 +72,7 @@ export default function NavBar() {
           <Box sx={{flex: 1}}>
             <Button sx={{color: 'white'}} variant="contained" onClick={() => navigate("/")}>Home</Button>
             <Button sx={{color: 'white'}} variant="contained" onClick={() => navigate("/list")}>List</Button>
+            <Button sx={{color: 'white'}} variant="contained" onClick={() => navigate("/new")}>New</Button>
           </Box>
           <Box sx={{flexGrow: 0}}>
             <Search>

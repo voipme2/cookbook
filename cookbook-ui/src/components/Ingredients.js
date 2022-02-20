@@ -1,13 +1,10 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {List, ListItemButton, ListItemText, ListSubheader} from "@mui/material";
-import {grey} from "@mui/material/colors";
 
 const Ingredient = ({text}) => {
-  const [done, setDone] = useState(false);
-  return (<ListItemButton onClick={() => setDone(!done)}>
+  return (<ListItemButton>
       <ListItemText sx={{
-        textDecoration: done ? 'line-through' : 'none',
-        color: done ? grey[400] : 'black'
+        color: 'black'
       }} primary={text}/>
     </ListItemButton>
 

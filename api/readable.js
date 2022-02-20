@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const recipes = require('./data/recipes.json');
+const recipes = require('./backups/recipes.json');
 
 fs.writeFileSync("recipes.txt", recipes.map(r => {
   let out = `${r.name}\n`;

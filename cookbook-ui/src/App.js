@@ -8,7 +8,7 @@ import NewRecipe from './components/NewRecipe';
 import ListRecipes from './components/ListRecipes';
 import ViewRecipe from './components/ViewRecipe';
 import PrintRecipe from './components/PrintRecipe';
-import EditRecipe from './components/EditRecipe';
+import ModifyRecipe from './components/ModifyRecipe';
 
 function App() {
 
@@ -21,7 +21,7 @@ function App() {
           <Route path="list" element={<ListRecipes /> } />
           <Route path="view/:recipeId" element={<ViewRecipe />} />
           <Route path="print/:recipeId" element={<PrintRecipe />} />
-          <Route path="edit/:recipeId" element={<EditRecipe />} />
+          <Route path="edit/:recipeId" element={<ModifyRecipe />} />
         </Route>
       </Routes>
     </div>
