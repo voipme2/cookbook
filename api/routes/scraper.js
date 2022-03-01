@@ -1,4 +1,4 @@
-const request = require('request');
+const fetch = require('node-fetch');
 const jsdom = require('jsdom');
 const moment = require('moment');
 const parseDuration = require('parse-duration');
@@ -8,84 +8,119 @@ const HEADERS = {
   'User-Agent': "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36"
 };
 
-const fetchAllRecipes = async function (recipeUrl, success, error) {
-  request({url: recipeUrl, headers: HEADERS}, function (err, resp, body) {
-    if (!err && resp.statusCode === 200) {
-      var env = new JSDOM(body);
-      var document = env.window.document;
-      var sNumber = document.querySelector("meta[itemprop='recipeYield']").content;
-      var recipeData = {
-        name: document.querySelector("h1.recipe-summary__h1").textContent,
-        author: document.querySelector("span.submitter__name").textContent,
-        servings: sNumber + " " + document.querySelector("span.servings-count").textContent.trim(),
-        ingredients: Array.prototype.slice.call(document.querySelectorAll("span.recipe-ingred_txt[itemprop='ingredients']")).map(function (ing) {
-          return {text: ing.textContent};
-        }).filter(function (ing) {
-          return ing.text.length > 0 && ing.text !== "Add all ingredients to list";
-        }),
-        steps: Array.prototype.slice.call(document.querySelectorAll("span.recipe-directions__list--item")).map(function (step) {
-          return {text: step.textContent};
-        }).filter(function (ste) {
-          return ste.text.length > 0
-        }),
-        prepTime: moment.duration(parseDuration(document.querySelector("time[itemprop='prepTime']").textContent)).asMinutes() + " min",
-        cookTime: moment.duration(parseDuration(document.querySelector("time[itemprop='cookTime']").textContent)).asMinutes() + " min"
-      };
-
-      success(recipeData);
-
-    } else {
-      error(err);
-    }
-  });
-};
+function getRecipeData(recipe) {
+  const author = Array.isArray(recipe.author) ? recipe.author[0] : recipe.author;
+  const recipeData = {
+    name: recipe.name,
+    author: author.name,
+    servings: recipe.recipeYield,
+    ingredients: recipe.recipeIngredient.map(function (ing) {
+      return {text: ing};
+    }),
+    steps: recipe.recipeInstructions.map(function (step) {
+      return {text: step.text};
+    })
+  };
+  if (recipe.prepTime) {
+    recipeData.prepTime = getTime(recipe.prepTime).asMinutes() + " min";
+  }
+  if (recipe.cookTime) {
+    recipeData.inactiveTime = getTime(recipe.totalTime).subtract(getTime(recipe.cookTime)).asMinutes() + " min";
+    recipeData.cookTime = getTime(recipe.cookTime).asMinutes() + " min";
+  }
+  return recipeData;
+}
 
 function getTime(time) {
   return moment.duration(parseDuration(time));
 }
 
-const fetchFoodNetwork = async function (recipeUrl, success, error) {
-  request({url: recipeUrl, headers: HEADERS}, function (err, resp, body) {
-    if (!err && resp.statusCode === 200) {
-      var env = new JSDOM(body);
-      var document = env.window.document;
-      // thanks, foodnetwork!
-      var ldData = JSON.parse(document.querySelector("script[type='application/ld+json']").textContent);
-      var recipeData = {
-        name: ldData.name,
-        author: ldData.author[0].name,
-        servings: ldData.recipeYield,
-        ingredients: ldData.recipeIngredient.map(function (ing) {
-          return {text: ing};
-        }),
-        steps: ldData.recipeInstructions.map(function (step) {
-          return {text: step};
-        })
-      };
-      if (ldData.prepTime) {
-        recipeData.prepTime = getTime(ldData.prepTime).asMinutes() + " min";
-      }
-      if (ldData.cookTime) {
-        recipeData.inactiveTime = getTime(ldData.totalTime).subtract(getTime(ldData.cookTime)).asMinutes() + " min";
-        recipeData.cookTime = getTime(ldData.cookTime).asMinutes() + " min";
-      }
-      success(recipeData);
-    } else {
-      error(err);
-    }
+const getDocument = text => {
+  const virtualConsole = new jsdom.VirtualConsole();
+  virtualConsole.on("error", () => {
   });
+  const env = new JSDOM(text, {virtualConsole});
+  return env.window.document;
+}
+
+const fetchBonAppetit = async function (recipeUrl) {
+  const res = await fetch(recipeUrl, {headers: HEADERS});
+  if (res) {
+    const text = await res.text();
+    const document = getDocument(text);
+    const recipe = JSON.parse(document.querySelector("head > script[type='application/ld+json']").textContent);
+    return getRecipeData(recipe);
+  } else {
+    console.error(`Unable to read recipe at [${recipeUrl}`);
+  }
+};
+
+const fetchEpicurious = async function (recipeUrl) {
+  const res = await fetch(recipeUrl, {headers: HEADERS});
+  if (res) {
+    const text = await res.text();
+    const document = getDocument(text);
+    const recipe = JSON.parse(document.querySelector("head > script[type='application/ld+json']").textContent);
+    return getRecipeData(recipe);
+  } else {
+    console.error(`Unable to read recipe at [${recipeUrl}`);
+  }
+};
+
+const fetchOnceUponAChef = async function (recipeUrl) {
+  const res = await fetch(recipeUrl, {headers: HEADERS});
+  if (res) {
+    const text = await res.text();
+    const document = getDocument(text);
+    const recipe = JSON.parse(document.querySelectorAll("head > script[type='application/ld+json']")[1].textContent);
+    return getRecipeData(recipe);
+  } else {
+    console.error(`Unable to read recipe at [${recipeUrl}`);
+  }
+};
+
+const fetchAllRecipes = async function (recipeUrl) {
+  const res = await fetch(recipeUrl, {headers: HEADERS});
+  if (res) {
+    const text = await res.text();
+    const document = getDocument(text);
+    const ldData = JSON.parse(document.querySelector("head > script[type='application/ld+json']").textContent);
+    const recipe = ldData[1];
+    // console.log(JSON.stringify(recipe, null, 2));
+    return getRecipeData(recipe);
+  } else {
+    console.error(`Unable to read recipe at [${recipeUrl}`);
+  }
+};
+
+const fetchFoodNetwork = async function (recipeUrl) {
+  const res = await fetch(recipeUrl, {headers: HEADERS});
+  if (res) {
+    const text = await res.text();
+    const document = getDocument(text);
+    const ldData = JSON.parse(document.querySelector("script[type='application/ld+json']").textContent);
+    const recipe = ldData[0];
+    // console.log(JSON.stringify(recipe, null, 2));
+    return getRecipeData(recipe);
+  } else {
+    console.error(`Unable to read recipe at [${recipeUrl}`);
+  }
 };
 
 module.exports = {
-
-  fetch: async function (url, success, error) {
+  fetch: async function (url) {
     if (url.indexOf("foodnetwork.com") !== -1) {
-      return await fetchFoodNetwork(url, success, error)
+      return await fetchFoodNetwork(url)
     } else if (url.indexOf("allrecipes.com") !== -1) {
-      return await fetchAllRecipes(url, success, error);
+      return await fetchAllRecipes(url);
+    } else if (url.indexOf("onceuponachef.com") !== -1) {
+      return await fetchOnceUponAChef(url);
+    } else if (url.indexOf("epicurious.com") !== -1) {
+      return await fetchEpicurious(url);
+    } else if (url.indexOf("bonappetit.com") !== -1) {
+      return await fetchBonAppetit(url);
+    } else {
+      console.log(`Unknown recipe provider: ${url}`)
     }
-  },
-
-  fetchFoodNetwork: fetchFoodNetwork,
-  fetchAllRecipes: fetchAllRecipes
+  }
 };

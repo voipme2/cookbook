@@ -42,6 +42,9 @@ export const api = createApi({
         method: 'DELETE'
       }),
       invalidatesTags: ['SearchRecipe']
+    }),
+    fetchRecipe: build.query({
+      query: ({recipeUrl}) => `/api/fetch/?recipeUrl=${recipeUrl}`
     })
   })
 })
@@ -53,4 +56,5 @@ export const {
   useSaveRecipeMutation,
   useUpdateRecipeMutation,
   useDeleteRecipeMutation,
+  useFetchRecipeQuery
 } = api;

@@ -77,6 +77,22 @@ const EditRecipe = () => {
     }
   }
 
+  const handlePasteIngredients = event => {
+    event.clipboardData.getData("text/plain")
+      .split(/\r\n/)
+      .filter(i => i.length !== 0)
+      .forEach(text => dispatch(addIngredient({ text })));
+    setNewIngredient("");
+  }
+
+  const handlePasteSteps = event => {
+    event.clipboardData.getData("text/plain")
+      .split(/\r\n/)
+      .filter(i => i.length !== 0)
+      .forEach(text => dispatch(addStep({ text })));
+    setNewStep("");
+  }
+
   const handleAddNewStep = ({ keyCode }) => {
     if (keyCode === 13) {
       dispatch(addStep({text: newStep }));
@@ -101,7 +117,8 @@ const EditRecipe = () => {
           <ListSubheader>Ingredients</ListSubheader>
           {ingredients && ingredients.map((ing, idx) => <ListItemButton
             key={`ing-${idx}`}>
-            <ListItemText primary={ing.text} />
+            <ListItemText primary={<TextField value={ing.text} fullWidth
+                                              onChange={e => dispatch(updateIngredient({ idx, text: e.target.value }))} />} />
             <ListItemSecondaryAction>
               <IconButton edge="end" aria-label="delete" onClick={() => dispatch(removeIngredient({ idx }))}>
                 <DeleteIcon />
@@ -112,7 +129,7 @@ const EditRecipe = () => {
             <TextField value={newIngredient} fullWidth
                        onChange={e => setNewIngredient(e.target.value)}
                        onKeyDown={handleAddNewIngredient}
-                       label="Ingredient" />
+                       label="Ingredient" inputProps={{ onPaste: handlePasteIngredients }}/>
           </ListItem>
         </List>
       </Grid>
@@ -157,7 +174,8 @@ const EditRecipe = () => {
             <ListItemAvatar>
               <Avatar>{idx + 1}</Avatar>
             </ListItemAvatar>
-            <ListItemText primary={step.text} />
+            <ListItemText primary={<TextField value={step.text} fullWidth multiline
+                                              onChange={e => dispatch(updateStep({ idx, text: e.target.value }))} />} />
             <ListItemSecondaryAction>
               <IconButton edge="end" aria-label="delete" onClick={() => dispatch(removeStep({ idx }))}>
                 <DeleteIcon />
@@ -167,6 +185,7 @@ const EditRecipe = () => {
           <ListItem>
             <TextField value={newStep} fullWidth
                        onChange={e => setNewStep(e.target.value)}
+                       inputProps={{ onPaste: handlePasteSteps }}
                        onKeyDown={handleAddNewStep}
                        label="Steps"
                        placeholder="Type or paste the list of steps here"/>

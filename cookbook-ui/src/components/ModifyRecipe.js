@@ -6,7 +6,7 @@ import {useParams} from "react-router-dom";
 import {useGetOneQuery} from "../services/api";
 import {LinearProgress} from "@mui/material";
 
-const NewRecipe = () => {
+const ModifyRecipe = () => {
   const {recipeId} = useParams();
   const {data: recipe, isLoading} = useGetOneQuery(recipeId);
 
@@ -23,4 +23,4 @@ const NewRecipe = () => {
     </>)
 }
 
-export default NewRecipe;
+export default ModifyRecipe;

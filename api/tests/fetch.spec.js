@@ -1,58 +1,35 @@
 // test to make sure that we can fetch recipes correctly.
-var request = require('request');
-var scraper = require('../server/scraper');
-describe("scraper tests", function() {
-    it("should return overnight blueberry french toast from allrecipes", function (done) {
-        scraper.fetchAllRecipes("http://allrecipes.com/recipe/15057/overnight-blueberry-french-toast/",
-            function(recipe) {
-                expect(recipe.name).toEqual("Overnight Blueberry French Toast");
-                expect(recipe.prepTime).toEqual("15 min");
-                expect(recipe.cookTime).toEqual("75 min");
-                done();
-            }
-        );
-    });
+const scraper = require('../routes/scraper');
+describe("scraper tests", function () {
+  it("should return overnight blueberry french toast from allrecipes", async function () {
+    const recipe = await scraper.fetch("https://www.allrecipes.com/recipe/15057/overnight-blueberry-french-toast/")
+    expect(recipe.name).toEqual("Overnight Blueberry French Toast");
+    expect(recipe.prepTime).toEqual("15 min");
+    expect(recipe.cookTime).toEqual("75 min");
+  });
 
-    it("should return fettucine with creamy red pepper  from foodnetwork", function(done) {
-        scraper.fetchFoodNetwork("http://www.foodnetwork.com/recipes/ellie-krieger/fettuccine-with-creamy-red-pepper-feta-sauce-recipe-1946840",
-            function(recipe) {
-                expect(recipe.name).toEqual("Fettuccine with Creamy Red Pepper-Feta Sauce");
-                expect(recipe.prepTime).toEqual("12 min");
-                expect(recipe.cookTime).toEqual("25 min");
-                done();
-            }
-        );
-    });
+  it("should return fettucine with creamy red pepper from foodnetwork", async function () {
+    const recipe = await scraper.fetch("http://www.foodnetwork.com/recipes/ellie-krieger/fettuccine-with-creamy-red-pepper-feta-sauce-recipe-1946840");
+    expect(recipe.name).toEqual("Fettuccine with Creamy Red Pepper-Feta Sauce");
+    expect(recipe.prepTime).toEqual("12 min");
+    expect(recipe.cookTime).toEqual("25 min");
+  });
 
-    it("should return orecchiette with pancetta pumpkin from foodnetwork", function(done) {
-        scraper.fetchFoodNetwork("http://www.foodnetwork.com/recipes/anne-burrell/orecchiette-with-pancetta-pumpkin-and-broccoli-rabe-3568201",
-            function(recipe) {
-                expect(recipe.name).toEqual("Orecchiette with Pancetta, Pumpkin and Broccoli Rabe");
-                expect(recipe.inactiveTime).toEqual("35 min");
-                expect(recipe.cookTime).toEqual("25 min");
-                done();
-            }
-        );
-    });
+  it("should return sonoran-style potato soup recipe from epicurious", async function () {
+    const recipe = await scraper.fetch("https://www.epicurious.com/recipes/food/views/sonoran-style-potato-cheese-tomato-soup");
+    expect(recipe.name).toEqual("Sonoran-Style Potato, Cheese, and Tomato Soup Recipe");
+    expect(recipe.cookTime).toEqual("30 min");
+  });
 
-    it("should return veggie lovers club sandwich k with no cooktime", function(done) {
-        scraper.fetchFoodNetwork("http://www.foodnetwork.com/recipes/food-network-kitchen/veggie-lovers-club-sandwich-recipe-2120987",
-            function(recipe) {
-                expect(recipe.name).toEqual("Veggie Lover's Club Sandwich");
-                expect(recipe.cookTime).toBeUndefined();
-                expect(recipe.prepTime).toEqual("30 min");
-                done();
-            }
-        );
-    });
-    it("should return marinara sauce from foodnetwork with steps", function(done) {
-        scraper.fetchFoodNetwork("https://www.foodnetwork.com/recipes/giada-de-laurentiis/marinara-sauce-recipe-2103577",
-            function(recipe) {
-                expect(recipe.name).toEqual("Marinara Sauce");
-                expect(recipe.cookTime).toEqual("70 min");
-                expect(recipe.prepTime).toEqual("10 min");
-                done();
-            }
-        );
-    });
+  it("should return orecchiette sausage broccoli recipe from onceuponachef", async function () {
+    const recipe = await scraper.fetch("https://www.onceuponachef.com/recipes/orecchiette-sausage-broccoli.html");
+    expect(recipe.name).toEqual("Orecchiette with Sausage and Broccoli");
+    expect(recipe.cookTime).toEqual("0 min");
+  });
+
+  it("should return broccoli bolognese orecchiette recipe from bonappetit", async function () {
+    const recipe = await scraper.fetch("https://www.bonappetit.com/recipe/broccoli-bolognese-with-orecchiette");
+    expect(recipe.name).toEqual("Broccoli Bolognese with Orecchiette");
+    expect(recipe.cookTime).toBeUndefined();
+  });
 });

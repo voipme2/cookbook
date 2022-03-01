@@ -1,10 +1,16 @@
-import * as React from 'react';
-import {styled, alpha} from '@mui/material/styles';
+import React, { useState } from 'react';
+import {alpha, styled} from '@mui/material/styles';
 import {
   AppBar,
-  Button,
   Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   InputBase,
+  TextField,
   Toolbar,
   Typography
 } from '@mui/material';
@@ -56,6 +62,16 @@ const StyledInputBase = styled(InputBase)(({theme}) => ({
 
 export default function NavBar() {
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const [url, setUrl] = useState("");
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   return (
     <Box sx={{flexGrow: 1}}>
@@ -73,6 +89,32 @@ export default function NavBar() {
             <Button sx={{color: 'white'}} variant="contained" onClick={() => navigate("/")}>Home</Button>
             <Button sx={{color: 'white'}} variant="contained" onClick={() => navigate("/list")}>List</Button>
             <Button sx={{color: 'white'}} variant="contained" onClick={() => navigate("/new")}>New</Button>
+            <Button sx={{color: 'white'}} variant="contained" onClick={handleClickOpen}>
+              Download
+            </Button>
+            <Dialog open={open} onClose={handleClose}>
+              <DialogTitle>Fetch</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  Fetch a recipe from any website!  Paste the URL, and we'll try to format it.
+                </DialogContentText>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  value={url}
+                  onChange={e => setUrl(e.target.value)}
+                  id="name"
+                  label="URL"
+                  type="url"
+                  fullWidth
+                  variant="standard"
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setOpen(false)}>Cancel</Button>
+                <Button onClick={() => { setOpen(false); navigate(`/download?recipeUrl=${url}`); }}>Go</Button>
+              </DialogActions>
+            </Dialog>
           </Box>
           <Box sx={{flexGrow: 0}}>
             <Search>

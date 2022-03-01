@@ -9,6 +9,7 @@ import ListRecipes from './components/ListRecipes';
 import ViewRecipe from './components/ViewRecipe';
 import PrintRecipe from './components/PrintRecipe';
 import ModifyRecipe from './components/ModifyRecipe';
+import DownloadRecipe from "./components/DownloadRecipe";
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
           <Route path="view/:recipeId" element={<ViewRecipe />} />
           <Route path="print/:recipeId" element={<PrintRecipe />} />
           <Route path="edit/:recipeId" element={<ModifyRecipe />} />
+          <Route path="download" element={<DownloadRecipe />} />
         </Route>
       </Routes>
     </div>
