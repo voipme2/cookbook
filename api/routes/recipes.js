@@ -66,11 +66,16 @@ router.get("/search", async function (req, res) {
 router.get("/fetch", async function (req, res) {
   const recipeUrl = req.query.recipeUrl;
   console.log(new Date(), "[ fetch ]", recipeUrl);
-  const ret = await scraper.fetch(recipeUrl);
-  if (ret) {
-    res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify(ret));
-  } else {
-    res.status(404).send('Not found');
+  try {
+    const ret = await scraper.fetch(recipeUrl);
+    if (ret) {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(ret));
+    } else {
+      res.status(404).send('Not found');
+    }
+  } catch (e) {
+    res.status(500).send(JSON.stringify({ error: e}));
   }
+
 });

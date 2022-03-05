@@ -8,18 +8,35 @@ const HEADERS = {
   'User-Agent': "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36"
 };
 
-function getRecipeData(recipe) {
+const parseIngredients = ing => {
+  if (ing.length === 1 && ing[0].indexOf('\n') !== -1) {
+    return ing[0].split('\n');
+  } else {
+    return ing;
+  }
+}
+
+const parseSteps = steps => {
+  if (!Array.isArray(steps)) {
+    // handlers for barefoot contessa site :/
+    const doc = getDocument(steps);
+    return Array.from(doc.querySelectorAll("p")).map(p => p.innerHTML);
+  } else {
+    return steps;
+  }
+}
+
+const getRecipeData = recipe => {
   const author = Array.isArray(recipe.author) ? recipe.author[0] : recipe.author;
+  const ingredients = parseIngredients(recipe.recipeIngredient);
+  const steps = parseSteps(recipe.recipeInstructions);
+
   const recipeData = {
     name: recipe.name,
     author: author.name,
     servings: recipe.recipeYield,
-    ingredients: recipe.recipeIngredient.map(function (ing) {
-      return {text: ing};
-    }),
-    steps: recipe.recipeInstructions.map(function (step) {
-      return {text: step.text};
-    })
+    ingredients: ingredients.map(ing => ({text: ing})),
+    steps: steps.map(step => ({text: step.text}))
   };
   if (recipe.prepTime) {
     recipeData.prepTime = getTime(recipe.prepTime).asMinutes() + " min";
@@ -43,84 +60,35 @@ const getDocument = text => {
   return env.window.document;
 }
 
-const fetchBonAppetit = async function (recipeUrl) {
-  const res = await fetch(recipeUrl, {headers: HEADERS});
-  if (res) {
-    const text = await res.text();
-    const document = getDocument(text);
-    const recipe = JSON.parse(document.querySelector("head > script[type='application/ld+json']").textContent);
-    return getRecipeData(recipe);
-  } else {
-    console.error(`Unable to read recipe at [${recipeUrl}`);
-  }
-};
-
-const fetchEpicurious = async function (recipeUrl) {
-  const res = await fetch(recipeUrl, {headers: HEADERS});
-  if (res) {
-    const text = await res.text();
-    const document = getDocument(text);
-    const recipe = JSON.parse(document.querySelector("head > script[type='application/ld+json']").textContent);
-    return getRecipeData(recipe);
-  } else {
-    console.error(`Unable to read recipe at [${recipeUrl}`);
-  }
-};
-
-const fetchOnceUponAChef = async function (recipeUrl) {
-  const res = await fetch(recipeUrl, {headers: HEADERS});
-  if (res) {
-    const text = await res.text();
-    const document = getDocument(text);
-    const recipe = JSON.parse(document.querySelectorAll("head > script[type='application/ld+json']")[1].textContent);
-    return getRecipeData(recipe);
-  } else {
-    console.error(`Unable to read recipe at [${recipeUrl}`);
-  }
-};
-
-const fetchAllRecipes = async function (recipeUrl) {
-  const res = await fetch(recipeUrl, {headers: HEADERS});
-  if (res) {
-    const text = await res.text();
-    const document = getDocument(text);
-    const ldData = JSON.parse(document.querySelector("head > script[type='application/ld+json']").textContent);
-    const recipe = ldData[1];
-    // console.log(JSON.stringify(recipe, null, 2));
-    return getRecipeData(recipe);
-  } else {
-    console.error(`Unable to read recipe at [${recipeUrl}`);
-  }
-};
-
-const fetchFoodNetwork = async function (recipeUrl) {
-  const res = await fetch(recipeUrl, {headers: HEADERS});
-  if (res) {
-    const text = await res.text();
-    const document = getDocument(text);
-    const ldData = JSON.parse(document.querySelector("script[type='application/ld+json']").textContent);
-    const recipe = ldData[0];
-    // console.log(JSON.stringify(recipe, null, 2));
-    return getRecipeData(recipe);
-  } else {
-    console.error(`Unable to read recipe at [${recipeUrl}`);
-  }
-};
-
 module.exports = {
-  fetch: async function (url) {
-    if (url.indexOf("foodnetwork.com") !== -1) {
-      return await fetchFoodNetwork(url)
-    } else if (url.indexOf("allrecipes.com") !== -1) {
-      return await fetchAllRecipes(url);
-    } else if (url.indexOf("onceuponachef.com") !== -1) {
-      return await fetchOnceUponAChef(url);
-    } else if (url.indexOf("epicurious.com") !== -1) {
-      return await fetchEpicurious(url);
-    } else if (url.indexOf("bonappetit.com") !== -1) {
-      return await fetchBonAppetit(url);
+  fetch: async recipeUrl => {
+    const page = await fetch(recipeUrl, {headers: HEADERS});
+    if (page) {
+      const text = await page.text();
+      const document = getDocument(text);
+      const ldJsonNodes = Array.from(document.querySelectorAll("script[type='application/ld+json']"));
+      let ldData = ldJsonNodes.map(s => JSON.parse(s.textContent)).flat()
+        .reduce((allNodes, current) => {
+          if (current.hasOwnProperty('@graph')) {
+            return allNodes.concat(current['@graph']
+              .filter(g => g.hasOwnProperty('@type') && g['@type'] === 'Recipe'));
+          } else if (current.hasOwnProperty('@type') && current['@type'] === 'Recipe') {
+            return allNodes.concat(current);
+          }
+          return allNodes;
+        }, []);
+
+      const recipe = ldData.filter(l => l.hasOwnProperty('@type'))
+        .find(l => l['@type'] === 'Recipe');
+
+      if (recipe) {
+        return getRecipeData(recipe);
+      } else {
+        throw new Error(`No ld+json/@Recipe data tag, can't parse recipe ${recipeUrl}`);
+      }
     } else {
-      console.log(`Unknown recipe provider: ${url}`)
+      console.error(`Unable to fetch ${recipeUrl}`);
+      throw new Error(`Unable to fetch ${recipeUrl}`);
     }
   }
 };
