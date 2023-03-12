@@ -26,8 +26,6 @@ test-api:
     - npm run test
   only:
     - main
-    - develop
-    - /^feature\/.*$/
 
 # test the cookbook-ui app
 test-cookbook-ui:
@@ -39,8 +37,6 @@ test-cookbook-ui:
     - npm run test
   only:
     - main
-    - develop
-    - /^feature\/.*$/
 
 # create the docker image for the api
 docker-api:
@@ -54,9 +50,7 @@ docker-api:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker push $CI_REGISTRY_IMAGE/api:$CI_COMMIT_REF_SLUG
   only:
-    - main
-    - develop
-    - /^feature\/.*$/
+    - tags
 
 # create the docker image for the cookbook-ui app
 docker-cookbook-ui:
@@ -70,6 +64,4 @@ docker-cookbook-ui:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker push $CI_REGISTRY_IMAGE/cookbook-ui:$CI_COMMIT_REF_SLUG
   only:
-    - main
-    - develop
-    - /^feature\/.*$/
+    - tags
