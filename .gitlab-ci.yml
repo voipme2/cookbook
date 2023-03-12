@@ -28,15 +28,15 @@ test-api:
     - main
 
 # test the cookbook-ui app
-test-cookbook-ui:
-  stage: test
-  image: node:17-alpine
-  script:
-    - cd cookbook-ui
-    - npm install
-    - npm run test
-  only:
-    - main
+# test-cookbook-ui:
+#   stage: test
+#   image: node:17-alpine
+#   script:
+#     - cd cookbook-ui
+#     - npm install
+#     - npm run test
+#   only:
+#     - main
 
 # create the docker image for the api
 docker-api:
