@@ -1,4 +1,5 @@
-import { createSlice, createSelector } from '@reduxjs/toolkit';
+import { createSlice, createSelector } from "@reduxjs/toolkit";
+import { summarizeTimes } from "../utils/time";
 
 const initialState = {
   recipe: {
@@ -17,13 +18,13 @@ const initialState = {
       isVegan: false,
       isDairyFree: false,
       isCrockPot: false,
-      isGlutenFree: false
-    }
-  }
+      isGlutenFree: false,
+    },
+  },
 };
 
 export const builderSlice = createSlice({
-  name: 'builder',
+  name: "builder",
   initialState,
   reducers: {
     reset: (state) => {
@@ -44,6 +45,12 @@ export const builderSlice = createSlice({
       const { idx, text } = action.payload;
       state.recipe.steps[idx] = { text };
     },
+    swapSteps: (state, action) => {
+      const { idx1, idx2 } = action.payload;
+      const temp = state.recipe.steps[idx1];
+      state.recipe.steps[idx1] = state.recipe.steps[idx2];
+      state.recipe.steps[idx2] = temp;
+    },
     addIngredient: (state, action) => {
       const { text } = action.payload;
       state.recipe.ingredients.push({ text });
@@ -56,11 +63,17 @@ export const builderSlice = createSlice({
       const { idx, text } = action.payload;
       state.recipe.ingredients[idx] = { text };
     },
+    swapIngredients: (state, action) => {
+      const { idx1, idx2 } = action.payload;
+      const temp = state.recipe.ingredients[idx1];
+      state.recipe.ingredients[idx1] = state.recipe.ingredients[idx2];
+      state.recipe.ingredients[idx2] = temp;
+    },
     updateField: (state, action) => {
       const { name, value } = action.payload;
       state.recipe[name] = value;
-    }
-  }
+    },
+  },
 });
 
 export const {
@@ -69,23 +82,39 @@ export const {
   addStep,
   removeStep,
   updateStep,
+  swapSteps,
   addIngredient,
   removeIngredient,
   updateIngredient,
-  updateField
+  swapIngredients,
+  updateField,
 } = builderSlice.actions;
 
-export const getRecipe = state => state.builder.recipe;
-export const getId = createSelector(getRecipe, rec => rec.id);
-export const getName = createSelector(getRecipe, rec => rec.name);
-export const getAuthor = createSelector(getRecipe, rec => rec.author);
-export const getDescription = createSelector(getRecipe, rec => rec.description);
-export const getServings = createSelector(getRecipe, rec => rec.servings);
-export const getPrepTime = createSelector(getRecipe, rec => rec.prepTime);
-export const getCookTime = createSelector(getRecipe, rec => rec.cookTime);
-export const getInactiveTime = createSelector(getRecipe, rec => rec.inactiveTime);
-export const getSteps = createSelector(getRecipe, rec => rec.steps);
-export const getIngredients = createSelector(getRecipe, rec => rec.ingredients);
+export const getRecipe = (state) => state.builder.recipe;
+export const getId = createSelector(getRecipe, (rec) => rec.id);
+export const getName = createSelector(getRecipe, (rec) => rec.name);
+export const getAuthor = createSelector(getRecipe, (rec) => rec.author);
+export const getDescription = createSelector(
+  getRecipe,
+  (rec) => rec.description
+);
+export const getServings = createSelector(getRecipe, (rec) => rec.servings);
+export const getPrepTime = createSelector(getRecipe, (rec) => rec.prepTime);
+export const getCookTime = createSelector(getRecipe, (rec) => rec.cookTime);
+export const getInactiveTime = createSelector(
+  getRecipe,
+  (rec) => rec.inactiveTime
+);
+export const getTotalTime = createSelector(
+  getPrepTime,
+  getCookTime,
+  getInactiveTime,
+  (prep, cook, inactive) => summarizeTimes([prep, cook, inactive])
+);
+export const getSteps = createSelector(getRecipe, (rec) => rec.steps);
+export const getIngredients = createSelector(
+  getRecipe,
+  (rec) => rec.ingredients
+);
 
 export default builderSlice.reducer;
-

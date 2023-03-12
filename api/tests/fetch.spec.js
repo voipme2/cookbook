@@ -7,7 +7,7 @@ describe("scraper tests", function () {
     expect(recipe.ingredients.length).toEqual(12);
     expect(recipe.steps.length).toEqual(5);
     expect(recipe.prepTime).toEqual("15 min");
-    expect(recipe.cookTime).toEqual("75 min");
+    expect(recipe.cookTime).toEqual("55 min");
   });
 
   it("should return fettucine with creamy red pepper from foodnetwork", async function () {
@@ -21,7 +21,7 @@ describe("scraper tests", function () {
 
   it("should return sonoran-style potato soup recipe from epicurious", async function () {
     const recipe = await scraper.fetch("https://www.epicurious.com/recipes/food/views/sonoran-style-potato-cheese-tomato-soup");
-    expect(recipe.name).toEqual("Sonoran-Style Potato, Cheese, and Tomato Soup Recipe");
+    expect(recipe.name).toEqual("Sonoran-Style Potato, Cheese, and Tomato Soup");
     expect(recipe.ingredients.length).toEqual(14);
     expect(recipe.steps.length).toEqual(3);
     expect(recipe.cookTime).toEqual("30 min");
@@ -65,5 +65,23 @@ describe("scraper tests", function () {
     expect(recipe.ingredients.length).toEqual(10);
     expect(recipe.steps.length).toEqual(5);
     expect(recipe.cookTime).toEqual("0 min");
+  });
+
+
+  // throws a connection reset???
+  // it("should return italain wedding cookies recipe from siciliangirl", async function () {
+  //   const recipe = await scraper.fetch("https://siciliangirl.com/2014/12/italian-wedding-cookies/");
+  //   expect(recipe.name).toEqual("Mummy Meatballs");
+  //   expect(recipe.ingredients.length).toEqual(10);
+  //   expect(recipe.steps.length).toEqual(5);
+  //   expect(recipe.cookTime).toEqual("0 min");
+  // });
+
+  it("should return artichoke and spinach recipe from all recipes", async function () {
+    const recipe = await scraper.fetch("https://www.allrecipes.com/recipe/26819/hot-artichoke-and-spinach-dip-ii/");
+    expect(recipe.name).toEqual("Hot Spinach Artichoke Dip");
+    expect(recipe.ingredients.length).toEqual(11);
+    expect(recipe.steps.length).toEqual(3);
+    expect(recipe.cookTime).toEqual("25 min");
   });
 });

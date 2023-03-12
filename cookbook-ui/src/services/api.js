@@ -2,52 +2,54 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({
-    baseUrl: '/api'
+    baseUrl: "/api",
   }),
-  tagTypes: ['Recipe', 'SearchRecipe'],
+  tagTypes: ["Recipe", "SearchRecipe"],
   endpoints: (build) => ({
     getRecipes: build.query({
       query: () => "/recipes",
-      transformResponse: resp => resp.sort((a,b) => (a.name > b.name ? 1 : -1 )),
-      providesTags: ['Recipe']
+      transformResponse: (resp) =>
+        resp.sort((a, b) => (a.name > b.name ? 1 : -1)),
+      providesTags: ["Recipe"],
     }),
     search: build.query({
-      query: q => `/search?query=${q}`,
-      transformResponse: resp => resp.sort((a,b) => (a.name > b.name ? 1 : -1 )),
-      providesTags: ['SearchRecipe']
+      query: (q) => `/search?query=${q}`,
+      transformResponse: (resp) =>
+        resp.sort((a, b) => (a.name > b.name ? 1 : -1)),
+      providesTags: ["SearchRecipe"],
     }),
     getOne: build.query({
-      query: id => `/recipes/${id}`,
-      providesTags: ['Recipe']
+      query: (id) => `/recipes/${id}`,
+      providesTags: ["Recipe"],
     }),
     saveRecipe: build.mutation({
       query: ({ ...recipe }) => ({
-        url: '/recipes',
-        method: 'POST',
-        body: recipe
+        url: "/recipes",
+        method: "POST",
+        body: recipe,
       }),
-      invalidatesTags: ['SearchRecipe']
+      invalidatesTags: ["SearchRecipe", "Recipe"],
     }),
     updateRecipe: build.mutation({
       query: ({ id, ...recipe }) => ({
         url: `/recipes/${id}`,
-        method: 'POST',
-        body: recipe
+        method: "POST",
+        body: recipe,
       }),
-      invalidatesTags: ['Recipe'],
+      invalidatesTags: ["Recipe"],
     }),
     deleteRecipe: build.mutation({
       query: ({ id }) => ({
         url: `/recipes/${id}`,
-        method: 'DELETE'
+        method: "DELETE",
       }),
-      invalidatesTags: ['SearchRecipe']
+      invalidatesTags: ["SearchRecipe"],
     }),
     fetchRecipe: build.query({
-      query: ({recipeUrl}) => `/api/fetch/?recipeUrl=${recipeUrl}`
-    })
-  })
-})
+      query: ({ recipeUrl }) => `/api/fetch/?recipeUrl=${recipeUrl}`,
+    }),
+  }),
+});
 
 export const {
   useGetRecipesQuery,
@@ -56,5 +58,5 @@ export const {
   useSaveRecipeMutation,
   useUpdateRecipeMutation,
   useDeleteRecipeMutation,
-  useFetchRecipeQuery
+  useFetchRecipeQuery,
 } = api;

@@ -1,131 +1,108 @@
-import React, { useState } from 'react';
-import {alpha, styled} from '@mui/material/styles';
+import React, { useState } from "react";
 import {
   AppBar,
   Box,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  InputBase,
-  TextField,
+  IconButton,
+  List,
+  ListItem,
+  Divider,
+  Drawer,
+  ListItemButton,
+  ListItemText,
+  ListItemIcon,
   Toolbar,
-  Typography
-} from '@mui/material';
+  Typography,
+} from "@mui/material";
 
-import {useNavigate} from 'react-router-dom';
-import SearchIcon from '@mui/icons-material/Search';
+import { useNavigate } from "react-router-dom";
+import { Add, Download, Home, Menu } from "@mui/icons-material";
 
-const Search = styled('div')(({theme}) => ({
-  position: 'relative',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  '&:hover': {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginLeft: 0,
-  width: '100%',
-  [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(1),
-    width: 'auto',
-  },
-}));
-
-const SearchIconWrapper = styled('div')(({theme}) => ({
-  padding: theme.spacing(0, 2),
-  height: '100%',
-  position: 'absolute',
-  pointerEvents: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}));
-
-const StyledInputBase = styled(InputBase)(({theme}) => ({
-  color: 'inherit',
-  '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      width: '12ch',
-      '&:focus': {
-        width: '20ch',
-      },
-    },
-  },
-}));
+const navItems = [
+  { name: "Home", path: "/", icon: Home, color: "primary" },
+  { name: "New", path: "/new", icon: Add, color: "secondary" },
+  { name: "Download", path: "/import", icon: Download, color: "success" },
+];
 
 export default function NavBar() {
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const [url, setUrl] = useState("");
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
+  const drawer = (
+    <Box onClick={handleDrawerToggle} sx={{ mx: 2 }}>
+      <Typography variant="h6" sx={{ my: 2 }}>
+        cookbook
+      </Typography>
+      <Divider />
+      <List>
+        {navItems.map((item) => (
+          <ListItem key={item.name} disablePadding>
+            <ListItemIcon>
+              <item.icon />
+            </ListItemIcon>
+            <ListItemButton onClick={() => navigate(item.path)}>
+              <ListItemText primary={item.name} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  );
 
   return (
-    <Box sx={{flexGrow: 1}}>
-      <AppBar position="static">
+    <Box>
+      <AppBar position="static" component="nav">
         <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { sm: "none" } }}
+          >
+            <Menu />
+          </IconButton>
           <Typography
             variant="h6"
-            noWrap
             component="div"
-            sx={{mr: 2, display: {xs: 'none', md: 'flex'}}}
+            sx={{
+              textAlign: "left",
+              flexGrow: 1,
+              display: { xs: "none", sm: "block" },
+            }}
           >
             cookbook
           </Typography>
-          <Box sx={{flex: 1}}>
-            <Button sx={{color: 'white'}} variant="contained" onClick={() => navigate("/")}>Home</Button>
-            <Button sx={{color: 'white'}} variant="contained" onClick={() => navigate("/list")}>List</Button>
-            <Button sx={{color: 'white'}} variant="contained" onClick={() => navigate("/new")}>New</Button>
-            <Button sx={{color: 'white'}} variant="contained" onClick={handleClickOpen}>
-              Download
-            </Button>
-            <Dialog open={open} onClose={handleClose}>
-              <DialogTitle>Fetch</DialogTitle>
-              <DialogContent>
-                <DialogContentText>
-                  Fetch a recipe from any website!  Paste the URL, and we'll try to format it.
-                </DialogContentText>
-                <TextField
-                  autoFocus
-                  margin="dense"
-                  value={url}
-                  onChange={e => setUrl(e.target.value)}
-                  id="name"
-                  label="URL"
-                  type="url"
-                  fullWidth
-                  variant="standard"
-                />
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={() => setOpen(false)}>Cancel</Button>
-                <Button onClick={() => { setOpen(false); navigate(`/download?recipeUrl=${url}`); }}>Go</Button>
-              </DialogActions>
-            </Dialog>
+          <Box sx={{ display: { xs: "none", sm: "block" } }}>
+            {navItems.map((item) => (
+              <Button
+                sx={{ mx: 1 }}
+                key={item.name}
+                color={item.color}
+                variant="contained"
+                onClick={() => navigate(item.path)}
+                startIcon={<item.icon />}
+              >
+                {item.name}
+              </Button>
+            ))}
           </Box>
-          <Box sx={{flexGrow: 0}}>
-            <Search>
-              <SearchIconWrapper>
-                <SearchIcon/>
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder="Search…"
-                inputProps={{'aria-label': 'search'}}
-              />
-            </Search>
+          <Box component="nav">
+            <Drawer
+              variant="temporary"
+              open={mobileOpen}
+              onClose={handleDrawerToggle}
+              ModalProps={{
+                keepMounted: true, // Better open performance on mobile.
+              }}
+              sx={{
+                display: { xs: "block", sm: "none" },
+                "& .MuiDrawer-paper": { boxSizing: "border-box", width: 240 },
+              }}
+            >
+              {drawer}
+            </Drawer>
           </Box>
         </Toolbar>
       </AppBar>
