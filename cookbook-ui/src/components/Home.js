@@ -52,6 +52,7 @@ const Home = () => {
             placeholder="Search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            autoFocus
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
