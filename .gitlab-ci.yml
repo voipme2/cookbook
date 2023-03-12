@@ -1,0 +1,75 @@
+stages:
+  - build
+  - test
+  - docker
+
+# build the cookbook-ui app
+build-cookbook-ui:
+  stage: build
+  image: node:17-alpine
+  script:
+    - cd cookbook-ui
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - cookbook-ui/build
+    expire_in: 1 week
+
+# test the api
+test-api:
+  stage: test
+  image: node:17-alpine
+  script:
+    - cd api
+    - npm install
+    - npm run test
+  only:
+    - main
+    - develop
+    - /^feature\/.*$/
+
+# test the cookbook-ui app
+test-cookbook-ui:
+  stage: test
+  image: node:17-alpine
+  script:
+    - cd cookbook-ui
+    - npm install
+    - npm run test
+  only:
+    - main
+    - develop
+    - /^feature\/.*$/
+
+# create the docker image for the api
+docker-api:
+  stage: docker
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - cd api
+    - docker buildx build --platform linux/arm -t $CI_REGISTRY_IMAGE/api:$CI_COMMIT_REF_SLUG .
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE/api:$CI_COMMIT_REF_SLUG
+  only:
+    - main
+    - develop
+    - /^feature\/.*$/
+
+# create the docker image for the cookbook-ui app
+docker-cookbook-ui:
+  stage: docker
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - cd cookbook-ui
+    - docker buildx build --platform linux/arm -t $CI_REGISTRY_IMAGE/cookbook-ui:$CI_COMMIT_REF_SLUG .
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE/cookbook-ui:$CI_COMMIT_REF_SLUG
+  only:
+    - main
+    - develop
+    - /^feature\/.*$/
