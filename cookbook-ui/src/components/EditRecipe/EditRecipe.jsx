@@ -56,11 +56,10 @@ const EditRecipe = () => {
   const ingredients = useSelector(getIngredients);
   const steps = useSelector(getSteps);
 
-  const handleAddNewIngredient = ({ keyCode }) => {
-    if (keyCode === 13) {
-      dispatch(addIngredient({ text: newIngredient }));
-      setNewIngredient("");
-    }
+  const handleAddNewIngredient = (e) => {
+    e.preventDefault();
+    dispatch(addIngredient({ text: newIngredient }));
+    setNewIngredient("");
   };
 
   const handlePasteIngredients = (event) => {
@@ -81,11 +80,10 @@ const EditRecipe = () => {
     setNewStep("");
   };
 
-  const handleAddNewStep = ({ keyCode }) => {
-    if (keyCode === 13) {
-      dispatch(addStep({ text: newStep }));
-      setNewStep("");
-    }
+  const handleAddNewStep = (e) => {
+    e.preventDefault();
+    dispatch(addStep({ text: newStep }));
+    setNewStep("");
   };
 
   const handleUpdateOrSave = () => {
@@ -148,14 +146,15 @@ const EditRecipe = () => {
                     />
                   ))}
                 <ListItem>
-                  <TextField
-                    value={newIngredient}
-                    fullWidth
-                    onChange={(e) => setNewIngredient(e.target.value)}
-                    onKeyDown={handleAddNewIngredient}
-                    label="Ingredient"
-                    inputProps={{ onPaste: handlePasteIngredients }}
-                  />
+                  <form onSubmit={handleAddNewIngredient}>
+                    <TextField
+                      value={newIngredient}
+                      fullWidth
+                      onChange={(e) => setNewIngredient(e.target.value)}
+                      label="Ingredient"
+                      inputProps={{ onPaste: handlePasteIngredients }}
+                    />
+                  </form>
                 </ListItem>
               </List>
             </Grid>
@@ -187,15 +186,16 @@ const EditRecipe = () => {
                     />
                   ))}
                 <ListItem>
-                  <TextField
-                    value={newStep}
-                    fullWidth
-                    onChange={(e) => setNewStep(e.target.value)}
-                    inputProps={{ onPaste: handlePasteSteps }}
-                    onKeyDown={handleAddNewStep}
-                    label="Steps"
-                    placeholder="Type or paste the list of steps here"
-                  />
+                  <form onSubmit={handleAddNewStep}>
+                    <TextField
+                      value={newStep}
+                      fullWidth
+                      onChange={(e) => setNewStep(e.target.value)}
+                      inputProps={{ onPaste: handlePasteSteps }}
+                      label="Steps"
+                      placeholder="Type or paste the list of steps here"
+                    />
+                  </form>
                 </ListItem>
               </List>
             </Grid>
