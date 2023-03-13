@@ -3,6 +3,12 @@ stages:
   - test
   - docker
 
+cache:
+  key: $CI_COMMIT_REF_SLUG
+  paths:
+    - api/node_modules
+    - cookbook-ui/node_modules
+
 # build the cookbook-ui app
 build-cookbook-ui:
   stage: build
