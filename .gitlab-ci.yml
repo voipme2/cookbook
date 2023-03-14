@@ -10,16 +10,26 @@ cache:
     - cookbook-ui/node_modules
 
 # build the cookbook-ui app
-build-cookbook-ui:
+install-node-modules-ui:
   stage: build
   image: node:17-alpine
   script:
     - cd cookbook-ui
     - npm install
-    - npm run build
   artifacts:
     paths:
       - cookbook-ui/build
+    expire_in: 1 week
+
+install-node-modules-api:
+  stage: build
+  image: node:17-alpine
+  script:
+    - cd api
+    - npm install
+  artifacts:
+    paths:
+      - api/build
     expire_in: 1 week
 
 # test the api
@@ -28,7 +38,6 @@ test-api:
   image: node:17-alpine
   script:
     - cd api
-    - npm install
     - npm run test
   only:
     - main
