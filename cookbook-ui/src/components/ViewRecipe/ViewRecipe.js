@@ -11,7 +11,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { Edit } from "@mui/icons-material";
+import { ContentCopy, Edit } from "@mui/icons-material";
 import { summarizeTimes } from "../../utils/time";
 
 const ViewRecipe = () => {
@@ -20,6 +20,16 @@ const ViewRecipe = () => {
   const navigate = useNavigate();
   const { prepTime, inactiveTime, cookTime } = recipe || {};
   const totalTime = summarizeTimes([prepTime, inactiveTime, cookTime]);
+  const copyRecipeToClipboard = () => {
+    const recipeText = `# ${
+      recipe.name
+    }\n\n## Ingredients\n\n${recipe.ingredients
+      .map((i) => `- ${i.text}`)
+      .join("\n")}\n\n## Steps\n\n${recipe.steps
+      .map((s, i) => `${i + 1}. ${s.text}`)
+      .join("\n")}`;
+    navigator.clipboard.writeText(recipeText);
+  };
 
   return (
     <div>
@@ -29,12 +39,24 @@ const ViewRecipe = () => {
           <Grid item xs={12} sx={{ m: 3, textAlign: "left" }}>
             <Typography variant="h5" sx={{ flex: 1 }}>
               {recipe.name}
-              <IconButton
-                edge="end"
-                onClick={() => navigate(`/edit/${recipeId}`)}
-              >
-                <Edit />
-              </IconButton>{" "}
+              <Tooltip title="Edit recipe">
+                <IconButton
+                  edge="end"
+                  sx={{ ml: 1 }}
+                  onClick={() => navigate(`/edit/${recipeId}`)}
+                >
+                  <Edit />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Copy recipe to clipboard">
+                <IconButton
+                  edge="end"
+                  sx={{ ml: 1 }}
+                  onClick={copyRecipeToClipboard}
+                >
+                  <ContentCopy />
+                </IconButton>
+              </Tooltip>{" "}
             </Typography>
             <Typography variant="subtitle" sx={{ mb: 2 }}>
               {recipe.description} by {recipe.author}
