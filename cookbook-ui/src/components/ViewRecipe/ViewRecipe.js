@@ -11,7 +11,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { ContentCopy, Edit } from "@mui/icons-material";
+import { Edit, Print } from "@mui/icons-material";
 import { summarizeTimes } from "../../utils/time";
 
 const ViewRecipe = () => {
@@ -20,16 +20,6 @@ const ViewRecipe = () => {
   const navigate = useNavigate();
   const { prepTime, inactiveTime, cookTime } = recipe || {};
   const totalTime = summarizeTimes([prepTime, inactiveTime, cookTime]);
-  const copyRecipeToClipboard = () => {
-    const recipeText = `# ${
-      recipe.name
-    }\n\n## Ingredients\n\n${recipe.ingredients
-      .map((i) => `- ${i.text}`)
-      .join("\n")}\n\n## Steps\n\n${recipe.steps
-      .map((s, i) => `${i + 1}. ${s.text}`)
-      .join("\n")}`;
-    navigator.clipboard.writeText(recipeText);
-  };
 
   return (
     <div>
@@ -52,9 +42,9 @@ const ViewRecipe = () => {
                 <IconButton
                   edge="end"
                   sx={{ ml: 1 }}
-                  onClick={copyRecipeToClipboard}
+                  onClick={() => navigate(`/print/${recipeId}`)}
                 >
-                  <ContentCopy />
+                  <Print />
                 </IconButton>
               </Tooltip>{" "}
             </Typography>

@@ -146,7 +146,10 @@ const EditRecipe = () => {
                     />
                   ))}
                 <ListItem>
-                  <form onSubmit={handleAddNewIngredient}>
+                  <form
+                    onSubmit={handleAddNewIngredient}
+                    style={{ width: "100%" }}
+                  >
                     <TextField
                       value={newIngredient}
                       fullWidth
@@ -186,7 +189,7 @@ const EditRecipe = () => {
                     />
                   ))}
                 <ListItem>
-                  <form onSubmit={handleAddNewStep}>
+                  <form onSubmit={handleAddNewStep} style={{ width: "100%" }}>
                     <TextField
                       value={newStep}
                       fullWidth
