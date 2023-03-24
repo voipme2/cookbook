@@ -14,7 +14,7 @@ const PrintRecipe = () => {
         {recipe.ingredients.map((i) => `* ${i.text}`).join("\n")}
       </pre>
       <pre style={{ textAlign: "left", whiteSpace: "pre-wrap" }}>
-        {recipe.steps.map((s, i) => `${i + 1}. ${s.text}`).join("\n\n")}`;
+        {recipe.steps.map((s, i) => `${i + 1}. ${s.text}`).join("\n\n")}
       </pre>
     </Container>
   );

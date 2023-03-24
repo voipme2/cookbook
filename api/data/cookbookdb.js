@@ -1,5 +1,6 @@
 const { Pool } = require("pg");
 const slugify = require("slugify");
+const fs = require("fs");
 
 const pool = new Pool({
   user: process.env.PGUSER,

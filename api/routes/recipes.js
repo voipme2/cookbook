@@ -38,6 +38,19 @@ router.post("/recipes/:recipeId", async function (req, res) {
   res.send(JSON.stringify({ id: recipeId }));
 });
 
+router.post("/recipes/:recipeId/image", async function (req, res) {
+  const recipeId = req.params.recipeId;
+  const image = req.body.image;
+
+  const recipe = await db.find(recipeId);
+  // if we find a recipe, write the image to a file and then update the recipe.imageUrl property
+  if (recipe) {
+    const imageUrl = await db.saveImage(recipeId, image);
+    recipe.imageUrl = imageUrl;
+    await db.save(recipe);
+  }
+});
+
 router.delete("/recipes/:recipeId", async function (req, res) {
   await db.remove(req.params.recipeId);
   res.send(JSON.stringify({ success: true }));
