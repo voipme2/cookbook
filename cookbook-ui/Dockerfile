@@ -2,7 +2,7 @@ FROM node:lts-alpine as build
 WORKDIR /app
 COPY package*.json /app/
 COPY ./ /app/
-RUN npm install && \
+RUN npm ci && \
     npm run build
 
 FROM nginx:alpine

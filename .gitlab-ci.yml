@@ -1,3 +1,5 @@
+image: node:current-alpine
+
 stages:
   - build
   - test
@@ -12,7 +14,6 @@ cache:
 # build the cookbook-ui app
 install-node-modules-ui:
   stage: build
-  image: node:17-alpine
   script:
     - cd cookbook-ui
     - npm install
@@ -23,7 +24,6 @@ install-node-modules-ui:
 
 install-node-modules-api:
   stage: build
-  image: node:17-alpine
   script:
     - cd api
     - npm install
@@ -35,7 +35,6 @@ install-node-modules-api:
 # test the api
 test-api:
   stage: test
-  image: node:17-alpine
   script:
     - cd api
     - npm run test
