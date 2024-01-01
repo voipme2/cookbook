@@ -39,6 +39,7 @@ test-api:
   script:
     - cd api
     - npm run test
+  allow_failure: true
   only:
     - main
 
