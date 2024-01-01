@@ -1,5 +1,5 @@
 import {
-  ListItemButton,
+  ListItem,
   ListItemSecondaryAction,
   TextField,
   IconButton,
@@ -21,7 +21,7 @@ const Ingredient = ({
   handleMoveDown,
 }) => {
   return (
-    <ListItemButton>
+    <ListItem>
       <TextField
         value={ingredient.text}
         sx={{ marginRight: "110px" }}
@@ -45,7 +45,7 @@ const Ingredient = ({
           </IconButton>
         </ButtonGroup>
       </ListItemSecondaryAction>
-    </ListItemButton>
+    </ListItem>
   );
 };
 

@@ -19,7 +19,7 @@ function getId(name) {
   return slugify(name);
 }
 
-const regex = /(\d+\s*hr)?(\d+\s*min)?/;
+const regex = /(\d+\s*(?:hr|h))?(\d+\s*(?:min|m))?/;
 function convertToMinutes(time) {
   const match = regex.exec(time);
   if (!match) {

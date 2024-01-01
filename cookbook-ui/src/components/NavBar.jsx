@@ -36,15 +36,18 @@ export default function NavBar() {
       </Typography>
       <Divider />
       <List>
-        {navItems.map((item) => (
-          <ListItem key={item.name} disablePadding>
+        {navItems.map(({ name, icon: Icon, color, path }) => (
+          <ListItemButton
+            key={name}
+            disablePadding
+            sx={{ color: "white", bgcolor: `${color}.main` }}
+            onClick={() => navigate(path)}
+          >
             <ListItemIcon>
-              <item.icon />
+              <Icon />
             </ListItemIcon>
-            <ListItemButton onClick={() => navigate(item.path)}>
-              <ListItemText primary={item.name} />
-            </ListItemButton>
-          </ListItem>
+            <ListItemText primary={name} />
+          </ListItemButton>
         ))}
       </List>
     </Box>

@@ -24,7 +24,7 @@ const Import = () => {
         }}
       >
         <Paper elevation={6} sx={{ p: 3 }}>
-          <Typography variant="subtitle2" sx={{ mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ mb: 2 }}>
             Fetch a recipe from any website! Paste the URL, and we'll try to
             format it.
           </Typography>
@@ -40,6 +40,8 @@ const Import = () => {
             variant="standard"
           />
           <Button
+            variant="contained"
+            sx={{ mt: 2 }}
             onClick={() => {
               navigate(`/download?recipeUrl=${url}`);
             }}

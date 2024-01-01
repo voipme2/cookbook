@@ -1,5 +1,5 @@
 export const summarizeTimes = (times) => {
-  const regex = /(\d+\s*hr)?(\d+\s*min)?/;
+  const regex = /(\d+\s*(?:hr|h))?(\d+\s*(?:min|m))?/;
   const totalTime = times
     .map((time) => {
       const match = regex.exec(time);

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-
+import { TransitionGroup } from "react-transition-group";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -35,6 +35,7 @@ import {
   ListSubheader,
   TextField,
   LinearProgress,
+  Slide,
 } from "@mui/material";
 
 import Ingredient from "./Ingredient";
@@ -123,27 +124,33 @@ const EditRecipe = () => {
                 </ListSubheader>
                 {ingredients &&
                   ingredients.map((ing, idx) => (
-                    <Ingredient
-                      ingredient={ing}
-                      key={`ing-${idx}`}
-                      idx={idx}
-                      isFirst={idx === 0}
-                      isLast={idx === ingredients.length - 1}
-                      handleIngredientChange={(e) =>
-                        dispatch(
-                          updateIngredient({ idx, text: e.target.value })
-                        )
-                      }
-                      handleIngredientDelete={() =>
-                        dispatch(removeIngredient({ idx }))
-                      }
-                      handleMoveUp={() =>
-                        dispatch(swapIngredients({ idx1: idx, idx2: idx - 1 }))
-                      }
-                      handleMoveDown={() =>
-                        dispatch(swapIngredients({ idx1: idx, idx2: idx + 1 }))
-                      }
-                    />
+                    <Slide key={`ing-${idx}`}>
+                      <Ingredient
+                        ingredient={ing}
+                        key={`ing-${idx}`}
+                        idx={idx}
+                        isFirst={idx === 0}
+                        isLast={idx === ingredients.length - 1}
+                        handleIngredientChange={(e) =>
+                          dispatch(
+                            updateIngredient({ idx, text: e.target.value })
+                          )
+                        }
+                        handleIngredientDelete={() =>
+                          dispatch(removeIngredient({ idx }))
+                        }
+                        handleMoveUp={() =>
+                          dispatch(
+                            swapIngredients({ idx1: idx, idx2: idx - 1 })
+                          )
+                        }
+                        handleMoveDown={() =>
+                          dispatch(
+                            swapIngredients({ idx1: idx, idx2: idx + 1 })
+                          )
+                        }
+                      />
+                    </Slide>
                   ))}
                 <ListItem>
                   <form

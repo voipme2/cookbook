@@ -1,7 +1,7 @@
 import {
   Avatar,
   ListItemAvatar,
-  ListItemButton,
+  ListItem,
   ListItemSecondaryAction,
   TextField,
   IconButton,
@@ -24,7 +24,7 @@ const Step = ({
   handleMoveDown,
 }) => {
   return (
-    <ListItemButton>
+    <ListItem>
       <ListItemAvatar>
         <Avatar>{idx + 1}</Avatar>
       </ListItemAvatar>
@@ -52,7 +52,7 @@ const Step = ({
           </IconButton>
         </ButtonGroup>
       </ListItemSecondaryAction>
-    </ListItemButton>
+    </ListItem>
   );
 };
 
