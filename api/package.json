@@ -9,7 +9,7 @@
   "dependencies": {
     "express": "^4.16.4",
     "jasmine": "^3.10.0",
-    "jsdom": "^13.0.0",
+    "jsdom": "^23.0.1",
     "moment": "^2.22.2",
     "moment-duration-format": "^2.2.2",
     "mongodb": "^4.1.3",

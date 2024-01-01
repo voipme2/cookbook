@@ -12,27 +12,42 @@ import ModifyRecipe from "./components/ModifyRecipe";
 import DownloadRecipe from "./components/DownloadRecipe";
 import Import from "./components/Import";
 import { store } from "./store";
+import { ThemeProvider, CssBaseline, createTheme } from "@mui/material";
+
+const theme = createTheme({
+  palette: {
+    mode: "light",
+    primary: { main: "#536f84" },
+    secondary: { main: "#846753" },
+    success: { main: "#675384" },
+  },
+});
 
 function App() {
   return (
-    <Provider store={store}>
-      <BrowserRouter>
-        <div className="App">
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<Home />} />
-              <Route path="new" element={<NewRecipe />} />
-              <Route path="list" element={<ListRecipes />} />
-              <Route path="view/:recipeId" element={<ViewRecipe />} />
-              <Route path="import" element={<Import />} />
-              <Route path="print/:recipeId" element={<PrintRecipe />} />
-              <Route path="edit/:recipeId" element={<ModifyRecipe />} />
-              <Route path="download" element={<DownloadRecipe />} />
-            </Route>
-          </Routes>
-        </div>
-      </BrowserRouter>
-    </Provider>
+    <>
+      <CssBaseline />
+      <ThemeProvider theme={theme}>
+        <Provider store={store}>
+          <BrowserRouter>
+            <div className="App">
+              <Routes>
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<Home />} />
+                  <Route path="new" element={<NewRecipe />} />
+                  <Route path="list" element={<ListRecipes />} />
+                  <Route path="view/:recipeId" element={<ViewRecipe />} />
+                  <Route path="import" element={<Import />} />
+                  <Route path="print/:recipeId" element={<PrintRecipe />} />
+                  <Route path="edit/:recipeId" element={<ModifyRecipe />} />
+                  <Route path="download" element={<DownloadRecipe />} />
+                </Route>
+              </Routes>
+            </div>
+          </BrowserRouter>
+        </Provider>
+      </ThemeProvider>
+    </>
   );
 }
 

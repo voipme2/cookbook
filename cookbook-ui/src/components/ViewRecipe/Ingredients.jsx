@@ -1,23 +1,18 @@
 import React from "react";
-import {
-  List,
-  ListItemButton,
-  ListItemText,
-  ListSubheader,
-} from "@mui/material";
+import { List, ListItem, ListItemText, ListSubheader } from "@mui/material";
 
 import { grey } from "@mui/material/colors";
 
 const Ingredient = ({ text }) => {
   return (
-    <ListItemButton>
+    <ListItem>
       <ListItemText
         sx={{
           color: "black",
         }}
         primary={text}
       />
-    </ListItemButton>
+    </ListItem>
   );
 };
 

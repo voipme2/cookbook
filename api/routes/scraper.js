@@ -67,7 +67,7 @@ const getDocument = (text) => {
 module.exports = {
   fetch: async (recipeUrl) => {
     const page = await fetch(recipeUrl, { headers: HEADERS });
-    if (page) {
+    if (page && page.ok) {
       const text = await page.text();
       const document = getDocument(text);
       const ldJsonNodes = Array.from(
@@ -105,7 +105,7 @@ module.exports = {
         );
       }
     } else {
-      console.error(`Unable to fetch ${recipeUrl}`);
+      console.error(`Unable to fetch ${recipeUrl}`, page);
       throw new Error(`Unable to fetch ${recipeUrl}`);
     }
   },

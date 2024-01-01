@@ -2,14 +2,13 @@ import {
   Avatar,
   List,
   ListItem,
-  ListItemButton,
   ListItemAvatar,
   ListItemText,
   ListSubheader,
 } from "@mui/material";
 import { grey } from "@mui/material/colors";
 const Step = ({ step, index }) => (
-  <ListItemButton sx={{ my: 3 }}>
+  <ListItem sx={{ my: 3 }}>
     <ListItemAvatar>
       <Avatar>{index + 1}</Avatar>
     </ListItemAvatar>
@@ -19,7 +18,7 @@ const Step = ({ step, index }) => (
       }}
       primary={step}
     />
-  </ListItemButton>
+  </ListItem>
 );
 
 const Steps = ({ steps }) => {
