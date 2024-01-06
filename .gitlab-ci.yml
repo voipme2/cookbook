@@ -53,34 +53,27 @@ test-api:
 #   only:
 #     - main
 
-# create the docker image for the api
-docker-api:
+.build-image:
   stage: docker
-  image: docker:latest
-  services:
-    - docker:dind
-  variables:
-    DOCKER_DRIVER: overlay
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
   script:
-    - cd api
-    - docker buildx build --platform linux/arm -t $CI_REGISTRY_IMAGE/api:$CI_COMMIT_REF_SLUG .
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker push $CI_REGISTRY_IMAGE/api:$CI_COMMIT_REF_SLUG
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}/${APP}"
+      --dockerfile "${CI_PROJECT_DIR}/${APP}/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}/${APP}:${CI_COMMIT_REF_SLUG}"
+      --build-arg opts='GOARCH=arm64'
+      --customPlatform=linux/arm64/v8
   only:
     - tags
 
-# create the docker image for the cookbook-ui app
-docker-cookbook-ui:
-  stage: docker
-  image: docker:latest
-  services:
-    - docker:dind
+package-api:
+  extends: .build-image
   variables:
-    DOCKER_DRIVER: overlay
-  script:
-    - cd cookbook-ui
-    - docker buildx build --platform linux/arm -t $CI_REGISTRY_IMAGE/cookbook-ui:$CI_COMMIT_REF_SLUG .
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker push $CI_REGISTRY_IMAGE/cookbook-ui:$CI_COMMIT_REF_SLUG
-  only:
-    - tags
+    APP: api
+
+package-ui:
+  extends: .build-image
+  variables:
+    APP: cookbook-ui
