@@ -63,7 +63,7 @@ test-api:
       --context "${CI_PROJECT_DIR}/${APP}"
       --dockerfile "${CI_PROJECT_DIR}/${APP}/Dockerfile"
       --destination "${CI_REGISTRY_IMAGE}/${APP}:${CI_COMMIT_REF_SLUG}"
-      --custom-platform=linux/arm
+      --custom-platform=linux/arm/v7
   only:
     - tags
 
