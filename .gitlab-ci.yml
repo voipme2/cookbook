@@ -63,8 +63,7 @@ test-api:
       --context "${CI_PROJECT_DIR}/${APP}"
       --dockerfile "${CI_PROJECT_DIR}/${APP}/Dockerfile"
       --destination "${CI_REGISTRY_IMAGE}/${APP}:${CI_COMMIT_REF_SLUG}"
-      --build-arg opts='GOARCH=arm64'
-      --customPlatform=linux/arm64/v8
+      --custom-platform=linux/arm
   only:
     - tags
 
