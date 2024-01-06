@@ -1,4 +1,4 @@
-FROM node:lts-alpine as build
+FROM node:bullseye-slim as build
 WORKDIR /app
 COPY package*.json /app/
 COPY ./ /app/
