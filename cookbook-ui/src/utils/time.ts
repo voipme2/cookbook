@@ -1,8 +1,12 @@
-export const summarizeTimes = (times) => {
+import { RecipeTime } from "../types";
+
+export const summarizeTimes = (times: RecipeTime[]) => {
   const regex = /(\d+\s*(?:hr|h))?(\d+\s*(?:min|m))?/;
   const totalTime = times
     .map((time) => {
-      const match = regex.exec(time);
+      if (!time) return 0;
+      const t = typeof time === "number" ? time.toString() : time;
+      const match = regex.exec(t);
       if (!match) {
         return 0;
       }
@@ -20,6 +24,6 @@ export const summarizeTimes = (times) => {
   return totalHours > 0 && remainingMinutes > 0
     ? `${totalHours} hr ${remainingMinutes} min`
     : totalHours > 0
-    ? `${totalHours} hr`
-    : `${remainingMinutes} min`;
+      ? `${totalHours} hr`
+      : `${remainingMinutes} min`;
 };

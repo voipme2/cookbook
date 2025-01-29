@@ -27,6 +27,15 @@ const parseSteps = (steps) => {
   }
 };
 
+const getRecipeImage = (recipe) => {
+  const images = recipe.image;
+  if (Array.isArray(images)) {
+    return images[0];
+  } else {
+    return images;
+  }
+}
+
 const getRecipeData = (recipe) => {
   const author = Array.isArray(recipe.author)
     ? recipe.author[0]
@@ -38,9 +47,12 @@ const getRecipeData = (recipe) => {
     name: recipe.name,
     author: author.name,
     servings: recipe.recipeYield,
-    ingredients: ingredients.map((ing) => ({ text: ing })),
-    steps: steps.map((step) => ({ text: step.text })),
+    ingredients: ingredients.map((ing) => ({text: ing})),
+    steps: steps.map((step) => ({text: step.text})),
   };
+
+
+
   if (recipe.prepTime) {
     recipeData.prepTime = getTime(recipe.prepTime).asMinutes() + " min";
   }
@@ -59,14 +71,15 @@ function getTime(time) {
 
 const getDocument = (text) => {
   const virtualConsole = new jsdom.VirtualConsole();
-  virtualConsole.on("error", () => {});
-  const env = new JSDOM(text, { virtualConsole });
+  virtualConsole.on("error", () => {
+  });
+  const env = new JSDOM(text, {virtualConsole});
   return env.window.document;
 };
 
 module.exports = {
   fetch: async (recipeUrl) => {
-    const page = await fetch(recipeUrl, { headers: HEADERS });
+    const page = await fetch(recipeUrl, {headers: HEADERS});
     if (page && page.ok) {
       const text = await page.text();
       const document = getDocument(text);

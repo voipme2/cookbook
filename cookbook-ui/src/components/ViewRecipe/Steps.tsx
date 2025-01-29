@@ -7,21 +7,9 @@ import {
   ListSubheader,
 } from "@mui/material";
 import { grey } from "@mui/material/colors";
-const Step = ({ step, index }) => (
-  <ListItem sx={{ my: 3 }}>
-    <ListItemAvatar>
-      <Avatar>{index + 1}</Avatar>
-    </ListItemAvatar>
-    <ListItemText
-      sx={{
-        color: "black",
-      }}
-      primary={step}
-    />
-  </ListItem>
-);
+import { Step } from "../../types";
 
-const Steps = ({ steps }) => {
+const Steps = ({ steps }: { steps: Step[] }) => {
   return (
     <List>
       <ListSubheader sx={{ color: "primary.main", bgcolor: grey[100] }}>
@@ -32,8 +20,18 @@ const Steps = ({ steps }) => {
           <ListItemText primary={"Just mix the ingredients"} />
         </ListItem>
       )}
-      {steps.map((step, idx) => (
-        <Step key={`step-${idx}`} step={step.text} index={idx} />
+      {steps.map((step: Step, idx: number) => (
+        <ListItem sx={{ my: 3, alignItems: "start" }} key={idx}>
+          <ListItemAvatar>
+            <Avatar>{idx + 1}</Avatar>
+          </ListItemAvatar>
+          <ListItemText
+            sx={{
+              color: "black",
+            }}
+            primary={step.text}
+          />
+        </ListItem>
       ))}
     </List>
   );

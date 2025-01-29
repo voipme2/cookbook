@@ -1,14 +1,12 @@
 import React, { useEffect } from "react";
 import EditRecipe from "./EditRecipe/EditRecipe";
-import { reset } from "../services/builder";
-import { useDispatch } from "react-redux";
+import useRecipeStore from "../store";
 
 const NewRecipe = () => {
-  const dispatch = useDispatch();
-
+  const { resetRecipe } = useRecipeStore();
   useEffect(() => {
-    dispatch(reset());
-  }, [dispatch]);
+    resetRecipe();
+  }, [resetRecipe]);
   return <EditRecipe />;
 };
 

@@ -1,32 +1,23 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetOneQuery } from "../../services/api";
 import Ingredients from "./Ingredients";
 import Steps from "./Steps";
-import {
-  Divider,
-  Grid,
-  IconButton,
-  LinearProgress,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Divider, Grid2, IconButton, Tooltip, Typography } from "@mui/material";
 import { Edit, Print } from "@mui/icons-material";
 import { summarizeTimes } from "../../utils/time";
+import { Recipe } from "../../types";
 
-const ViewRecipe = () => {
+const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
   const { recipeId } = useParams();
-  const { data: recipe, isLoading } = useGetOneQuery(recipeId);
   const navigate = useNavigate();
   const { prepTime, inactiveTime, cookTime } = recipe || {};
   const totalTime = summarizeTimes([prepTime, inactiveTime, cookTime]);
 
   return (
     <div>
-      {isLoading && <LinearProgress />}
-      {recipe && !isLoading && (
-        <Grid container>
-          <Grid item xs={12} sx={{ m: 3, textAlign: "left" }}>
+      {recipe && (
+        <Grid2 container>
+          <Grid2 size={12} sx={{ m: 3, textAlign: "left" }}>
             <Typography variant="h5" sx={{ flex: 1 }}>
               {recipe.name}
               <Tooltip title="Edit recipe">
@@ -48,7 +39,7 @@ const ViewRecipe = () => {
                 </IconButton>
               </Tooltip>{" "}
             </Typography>
-            <Typography variant="subtitle" sx={{ mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ mb: 2 }}>
               {recipe.description} by {recipe.author}
             </Typography>
             <Typography variant="subtitle2">
@@ -61,21 +52,21 @@ const ViewRecipe = () => {
                 Total time: {totalTime}
               </Typography>
             </Tooltip>
-          </Grid>
-          <Grid item xs={12} sx={{ mx: 2 }}>
+          </Grid2>
+          <Grid2 size={12} sx={{ mx: 2 }}>
             <Divider />
-          </Grid>
-          <Grid item xs={12} sx={{ mx: 2 }}>
-            <Grid container spacing={3}>
-              <Grid item md={3} xs={12} sx={{ textAlign: "left" }}>
+          </Grid2>
+          <Grid2 size={12} sx={{ mx: 2 }}>
+            <Grid2 container spacing={3}>
+              <Grid2 size={{ md: 3, xs: 12 }} sx={{ textAlign: "left" }}>
                 <Ingredients ingredients={recipe.ingredients} />
-              </Grid>
-              <Grid item md={9} xs={12} sx={{ textAlign: "left" }}>
+              </Grid2>
+              <Grid2 size={{ md: 9, xs: 12 }} sx={{ textAlign: "left" }}>
                 <Steps steps={recipe.steps} />
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
+              </Grid2>
+            </Grid2>
+          </Grid2>
+        </Grid2>
       )}
     </div>
   );

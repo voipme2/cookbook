@@ -25,7 +25,7 @@ router.post("/recipes", async function (req, res) {
   const newRecipe = req.body;
   const recipeId = await db.save(newRecipe);
 
-  res.send(JSON.stringify({ id: recipeId }));
+  res.send(JSON.stringify({id: recipeId}));
 });
 
 router.post("/recipes/:recipeId", async function (req, res) {
@@ -35,7 +35,7 @@ router.post("/recipes/:recipeId", async function (req, res) {
 
   await db.save(newRecipe);
 
-  res.send(JSON.stringify({ id: recipeId }));
+  res.send(JSON.stringify({id: recipeId}));
 });
 
 router.post("/recipes/:recipeId/image", async function (req, res) {
@@ -45,15 +45,16 @@ router.post("/recipes/:recipeId/image", async function (req, res) {
   const recipe = await db.find(recipeId);
   // if we find a recipe, write the image to a file and then update the recipe.imageUrl property
   if (recipe) {
-    const imageUrl = await db.saveImage(recipeId, image);
-    recipe.imageUrl = imageUrl;
-    await db.save(recipe);
+    await db.saveImage(recipeId, image);
+    res.send(JSON.stringify({imageUrl: recipe.imageUrl}));
+  } else {
+    res.status(404).send("Not found");
   }
 });
 
 router.delete("/recipes/:recipeId", async function (req, res) {
   await db.remove(req.params.recipeId);
-  res.send(JSON.stringify({ success: true }));
+  res.send(JSON.stringify({success: true}));
 });
 
 router.get("/search", async function (req, res) {
@@ -73,6 +74,6 @@ router.get("/fetch", async function (req, res) {
       res.status(404).send("Not found");
     }
   } catch (e) {
-    res.status(500).send(JSON.stringify({ error: e }));
+    res.status(500).send(JSON.stringify({error: e}));
   }
 });

@@ -1,4 +1,4 @@
-const { Pool } = require("pg");
+const {Pool} = require("pg");
 const slugify = require("slugify");
 const fs = require("fs");
 
@@ -20,6 +20,7 @@ function getId(name) {
 }
 
 const regex = /(\d+\s*(?:hr|h))?(\d+\s*(?:min|m))?/;
+
 function convertToMinutes(time) {
   const match = regex.exec(time);
   if (!match) {
@@ -38,8 +39,8 @@ function convertToDuration(minutes) {
   return totalHours > 0 && remainingMinutes > 0
     ? `${totalHours} hr ${remainingMinutes} min`
     : totalHours > 0
-    ? `${totalHours} hr`
-    : `${remainingMinutes} min`;
+      ? `${totalHours} hr`
+      : `${remainingMinutes} min`;
 }
 
 async function find(slug_id) {
@@ -48,7 +49,7 @@ async function find(slug_id) {
     const res = await client.query("SELECT * from recipes where id = $1", [
       slug_id,
     ]);
-    const { recipe } = res.rows[0];
+    const {recipe} = res.rows[0];
     // convert prepTime, inactiveTime, cookTime from minutes to a duration string
     ["prepTime", "inactiveTime", "cookTime"].forEach(function (t) {
       if (recipe[t]) {
@@ -106,6 +107,10 @@ async function remove(slug_id) {
   const client = await pool.connect();
   try {
     await client.query("DELETE FROM recipes WHERE id = $1", [slug_id]);
+    // remove the image from disk
+    if (fs.existsSync(`./images/${slug_id}.jpg`)) {
+      fs.unlinkSync(`./images/${slug_id}.jpg`);
+    }
   } finally {
     client.release();
   }
@@ -115,10 +120,33 @@ async function search(query) {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      "SELECT id, recipe->>'name' AS name FROM recipes WHERE recipe::text ILIKE $1",
+      "SELECT * FROM recipes WHERE recipe::text ILIKE $1",
       [`%${query}%`]
     );
     return res.rows;
+  } finally {
+    client.release();
+  }
+}
+
+// given an image and a recipeId, save the image to disk and return the URL
+async function saveImage(recipeId, image) {
+  const client = await pool.connect();
+  try {
+    const res = await client.query("SELECT * FROM recipes WHERE id = $1", [
+      recipeId,
+    ]);
+    const recipe = res.rows[0].recipe;
+    const imageUrl = `/images/${recipeId}.jpg`;
+    recipe.imageUrl = imageUrl;
+    await client.query(
+      "UPDATE recipes SET recipe = $1 WHERE id = $2",
+      [recipe, recipeId]
+    );
+    // write the image to disk
+    fs.writeFileSync(`.${imageUrl}`, image, "base64");
+
+    return imageUrl;
   } finally {
     client.release();
   }
@@ -131,4 +159,5 @@ module.exports = {
   remove,
   save,
   list,
+  saveImage
 };

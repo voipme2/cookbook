@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
 import EditRecipe from "./EditRecipe/EditRecipe";
-import { load } from "../services/builder";
-import { useDispatch } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import { useFetchRecipeQuery } from "../services/api";
 import { LinearProgress } from "@mui/material";
+import useRecipeStore from "../store";
 
 const DownloadRecipe = () => {
   const [searchParams] = useSearchParams();
@@ -13,14 +12,12 @@ const DownloadRecipe = () => {
     data: recipe,
     isLoading,
     isFetching,
-  } = useFetchRecipeQuery({ recipeUrl });
-
-  const dispatch = useDispatch();
+  } = useFetchRecipeQuery(recipeUrl!);
+  const { setRecipe } = useRecipeStore();
 
   useEffect(() => {
-    dispatch(load(recipe));
-  }, [dispatch, recipe]);
-
+    if (recipe) setRecipe(recipe);
+  }, [recipe]);
   return (
     <>
       {(isLoading || isFetching) && <LinearProgress />}
