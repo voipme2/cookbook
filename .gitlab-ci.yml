@@ -35,6 +35,8 @@ install-node-modules-api:
 # test the api
 test-api:
   stage: test
+  dependencies:
+    - install-node-modules-api
   script:
     - cd api
     - npm run test
@@ -57,7 +59,7 @@ test-api:
   stage: docker
   image:
     name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
+    entrypoint: [ "" ]
   script:
     - /kaniko/executor
       --context "${CI_PROJECT_DIR}/${APP}"

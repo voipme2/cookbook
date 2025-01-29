@@ -7,7 +7,7 @@ describe("scraper tests", function () {
     );
     expect(recipe.name).toEqual("Overnight Blueberry French Toast");
     expect(recipe.ingredients.length).toEqual(12);
-    expect(recipe.steps.length).toEqual(6);
+    expect(recipe.steps.length).toEqual(8);
     expect(recipe.prepTime).toEqual("15 min");
     expect(recipe.cookTime).toEqual("55 min");
   });
@@ -100,7 +100,7 @@ describe("scraper tests", function () {
     );
     expect(recipe.name).toEqual("Hot Spinach Artichoke Dip");
     expect(recipe.ingredients.length).toEqual(11);
-    expect(recipe.steps.length).toEqual(3);
+    expect(recipe.steps.length).toEqual(5);
     expect(recipe.cookTime).toEqual("25 min");
   });
 });
