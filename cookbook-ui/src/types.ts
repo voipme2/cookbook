@@ -28,3 +28,17 @@ export interface Recipe {
     isGlutenFree: boolean;
   };
 }
+
+export interface SearchRecipe {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl?: string;
+  options?: {
+    isVegetarian: boolean;
+    isVegan: boolean;
+    isDairyFree: boolean;
+    isCrockPot: boolean;
+    isGlutenFree: boolean;
+  };
+}

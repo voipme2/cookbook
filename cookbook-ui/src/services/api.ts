@@ -4,7 +4,7 @@ import {
   useQueryClient,
   UseQueryResult,
 } from "@tanstack/react-query";
-import { Recipe } from "../types";
+import { Recipe, SearchRecipe } from "../types";
 
 const fetchRecipes = async (): Promise<Recipe[]> => {
   const response = await fetch("/api/recipes");
@@ -14,7 +14,7 @@ const fetchRecipes = async (): Promise<Recipe[]> => {
   return response.json();
 };
 
-const searchRecipes = async (query: string): Promise<Recipe[]> => {
+const searchRecipes = async (query: string): Promise<SearchRecipe[]> => {
   const response = await fetch(`/api/search?query=${query}`);
   if (!response.ok) {
     throw new Error("Network response was not ok");
@@ -83,7 +83,9 @@ export const useGetRecipesQuery = (): UseQueryResult<Recipe[]> => {
   return useQuery({ queryKey: ["recipes"], queryFn: fetchRecipes });
 };
 
-export const useSearchQuery = (query: string): UseQueryResult<Recipe[]> => {
+export const useSearchQuery = (
+  query: string,
+): UseQueryResult<SearchRecipe[]> => {
   return useQuery({
     queryKey: ["search", query],
     queryFn: () => searchRecipes(query),

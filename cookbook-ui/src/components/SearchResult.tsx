@@ -1,17 +1,20 @@
 import React from "react";
-import {
-  Box,
-  Card,
-  CardContent,
-  CardMedia,
-  Chip,
-  Typography,
-} from "@mui/material";
-import { Recipe } from "../types";
+import { Box, Card, CardContent, CardMedia, Typography } from "@mui/material";
+import { SearchRecipe } from "../types";
 import { Link } from "react-router-dom";
+// @ts-ignore
+import CrockpotIcon from "../icons/crockpot.svg?react";
+// @ts-ignore
+import VeganIcon from "../icons/vegan.svg?react";
+// @ts-ignore
+import GlutenFreeIcon from "../icons/gluten-free.svg?react";
+// @ts-ignore
+import VegetarianIcon from "../icons/vegetarian.svg?react";
+// @ts-ignore
+import DairyFreeIcon from "../icons/dairy-free.svg?react";
 
 interface SearchResultProps {
-  recipe: Recipe;
+  recipe: SearchRecipe;
   highlight: string;
 }
 
@@ -72,7 +75,7 @@ export const SearchResult: React.FC<SearchResultProps> = ({
         <Typography
           variant="subtitle1"
           sx={{
-            textDecoration: "none",
+            textDecoration: "none !important",
             color: "inherit",
           }}
         >
@@ -82,7 +85,7 @@ export const SearchResult: React.FC<SearchResultProps> = ({
           variant="body2"
           color="textSecondary"
           sx={{
-            textDecoration: "none",
+            textDecoration: "none !important",
             color: "inherit",
           }}
         >
@@ -92,19 +95,17 @@ export const SearchResult: React.FC<SearchResultProps> = ({
         {/* Options (Gluten Free, Dairy Free, etc.) */}
         <Box sx={{ mt: 1, display: "flex", flexWrap: "wrap", gap: 0.5 }}>
           {recipe.options?.isGlutenFree && (
-            <Chip label="Gluten Free" color="success" size="small" />
+            <GlutenFreeIcon width={20} height={20} />
           )}
           {recipe.options?.isDairyFree && (
-            <Chip label="Dairy Free" color="primary" size="small" />
+            <DairyFreeIcon width={20} height={20} />
           )}
-          {recipe.options?.isVegan && (
-            <Chip label="Vegan" color="warning" size="small" />
-          )}
+          {recipe.options?.isVegan && <VeganIcon width={20} height={20} />}
           {recipe.options?.isVegetarian && (
-            <Chip label="Vegetarian" color="secondary" size="small" />
+            <VegetarianIcon width={20} height={20} />
           )}
           {recipe.options?.isCrockPot && (
-            <Chip label="Crockpot" color="secondary" size="small" />
+            <CrockpotIcon width={20} height={20} />
           )}
         </Box>
       </CardContent>
