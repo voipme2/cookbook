@@ -4,6 +4,7 @@ import { LinearProgress } from "@mui/material";
 import EditRecipe from "../components/EditRecipe/EditRecipe";
 import { useGetOneQuery } from "../services/api";
 import { useParams } from "react-router-dom";
+import { AppTitle } from "../components/AppTitle";
 
 export const EditView = () => {
   const { recipeId } = useParams();
@@ -18,6 +19,7 @@ export const EditView = () => {
 
   return (
     <>
+      <AppTitle recipeName={recipe?.name} />
       {isLoading && <LinearProgress />}
       {!isLoading && recipe && <EditRecipe />}
     </>

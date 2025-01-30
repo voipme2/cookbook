@@ -3,6 +3,7 @@ import { useGetOneQuery } from "../services/api";
 import { Container } from "@mui/material";
 import React from "react";
 import ViewRecipe from "../components/ViewRecipe/ViewRecipe";
+import { AppTitle } from "../components/AppTitle";
 
 export const RecipeView = () => {
   const { recipeId } = useParams();
@@ -12,5 +13,10 @@ export const RecipeView = () => {
     return <Container maxWidth="lg">Loading...</Container>;
   }
 
-  return <ViewRecipe recipe={recipe!} />;
+  return (
+    <>
+      <AppTitle recipeName={recipe?.name} />
+      <ViewRecipe recipe={recipe!} />
+    </>
+  );
 };
