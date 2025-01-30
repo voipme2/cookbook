@@ -88,6 +88,7 @@ export const useSearchQuery = (query: string): UseQueryResult<Recipe[]> => {
     queryKey: ["search", query],
     queryFn: () => searchRecipes(query),
     enabled: !!query,
+    select: (data) => data.sort((a, b) => a.name.localeCompare(b.name)),
   });
 };
 

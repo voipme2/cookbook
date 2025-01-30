@@ -2,7 +2,14 @@ import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Ingredients from "./Ingredients";
 import Steps from "./Steps";
-import { Divider, Grid2, IconButton, Tooltip, Typography } from "@mui/material";
+import {
+  Box,
+  Divider,
+  Grid2,
+  IconButton,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { Edit, Print } from "@mui/icons-material";
 import { summarizeTimes } from "../../utils/time";
 import { Recipe } from "../../types";
@@ -17,7 +24,26 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
     <div>
       {recipe && (
         <Grid2 container>
-          <Grid2 size={12} sx={{ m: 3, textAlign: "left" }}>
+          {recipe.imageUrl && (
+            <Grid2 size={3}>
+              <Box
+                component="img"
+                src={recipe.imageUrl}
+                alt={recipe.name}
+                sx={{
+                  width: "100%",
+                  height: "auto",
+                  maxHeight: 200, // Adjust as needed
+                  borderRadius: 2,
+                  objectFit: "cover",
+                }}
+              />
+            </Grid2>
+          )}
+          <Grid2
+            size={{ xs: recipe.imageUrl ? 9 : 12 }}
+            sx={{ m: 3, textAlign: "left" }}
+          >
             <Typography variant="h5" sx={{ flex: 1 }}>
               {recipe.name}
               <Tooltip title="Edit recipe">

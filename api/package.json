@@ -16,6 +16,7 @@
     "node-fetch": "^2.6.7",
     "parse-duration": "^0.1.1",
     "pg": "^8.7.1",
+    "prettier": "^3.4.2",
     "slugify": "^1.6.1",
     "try-require": "^1.2.1"
   }

@@ -1,5 +1,12 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  CardMedia,
+  Chip,
+  Typography,
+} from "@mui/material";
 import { Recipe } from "../types";
 import { Link } from "react-router-dom";
 
@@ -29,20 +36,78 @@ export const SearchResult: React.FC<SearchResultProps> = ({
   };
 
   return (
-    <Box>
-      <Box key={recipe.id} sx={{ m: 2 }}>
-        <Link
-          to={`/view/${recipe.id}`}
-          style={{ textDecoration: "none", color: "inherit" }}
+    <Card
+      sx={{ display: "flex", alignItems: "center", m: 2, p: 1 }}
+      component={Link}
+      to={`/view/${recipe.id}`}
+    >
+      {/* Recipe Image (if available) */}
+      {recipe.imageUrl ? (
+        <CardMedia
+          component="img"
+          sx={{ width: 50, height: 50, borderRadius: 2, objectFit: "cover" }}
+          image={recipe.imageUrl}
+          alt={recipe.name}
+        />
+      ) : (
+        <Box
+          sx={{
+            width: 50,
+            height: 50,
+            backgroundColor: "#ccc",
+            borderRadius: 2,
+          }}
+        />
+      )}
+
+      {/* Recipe Content */}
+      <CardContent
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          ml: 2,
+        }}
+      >
+        <Typography
+          variant="subtitle1"
+          sx={{
+            textDecoration: "none",
+            color: "inherit",
+          }}
         >
-          <Typography variant="h6">
-            {getHighlightedText(recipe.name, highlight)}
-          </Typography>
-          <Typography variant="body2">
-            {getHighlightedText(recipe.description, highlight)}
-          </Typography>
-        </Link>
-      </Box>
-    </Box>
+          {getHighlightedText(recipe.name, highlight)}
+        </Typography>
+        <Typography
+          variant="body2"
+          color="textSecondary"
+          sx={{
+            textDecoration: "none",
+            color: "inherit",
+          }}
+        >
+          {getHighlightedText(recipe.description, highlight)}
+        </Typography>
+
+        {/* Options (Gluten Free, Dairy Free, etc.) */}
+        <Box sx={{ mt: 1, display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+          {recipe.options?.isGlutenFree && (
+            <Chip label="Gluten Free" color="success" size="small" />
+          )}
+          {recipe.options?.isDairyFree && (
+            <Chip label="Dairy Free" color="primary" size="small" />
+          )}
+          {recipe.options?.isVegan && (
+            <Chip label="Vegan" color="warning" size="small" />
+          )}
+          {recipe.options?.isVegetarian && (
+            <Chip label="Vegetarian" color="secondary" size="small" />
+          )}
+          {recipe.options?.isCrockPot && (
+            <Chip label="Crockpot" color="secondary" size="small" />
+          )}
+        </Box>
+      </CardContent>
+    </Card>
   );
 };

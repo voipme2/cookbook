@@ -1,4 +1,4 @@
-const {Pool} = require("pg");
+const { Pool } = require("pg");
 const slugify = require("slugify");
 const fs = require("fs");
 
@@ -49,7 +49,7 @@ async function find(slug_id) {
     const res = await client.query("SELECT * from recipes where id = $1", [
       slug_id,
     ]);
-    const {recipe} = res.rows[0];
+    const { recipe } = res.rows[0];
     // convert prepTime, inactiveTime, cookTime from minutes to a duration string
     ["prepTime", "inactiveTime", "cookTime"].forEach(function (t) {
       if (recipe[t]) {
@@ -66,7 +66,7 @@ async function list() {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      "SELECT id, recipe->>'name' AS name, recipe->>'description' AS description, recipe->>'options' AS options FROM recipes ORDER BY recipe->>'name' ASC"
+      "SELECT id, recipe->>'name' AS name, recipe->>'description' AS description, recipe->>'options' AS options FROM recipes ORDER BY recipe->>'name' ASC",
     );
     return res.rows.map((r) => ({
       ...r,
@@ -95,7 +95,7 @@ async function save(recipe) {
     const id = getId(recipe.name);
     await client.query(
       "INSERT INTO recipes (id, recipe) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET recipe = $2",
-      [id, recipe]
+      [id, recipe],
     );
     return id;
   } finally {
@@ -120,8 +120,8 @@ async function search(query) {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      "SELECT * FROM recipes WHERE recipe::text ILIKE $1",
-      [`%${query}%`]
+      "SELECT id, recipe->>'name' AS name, recipe->>'description' AS description, recipe->>'options' AS options, recipe->>'imageUrl' as imageUrl FROM recipes WHERE recipe::text ILIKE $1",
+      [`%${query}%`],
     );
     return res.rows;
   } finally {
@@ -139,10 +139,10 @@ async function saveImage(recipeId, image) {
     const recipe = res.rows[0].recipe;
     const imageUrl = `/images/${recipeId}.jpg`;
     recipe.imageUrl = imageUrl;
-    await client.query(
-      "UPDATE recipes SET recipe = $1 WHERE id = $2",
-      [recipe, recipeId]
-    );
+    await client.query("UPDATE recipes SET recipe = $1 WHERE id = $2", [
+      recipe,
+      recipeId,
+    ]);
     // write the image to disk
     fs.writeFileSync(`.${imageUrl}`, image, "base64");
 
@@ -159,5 +159,5 @@ module.exports = {
   remove,
   save,
   list,
-  saveImage
+  saveImage,
 };

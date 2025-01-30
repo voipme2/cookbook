@@ -7,7 +7,11 @@ import { SearchResult } from "./SearchResult";
 export function SearchBox() {
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
-  const { data: searchResults } = useSearchQuery(searchValue);
+  const {
+    data: searchResults,
+    isLoading,
+    isFetching,
+  } = useSearchQuery(searchValue);
   return (
     <Autocomplete
       freeSolo
@@ -17,6 +21,7 @@ export function SearchBox() {
           navigate(`/view/${value.id}`);
         }
       }}
+      loading={isLoading || isFetching}
       onInputChange={(event, newValue) => setSearchValue(newValue)}
       inputValue={searchValue}
       getOptionLabel={(option) =>
