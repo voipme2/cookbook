@@ -25,7 +25,7 @@ router.post("/recipes", async function (req, res) {
   const newRecipe = req.body;
   const recipeId = await db.save(newRecipe);
 
-  res.send(JSON.stringify({id: recipeId}));
+  res.send(JSON.stringify({ id: recipeId }));
 });
 
 router.post("/recipes/:recipeId", async function (req, res) {
@@ -35,7 +35,7 @@ router.post("/recipes/:recipeId", async function (req, res) {
 
   await db.save(newRecipe);
 
-  res.send(JSON.stringify({id: recipeId}));
+  res.send(JSON.stringify({ id: recipeId }));
 });
 
 router.post("/recipes/:recipeId/image", async function (req, res) {
@@ -46,7 +46,7 @@ router.post("/recipes/:recipeId/image", async function (req, res) {
   // if we find a recipe, write the image to a file and then update the recipe.imageUrl property
   if (recipe) {
     await db.saveImage(recipeId, image);
-    res.send(JSON.stringify({imageUrl: recipe.imageUrl}));
+    res.send(JSON.stringify({ imageUrl: recipe.imageUrl }));
   } else {
     res.status(404).send("Not found");
   }
@@ -54,12 +54,13 @@ router.post("/recipes/:recipeId/image", async function (req, res) {
 
 router.delete("/recipes/:recipeId", async function (req, res) {
   await db.remove(req.params.recipeId);
-  res.send(JSON.stringify({success: true}));
+  res.send(JSON.stringify({ success: true }));
 });
 
 router.get("/search", async function (req, res) {
-  const search = req.query.query;
-  const results = await db.search(search);
+  const search = req.query.query.trim();
+  const sanitizedSearch = search.replace(/[^\w\s]|_/g, ""); // Remove only non-alphanumeric characters, but leave spaces
+  const results = await db.search(sanitizedSearch);
   res.send(JSON.stringify(results));
 });
 
@@ -74,6 +75,6 @@ router.get("/fetch", async function (req, res) {
       res.status(404).send("Not found");
     }
   } catch (e) {
-    res.status(500).send(JSON.stringify({error: e}));
+    res.status(500).send(JSON.stringify({ error: e }));
   }
 });

@@ -136,25 +136,29 @@ async function search(query) {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      "SELECT id, \n" +
-        "       recipe->>'name' AS name, \n" +
-        "       recipe->>'description' AS description, \n" +
-        "       recipe->>'options' AS options, \n" +
-        "       recipe->>'imageUrl' AS imageUrl \n" +
-        "FROM recipes \n" +
-        "WHERE recipe->>'name' ILIKE $1 \n" + // Search name
-        "   OR recipe->>'description' ILIKE $1 \n" + // Search description
-        "   OR EXISTS (\n" + // Search ingredients & steps using pg_trgm similarity
-        "     SELECT 1\n" +
-        "     FROM jsonb_array_elements_text(recipe->'ingredients') AS ingredient \n" +
-        "     WHERE ingredient ILIKE $1\n" + // Case-insensitive match
-        "   )\n" +
-        "   OR EXISTS (\n" + // Search steps using pg_trgm similarity
-        "     SELECT 1\n" +
-        "     FROM jsonb_array_elements_text(recipe->'steps') AS step \n" +
-        "     WHERE step ILIKE $1\n" + // Case-insensitive match
-        "   );",
+      // @formatter:off
+      `
+          SELECT id,
+                 recipe ->>'name' AS name, 
+                 recipe->>'description' AS description, 
+                 recipe->>'options' AS options, 
+                 recipe->>'imageUrl' AS imageUrl
+          FROM recipes
+          WHERE recipe->>'name' ILIKE $1
+             OR recipe->>'description' ILIKE $1
+             OR EXISTS (
+               SELECT 1
+               FROM jsonb_array_elements_text(recipe->'ingredients') AS ingredient
+               WHERE ingredient ILIKE $1
+             )
+             OR EXISTS (
+               SELECT 1
+               FROM jsonb_array_elements_text(recipe->'steps') AS step
+               WHERE step ILIKE $1
+             );
+      `,
       [`%${query}%`], // Wrap the query in % for partial match
+      // @formatter:on
     );
     return res.rows;
   } finally {
