@@ -21,6 +21,7 @@ export function SearchBox() {
           navigate(`/view/${value.id}`);
         }
       }}
+      filterOptions={(x) => x}
       loading={isLoading || isFetching}
       onInputChange={(event, newValue) => setSearchValue(newValue)}
       inputValue={searchValue}
