@@ -135,7 +135,7 @@ async function search(query) {
         "        COALESCE(\n" +
         "          jsonb_path_query_array(recipe->'steps', '$[*].text')::text, ''\n" +
         "        )\n" +
-        "      ) @@ plainto_tsquery($1);\n",
+        "      ) @@ to_tsquery('english', $1 || ':*');\n",
       [`%${query}%`],
     );
     return res.rows;
