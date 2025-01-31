@@ -12,7 +12,7 @@ const pool = new Pool({
 // only used for initial table creation
 // pool.connect()
 //   .then(client => {
-//     client.query("CREATE TABLE recipes (id VARCHAR(255) PRIMARY KEY, recipe json NOT NULL)");
+//     client.query("CREATE TABLE recipes (id VARCHAR(255) PRIMARY KEY, recipe jsonb NOT NULL)");
 //   })
 
 function getId(name) {
@@ -120,7 +120,22 @@ async function search(query) {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      "SELECT id, recipe->>'name' AS name, recipe->>'description' AS description, recipe->>'options' AS options, recipe->>'imageUrl' as imageUrl FROM recipes WHERE recipe::text ILIKE $1",
+      "SELECT id, \n" +
+        "       recipe->>'name' AS name, \n" +
+        "       recipe->>'description' AS description, \n" +
+        "       recipe->>'options' AS options, \n" +
+        "       recipe->>'imageUrl' AS imageUrl \n" +
+        "FROM recipes \n" +
+        "WHERE to_tsvector('english', \n" +
+        "        COALESCE(recipe->>'name', '') || ' ' || \n" +
+        "        COALESCE(recipe->>'description', '') || ' ' || \n" +
+        "        COALESCE(\n" +
+        "          jsonb_path_query_array(recipe->'ingredients', '$[*].text')::text, ''\n" +
+        "        ) || ' ' ||\n" +
+        "        COALESCE(\n" +
+        "          jsonb_path_query_array(recipe->'steps', '$[*].text')::text, ''\n" +
+        "        )\n" +
+        "      ) @@ plainto_tsquery($1);\n",
       [`%${query}%`],
     );
     return res.rows;
