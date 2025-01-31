@@ -15,6 +15,22 @@ const pool = new Pool({
 //     client.query("CREATE TABLE recipes (id VARCHAR(255) PRIMARY KEY, recipe jsonb NOT NULL)");
 //   })
 
+// only used for initial index creation
+// CREATE INDEX recipes_search_idx
+// ON recipes USING GIN (
+//   to_tsvector('english',
+//     COALESCE(recipe->>'name', '') || ' ' ||
+//     COALESCE(recipe->>'description', '') || ' ' ||
+//     COALESCE(
+//       jsonb_path_query_array(recipe->'ingredients', '$[*].text')::text, ''
+//     ) || ' ' ||
+//     COALESCE(
+//       jsonb_path_query_array(recipe->'steps', '$[*].text')::text, ''
+//     )
+//   )
+// );
+// CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 function getId(name) {
   return slugify(name);
 }
@@ -126,17 +142,19 @@ async function search(query) {
         "       recipe->>'options' AS options, \n" +
         "       recipe->>'imageUrl' AS imageUrl \n" +
         "FROM recipes \n" +
-        "WHERE to_tsvector('english', \n" +
-        "        COALESCE(recipe->>'name', '') || ' ' || \n" +
-        "        COALESCE(recipe->>'description', '') || ' ' || \n" +
-        "        COALESCE(\n" +
-        "          jsonb_path_query_array(recipe->'ingredients', '$[*].text')::text, ''\n" +
-        "        ) || ' ' ||\n" +
-        "        COALESCE(\n" +
-        "          jsonb_path_query_array(recipe->'steps', '$[*].text')::text, ''\n" +
-        "        )\n" +
-        "      ) @@ to_tsquery('english', $1 || ':*');\n",
-      [`%${query}%`],
+        "WHERE recipe->>'name' ILIKE $1 \n" + // Search name
+        "   OR recipe->>'description' ILIKE $1 \n" + // Search description
+        "   OR EXISTS (\n" + // Search ingredients & steps using pg_trgm similarity
+        "     SELECT 1\n" +
+        "     FROM jsonb_array_elements_text(recipe->'ingredients') AS ingredient \n" +
+        "     WHERE ingredient ILIKE $1\n" + // Case-insensitive match
+        "   )\n" +
+        "   OR EXISTS (\n" + // Search steps using pg_trgm similarity
+        "     SELECT 1\n" +
+        "     FROM jsonb_array_elements_text(recipe->'steps') AS step \n" +
+        "     WHERE step ILIKE $1\n" + // Case-insensitive match
+        "   );",
+      [`%${query}%`], // Wrap the query in % for partial match
     );
     return res.rows;
   } finally {
