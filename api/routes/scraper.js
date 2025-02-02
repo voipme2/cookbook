@@ -68,11 +68,21 @@ const getRecipeData = (recipe) => {
       " min";
     recipeData.cookTime = getTime(recipe.cookTime).asMinutes() + " min";
   }
+
+  if (!recipe.cookTime && !recipe.prepTime && recipe.totalTime) {
+    recipeData.cookTime = getTime(recipe.totalTime).asMinutes() + " min";
+  }
+
   return recipeData;
 };
 
 function getTime(time) {
-  return moment.duration(parseDuration(time));
+  if (time.indexOf("P") === 0) {
+    // ISO-8601 duration
+    return moment.duration(time);
+  } else {
+    return moment.duration(parseDuration(time));
+  }
 }
 
 const getDocument = (text) => {

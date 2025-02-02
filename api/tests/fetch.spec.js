@@ -112,4 +112,14 @@ describe("scraper tests", function () {
     expect(recipe.ingredients.length).toEqual(25);
     expect(recipe.steps.length).toEqual(10);
   });
+
+  it("should return oatmeal creme pies from americastestkitchen", async function () {
+    const recipe = await scraper.fetch(
+      "https://www.americastestkitchen.com/recipes/15131-oatmeal-creme-pies",
+    );
+
+    expect(recipe.name).toEqual("Oatmeal Creme Pies");
+    expect(recipe.ingredients.length).toEqual(18);
+    expect(recipe.steps.length).toEqual(8);
+  });
 });
