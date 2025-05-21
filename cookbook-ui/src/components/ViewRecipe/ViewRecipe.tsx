@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Ingredients from "./Ingredients";
 import Steps from "./Steps";
+import ImageUploader from "../ImageUploader";
 import {
   Box,
   Divider,
@@ -24,7 +25,7 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
     <div>
       {recipe && (
         <Grid2 container>
-          {recipe.imageUrl && (
+          {recipe.imageUrl ? (
             <Grid2 size={3}>
               <Box
                 component="img"
@@ -36,6 +37,22 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
                   maxHeight: 200, // Adjust as needed
                   borderRadius: 2,
                   objectFit: "cover",
+                }}
+              />
+            </Grid2>
+          ) : (
+            <Grid2
+              size={3}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <ImageUploader
+                onImageUploaded={(image) => {
+                  // Optionally, trigger a reload or update the recipe state to show the new image
+                  window.location.reload();
                 }}
               />
             </Grid2>

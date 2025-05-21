@@ -17,6 +17,7 @@ import {
 import EditIngredient from "./Ingredient";
 import EditStep from "./Step";
 import EditDetails from "./Details";
+import ImageUploader from "../ImageUploader";
 import { grey } from "@mui/material/colors";
 import { Ingredient, Step } from "../../types";
 import useRecipeStore from "../../store";
@@ -109,6 +110,25 @@ const EditRecipe = () => {
   return (
     <Container maxWidth="lg">
       {loading && <LinearProgress />}
+      {/* Show current image if exists */}
+      {currentRecipe.imageUrl && (
+        <Box sx={{ mb: 2, textAlign: "center" }}>
+          <img
+            src={currentRecipe.imageUrl}
+            alt={currentRecipe.name}
+            style={{ maxWidth: 200, maxHeight: 200, borderRadius: 8 }}
+          />
+        </Box>
+      )}
+      {/* Image uploader for new or replacement image */}
+      <Box sx={{ mb: 2, textAlign: "center" }}>
+        <ImageUploader
+          initialImageUrl={currentRecipe.imageUrl}
+          onImageUploaded={(image) => {
+            updateRecipeFields({ imageUrl: image.path });
+          }}
+        />
+      </Box>
       <Grid2 container sx={{ mt: 1, pr: 2 }} spacing={3}>
         <Grid2 size={12}>
           <EditDetails

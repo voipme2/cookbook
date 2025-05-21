@@ -79,6 +79,20 @@ const fetchRecipeByUrl = async (recipeUrl: string) => {
   return response.json();
 };
 
+export const fetchRecipeFromUrl = async (url: string): Promise<Recipe> => {
+  const response = await fetch("/api/recipes/fetch", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ url }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to fetch recipe from URL");
+  }
+  return response.json();
+};
+
 export const useGetRecipesQuery = (): UseQueryResult<Recipe[]> => {
   return useQuery({ queryKey: ["recipes"], queryFn: fetchRecipes });
 };
