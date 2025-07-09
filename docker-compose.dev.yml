@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    container_name: cookbook-db-dev
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: cookbook
+      POSTGRES_PASSWORD: cookbook123
+      POSTGRES_DB: cookbook
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - cookbook_db_data:/var/lib/postgresql/data
+      - ./api/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - cookbook-dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cookbook"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Backend (Development)
+  api:
+    container_name: cookbook-api-dev
+    build:
+      context: ./api
+      dockerfile: Dockerfile.dev
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      PGUSER: cookbook
+      PGHOST: db
+      PGPASSWORD: cookbook123
+      PGDATABASE: cookbook
+      PGPORT: 5432
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+      - cookbook_images:/app/images
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - cookbook-dev
+    command: npm run dev
+
+  # Frontend (Development)
+  frontend:
+    container_name: cookbook-frontend-dev
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:3001/api
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - api
+    networks:
+      - cookbook-dev
+    command: npm run dev
+
+volumes:
+  cookbook_db_data:
+  cookbook_images:
+
+networks:
+  cookbook-dev:
+    driver: bridge 

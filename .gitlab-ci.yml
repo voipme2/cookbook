@@ -9,17 +9,17 @@ cache:
   key: $CI_COMMIT_REF_SLUG
   paths:
     - api/node_modules
-    - cookbook-ui/node_modules
+    - frontend/node_modules
 
-# build the cookbook-ui app
-install-node-modules-ui:
+# build the frontend app
+install-node-modules-frontend:
   stage: build
   script:
-    - cd cookbook-ui
+    - cd frontend
     - npm install
   artifacts:
     paths:
-      - cookbook-ui/build
+      - frontend/.next
     expire_in: 1 week
 
 install-node-modules-api:
@@ -44,16 +44,17 @@ test-api:
   only:
     - main
 
-# test the cookbook-ui app
-# test-cookbook-ui:
-#   stage: test
-#   image: node:17-alpine
-#   script:
-#     - cd cookbook-ui
-#     - npm install
-#     - npm run test
-#   only:
-#     - main
+# test the frontend app
+test-frontend:
+  stage: test
+  dependencies:
+    - install-node-modules-frontend
+  script:
+    - cd frontend
+    - npm run test
+  allow_failure: true
+  only:
+    - main
 
 .build-image:
   stage: docker
@@ -74,7 +75,7 @@ package-api:
   variables:
     APP: api
 
-package-ui:
+package-frontend:
   extends: .build-image
   variables:
-    APP: cookbook-ui
+    APP: frontend
