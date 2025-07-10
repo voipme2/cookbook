@@ -1,5 +1,4 @@
 import jsdom from 'jsdom';
-import { intervalToDuration } from 'date-fns';
 import parseDuration from 'parse-duration';
 import { ScrapedRecipe } from '../types';
 
@@ -40,19 +39,12 @@ const parseSteps = (steps: any): any[] => {
   }
 };
 
-function durationToMinutes(duration: { hours?: number; minutes?: number }): number {
-  return (duration.hours || 0) * 60 + (duration.minutes || 0);
-}
-
 function getTime(time: string): number {
   if (!time || typeof time !== 'string') return 0;
   if (time.indexOf('P') === 0) {
     // ISO-8601 duration
-    // Use intervalToDuration from 0 to duration
-    // Example: PT1H30M => { hours: 1, minutes: 30 }
-    const now = new Date();
-    const duration = intervalToDuration({ start: now, end: new Date(now.getTime() + parseISODurationToMs(time)) });
-    return durationToMinutes(duration);
+    // Example: PT12M => 12 minutes, PT1H30M => 90 minutes
+    return Math.round(parseISODurationToMs(time) / 60000);
   } else {
     // fallback to parse-duration (returns ms)
     return Math.round((parseDuration(time) || 0) / 60000);
@@ -61,12 +53,26 @@ function getTime(time: string): number {
 
 // Helper to parse ISO-8601 duration to ms
 function parseISODurationToMs(isoDuration: string): number {
-  // Only supports hours and minutes for this use case
-  const match = isoDuration.match(/P(?:T)?(?:(\d+)H)?(?:(\d+)M)?/);
+  // Handle full ISO-8601 duration format: P0Y0M0DT0H12M0.000S
+  const match = isoDuration.match(/P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?/);
   if (!match) return 0;
-  const hours = match[1] ? parseInt(match[1], 10) : 0;
-  const minutes = match[2] ? parseInt(match[2], 10) : 0;
-  return (hours * 60 + minutes) * 60000;
+  
+  const years = match[1] ? parseInt(match[1], 10) : 0;
+  const months = match[2] ? parseInt(match[2], 10) : 0;
+  const days = match[3] ? parseInt(match[3], 10) : 0;
+  const hours = match[4] ? parseInt(match[4], 10) : 0;
+  const minutes = match[5] ? parseInt(match[5], 10) : 0;
+  const seconds = match[6] ? parseFloat(match[6]) : 0;
+  
+  // Convert to milliseconds (approximate for months/years)
+  const totalMs = (years * 365 * 24 * 60 * 60 * 1000) + 
+                  (months * 30 * 24 * 60 * 60 * 1000) + 
+                  (days * 24 * 60 * 60 * 1000) + 
+                  (hours * 60 * 60 * 1000) + 
+                  (minutes * 60 * 1000) + 
+                  (seconds * 1000);
+  
+  return totalMs;
 }
 
 const getRecipeData = (recipe: any): ScrapedRecipe => {
@@ -124,9 +130,24 @@ const getDocument = (text: string): Document => {
   return env.window.document;
 };
 
+const getHeadersForUrl = (url: string) => {
+  if (url.includes('foodnetwork.com')) {
+    return {
+      ...HEADERS,
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Referer': 'https://www.foodnetwork.com/',
+      'Connection': 'keep-alive',
+      'Cookie': 'euConsent=true;', // dummy cookie, may help bypass some checks
+    };
+  }
+  return HEADERS;
+};
+
 const scraper = {
   fetch: async (recipeUrl: string): Promise<ScrapedRecipe> => {
-    const page = await fetch(recipeUrl, { headers: HEADERS });
+    const page = await fetch(recipeUrl, { headers: getHeadersForUrl(recipeUrl) });
     if (page && (page as any).ok) {
       const text = await page.text();
       const document = getDocument(text);

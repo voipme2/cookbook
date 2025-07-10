@@ -36,12 +36,21 @@ export interface DatabaseRecipe {
     id: string;
     recipe: Recipe;
 }
+export interface SearchFilters {
+    query?: string;
+    isVegetarian?: boolean;
+    isVegan?: boolean;
+    isDairyFree?: boolean;
+    isGlutenFree?: boolean;
+    isCrockPot?: boolean;
+}
 export interface DatabaseInterface {
     find(slugId: string): Promise<Recipe | null>;
     list(): Promise<SearchRecipe[]>;
     save(recipe: Recipe): Promise<string>;
     remove(slugId: string): Promise<void>;
     search(query: string): Promise<SearchRecipe[]>;
+    searchWithFilters(filters: SearchFilters): Promise<SearchRecipe[]>;
     saveImage(recipeId: string, image: string): Promise<void>;
 }
 export interface ScrapedRecipe {

@@ -10,6 +10,7 @@ declare const recipesController: {
     update: (req: Request, res: Response, db: DatabaseInterface) => Promise<void>;
     uploadImage: (req: UploadRequest, res: Response, db: DatabaseInterface) => Promise<void>;
     fetchFromUrl: (req: Request, res: Response) => Promise<void>;
+    searchWithFilters: (req: Request, res: Response, db: DatabaseInterface) => Promise<void>;
 };
 export default recipesController;
 //# sourceMappingURL=recipesController.d.ts.map

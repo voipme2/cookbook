@@ -41,6 +41,9 @@ function default_1(database) {
             res.status(500).json({ error: 'Failed to search recipes.' });
         }
     });
+    router.post('/search', (req, res) => {
+        recipesController_1.default.searchWithFilters(req, res, db);
+    });
     router.get('/recipes/:recipeId', (req, res) => {
         recipesController_1.default.get(req, res, db);
     });

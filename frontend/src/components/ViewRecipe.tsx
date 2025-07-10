@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from "react";
@@ -9,20 +10,37 @@ import ImageUploader from "./ImageUploader";
 import { Recipe } from "@/types";
 import RecipePlaceholderIcon from './RecipePlaceholderIcon';
 
-// Simple time summarization utility
-const summarizeTimes = (times: (string | number | undefined)[]): string => {
-  const validTimes = times.filter(time => time && time !== '');
-  if (validTimes.length === 0) return 'Time not specified';
-  return validTimes.join(', ');
-};
+// Utility to parse time strings like '2 hr', '15 min' into minutes
+function parseTimeToMinutes(time?: string): number {
+  if (!time) return 0;
+  const hrMatch = time.match(/(\d+)\s*hr/);
+  const minMatch = time.match(/(\d+)\s*min/);
+  const hours = hrMatch ? parseInt(hrMatch[1], 10) : 0;
+  const minutes = minMatch ? parseInt(minMatch[1], 10) : 0;
+  return hours * 60 + minutes;
+}
+
+function formatMinutes(total: number): string {
+  if (total <= 0) return '';
+  const hours = Math.floor(total / 60);
+  const minutes = total % 60;
+  if (hours && minutes) return `${hours} hr ${minutes} min`;
+  if (hours) return `${hours} hr`;
+  return `${minutes} min`;
+}
 
 const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
   const params = useParams();
   const router = useRouter();
   const recipeId = params.recipeId as string;
   const [currentRecipe, setCurrentRecipe] = React.useState(recipe);
-  const { prepTime, inactiveTime, cookTime } = currentRecipe || {};
-  const totalTime = summarizeTimes([prepTime, inactiveTime, cookTime]);
+
+  // Calculate total time in minutes
+  const totalMinutes =
+    parseTimeToMinutes(currentRecipe.prepTime != null ? String(currentRecipe.prepTime) : '') +
+    parseTimeToMinutes(currentRecipe.inactiveTime != null ? String(currentRecipe.inactiveTime) : '') +
+    parseTimeToMinutes(currentRecipe.cookTime != null ? String(currentRecipe.cookTime) : '');
+  const totalTimeStr = formatMinutes(totalMinutes);
 
   // Update recipe when prop changes
   React.useEffect(() => {
@@ -33,7 +51,7 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
     <div className="p-6">
       {currentRecipe && (
         <div>
-          <div className="flex gap-6 mb-6">
+          <div className="flex flex-col lg:flex-row gap-6 mb-6">
             {currentRecipe.imageUrl ? (
               <div className="flex-shrink-0 w-80">
                 <img
@@ -123,15 +141,37 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
                 {currentRecipe.description} by {currentRecipe.author}
               </p>
               <div className="space-y-2">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Servings: {currentRecipe.servings}
-                </p>
-                <p 
-                  className="text-sm text-gray-600 dark:text-gray-400"
-                  title={`Prep: ${currentRecipe.prepTime}, Inactive: ${currentRecipe.inactiveTime}, Cook: ${currentRecipe.cookTime}`}
-                >
-                  Total time: {totalTime}
-                </p>
+                {currentRecipe.servings && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    Servings: {currentRecipe.servings}
+                  </p>
+                )}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                  {currentRecipe.prepTime != null && currentRecipe.prepTime !== '' && currentRecipe.prepTime !== 0 && currentRecipe.prepTime !== '0' && (
+                    <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded text-xs">
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-0.5">Prep Time</h3>
+                      <p className="text-gray-700 dark:text-gray-300">{currentRecipe.prepTime}</p>
+                    </div>
+                  )}
+                  {currentRecipe.cookTime != null && currentRecipe.cookTime !== '' && currentRecipe.cookTime !== 0 && currentRecipe.cookTime !== '0' && (
+                    <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded text-xs">
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-0.5">Cook Time</h3>
+                      <p className="text-gray-700 dark:text-gray-300">{currentRecipe.cookTime}</p>
+                    </div>
+                  )}
+                  {currentRecipe.inactiveTime != null && currentRecipe.inactiveTime !== '' && currentRecipe.inactiveTime !== 0 && currentRecipe.inactiveTime !== '0' && (
+                    <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded text-xs">
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-0.5">Inactive Time</h3>
+                      <p className="text-gray-700 dark:text-gray-300">{currentRecipe.inactiveTime}</p>
+                    </div>
+                  )}
+                  {totalTimeStr && (
+                    <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded text-xs">
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-0.5">Total Time</h3>
+                      <p className="text-gray-700 dark:text-gray-300">{totalTimeStr}</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

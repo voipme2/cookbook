@@ -20,13 +20,13 @@ app.use('/api', recipes(cookbookdb));
 app.use('/api/images', imageRoutes);
 
 // Catch-all 404 handler
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((req: Request, res: Response, _next: NextFunction) => {
   console.error(`404 Not Found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({ error: 'Not found' });
 });
 
 // Global error handler
-app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
+app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Global error handler:', err.stack || err);
   res.status(500).json({ error: 'Internal server error', details: err.message || err });
 });

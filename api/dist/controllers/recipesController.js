@@ -56,8 +56,7 @@ const recipesController = {
     uploadImage: async (req, res, db) => {
         try {
             const recipeId = req.params['recipeId'] ?? '';
-            const file = req.file;
-            if (!file) {
+            if (!req.file) {
                 res.status(400).json({ error: 'No image file provided.' });
                 return;
             }
@@ -71,8 +70,8 @@ const recipesController = {
                 fs_1.default.mkdirSync(imagesDir, { recursive: true });
             }
             const imagePath = path_1.default.join(imagesDir, `${recipeId}.jpg`);
-            fs_1.default.writeFileSync(imagePath, file.buffer);
-            const imageUrl = `/api/images/serve/recipes/${recipeId}.jpg`;
+            fs_1.default.writeFileSync(imagePath, req.file.buffer);
+            const imageUrl = `/images/serve/recipes/${recipeId}.jpg`;
             recipe.imageUrl = imageUrl;
             await db.save(recipe);
             res.json({
@@ -80,13 +79,12 @@ const recipesController = {
                 image: {
                     filename: `${recipeId}.jpg`,
                     path: imageUrl,
-                    size: file.size,
-                    mimetype: file.mimetype
+                    size: req.file.size,
+                    mimetype: req.file.mimetype
                 }
             });
         }
         catch (err) {
-            console.error('Image upload error:', err);
             res.status(500).json({ error: 'Failed to upload image.' });
         }
     },
@@ -105,6 +103,16 @@ const recipesController = {
                 error: 'Failed to fetch recipe from URL.',
                 details: err.message,
             });
+        }
+    },
+    searchWithFilters: async (req, res, db) => {
+        try {
+            const filters = req.body;
+            const recipes = await db.searchWithFilters(filters);
+            res.json(recipes);
+        }
+        catch (err) {
+            res.status(500).json({ error: 'Failed to search recipes with filters.' });
         }
     },
 };

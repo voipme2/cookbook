@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsdom_1 = __importDefault(require("jsdom"));
-const date_fns_1 = require("date-fns");
 const parse_duration_1 = __importDefault(require("parse-duration"));
 const { JSDOM } = jsdom_1.default;
 const HEADERS = {
@@ -41,28 +40,33 @@ const parseSteps = (steps) => {
         return steps.map(parseStep).flat();
     }
 };
-function durationToMinutes(duration) {
-    return (duration.hours || 0) * 60 + (duration.minutes || 0);
-}
 function getTime(time) {
     if (!time || typeof time !== 'string')
         return 0;
     if (time.indexOf('P') === 0) {
-        const now = new Date();
-        const duration = (0, date_fns_1.intervalToDuration)({ start: now, end: new Date(now.getTime() + parseISODurationToMs(time)) });
-        return durationToMinutes(duration);
+        return Math.round(parseISODurationToMs(time) / 60000);
     }
     else {
         return Math.round(((0, parse_duration_1.default)(time) || 0) / 60000);
     }
 }
 function parseISODurationToMs(isoDuration) {
-    const match = isoDuration.match(/P(?:T)?(?:(\d+)H)?(?:(\d+)M)?/);
+    const match = isoDuration.match(/P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?/);
     if (!match)
         return 0;
-    const hours = match[1] ? parseInt(match[1], 10) : 0;
-    const minutes = match[2] ? parseInt(match[2], 10) : 0;
-    return (hours * 60 + minutes) * 60000;
+    const years = match[1] ? parseInt(match[1], 10) : 0;
+    const months = match[2] ? parseInt(match[2], 10) : 0;
+    const days = match[3] ? parseInt(match[3], 10) : 0;
+    const hours = match[4] ? parseInt(match[4], 10) : 0;
+    const minutes = match[5] ? parseInt(match[5], 10) : 0;
+    const seconds = match[6] ? parseFloat(match[6]) : 0;
+    const totalMs = (years * 365 * 24 * 60 * 60 * 1000) +
+        (months * 30 * 24 * 60 * 60 * 1000) +
+        (days * 24 * 60 * 60 * 1000) +
+        (hours * 60 * 60 * 1000) +
+        (minutes * 60 * 1000) +
+        (seconds * 1000);
+    return totalMs;
 }
 const getRecipeData = (recipe) => {
     if (!recipe)
@@ -125,9 +129,23 @@ const getDocument = (text) => {
     const env = new JSDOM(text, { virtualConsole });
     return env.window.document;
 };
+const getHeadersForUrl = (url) => {
+    if (url.includes('foodnetwork.com')) {
+        return {
+            ...HEADERS,
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Referer': 'https://www.foodnetwork.com/',
+            'Connection': 'keep-alive',
+            'Cookie': 'euConsent=true;',
+        };
+    }
+    return HEADERS;
+};
 const scraper = {
     fetch: async (recipeUrl) => {
-        const page = await fetch(recipeUrl, { headers: HEADERS });
+        const page = await fetch(recipeUrl, { headers: getHeadersForUrl(recipeUrl) });
         if (page && page.ok) {
             const text = await page.text();
             const document = getDocument(text);

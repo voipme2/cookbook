@@ -6,7 +6,8 @@
     "start": "node dist/app.js",
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "build": "tsc",
-    "test": "jasmine",
+    "test": "mocha \"spec/**/*.{js,mjs}\"",
+    "test:ci": "npm run build && mocha \"spec/**/*.{js,mjs}\"",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "import-recipes": "node scripts/import-recipes.js"
@@ -33,8 +34,10 @@
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.35.1",
     "@typescript-eslint/parser": "^8.35.1",
+    "chai": "^5.2.1",
     "eslint": "^9.30.1",
     "jasmine": "^5.8.0",
+    "mocha": "^11.7.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.4.5"
   }

@@ -39,7 +39,7 @@ test-api:
     - install-node-modules-api
   script:
     - cd api
-    - npm run test
+    - npm run test:ci
   allow_failure: true
   only:
     - main

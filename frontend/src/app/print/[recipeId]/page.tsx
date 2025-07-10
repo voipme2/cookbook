@@ -10,6 +10,26 @@ interface PrintRecipePageProps {
   params: Promise<{ recipeId: string }>;
 }
 
+// Utility to parse time strings like '2 hr', '15 min' into minutes
+function parseTimeToMinutes(time?: string | number): number {
+  if (!time) return 0;
+  const str = String(time);
+  const hrMatch = str.match(/(\d+)\s*hr/);
+  const minMatch = str.match(/(\d+)\s*min/);
+  const hours = hrMatch ? parseInt(hrMatch[1], 10) : 0;
+  const minutes = minMatch ? parseInt(minMatch[1], 10) : 0;
+  return hours * 60 + minutes;
+}
+
+function formatMinutes(total: number): string {
+  if (total <= 0) return '';
+  const hours = Math.floor(total / 60);
+  const minutes = total % 60;
+  if (hours && minutes) return `${hours} hr ${minutes} min`;
+  if (hours) return `${hours} hr`;
+  return `${minutes} min`;
+}
+
 export default function PrintRecipePage({ params }: PrintRecipePageProps) {
   const router = useRouter();
   const unwrappedParams = React.use(params);
@@ -55,9 +75,11 @@ export default function PrintRecipePage({ params }: PrintRecipePageProps) {
   }
 
   const { prepTime, inactiveTime, cookTime } = recipe;
-  const totalTime = [prepTime, inactiveTime, cookTime]
-    .filter(Boolean)
-    .join(' + ');
+  const totalMinutes =
+    parseTimeToMinutes(prepTime) +
+    parseTimeToMinutes(inactiveTime) +
+    parseTimeToMinutes(cookTime);
+  const totalTimeStr = formatMinutes(totalMinutes);
 
   return (
     <div className="min-h-screen bg-white">
@@ -106,28 +128,28 @@ export default function PrintRecipePage({ params }: PrintRecipePageProps) {
               <p className="text-gray-700">{recipe.servings}</p>
             </div>
           )}
-          {prepTime && prepTime !== 0 && (
+          {prepTime != null && prepTime !== '' && prepTime !== 0 && prepTime !== '0' && (
             <div className="bg-gray-50 p-2 rounded print:bg-transparent print:border print:border-gray-300 text-xs">
               <h3 className="font-semibold text-gray-900 mb-0.5">Prep Time</h3>
               <p className="text-gray-700">{prepTime}</p>
             </div>
           )}
-          {cookTime && cookTime !== 0 && (
+          {cookTime != null && cookTime !== '' && cookTime !== 0 && cookTime !== '0' && (
             <div className="bg-gray-50 p-2 rounded print:bg-transparent print:border print:border-gray-300 text-xs">
               <h3 className="font-semibold text-gray-900 mb-0.5">Cook Time</h3>
               <p className="text-gray-700">{cookTime}</p>
             </div>
           )}
-          {inactiveTime && inactiveTime !== 0 && (
+          {inactiveTime != null && inactiveTime !== '' && inactiveTime !== 0 && inactiveTime !== '0' && (
             <div className="bg-gray-50 p-2 rounded print:bg-transparent print:border print:border-gray-300 text-xs">
               <h3 className="font-semibold text-gray-900 mb-0.5">Inactive Time</h3>
               <p className="text-gray-700">{inactiveTime}</p>
             </div>
           )}
-          {totalTime && totalTime !== 0 && (
+          {totalTimeStr && (
             <div className="bg-gray-50 p-2 rounded print:bg-transparent print:border print:border-gray-300 text-xs">
               <h3 className="font-semibold text-gray-900 mb-0.5">Total Time</h3>
-              <p className="text-gray-700">{totalTime}</p>
+              <p className="text-gray-700">{totalTimeStr}</p>
             </div>
           )}
         </div>

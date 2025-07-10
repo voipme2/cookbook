@@ -19,7 +19,7 @@ if (!fs_1.default.existsSync(IMAGES_DIR)) {
     fs_1.default.mkdirSync(IMAGES_DIR, { recursive: true });
 }
 function getId(name) {
-    return (0, slugify_1.default)(name);
+    return (0, slugify_1.default)(name, { lower: true });
 }
 const regex = /(\d+\s*(?:hr|h))?(\d+\s*(?:min|m))?/;
 function convertToMinutes(time) {
@@ -63,11 +63,12 @@ async function find(slug_id) {
 async function list() {
     const client = await pool.connect();
     try {
-        const res = await client.query("SELECT id, recipe->>'name' AS name, recipe->>'description' AS description, recipe->>'options' AS options FROM recipes ORDER BY recipe->>'name' ASC");
-        return res.rows.map((r) => ({
+        const res = await client.query("SELECT id, recipe->>'name' AS name, recipe->>'description' AS description, recipe->>'options' AS options, recipe->>'imageUrl' AS \"imageUrl\" FROM recipes ORDER BY recipe->>'name' ASC");
+        const recipes = res.rows.map((r) => ({
             ...r,
             options: r.options ? JSON.parse(r.options) : {},
         }));
+        return recipes;
     }
     finally {
         client.release();
@@ -121,7 +122,7 @@ async function search(query) {
                  recipe ->>'name' AS name,
                  recipe->>'description' AS description,
                  recipe->>'options' AS options,
-                 recipe->>'imageUrl' AS imageUrl
+                 recipe->>'imageUrl' AS "imageUrl"
           FROM recipes
           WHERE recipe->>'name' ILIKE $1
              OR recipe->>'description' ILIKE $1
@@ -142,11 +143,72 @@ async function search(query) {
         client.release();
     }
 }
+async function searchWithFilters(filters) {
+    const client = await pool.connect();
+    try {
+        let conditions = [];
+        let params = [];
+        let paramIndex = 1;
+        if (filters.query && filters.query.trim()) {
+            conditions.push(`(
+        recipe->>'name' ILIKE $${paramIndex}
+        OR recipe->>'description' ILIKE $${paramIndex}
+        OR EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements_text(recipe->'ingredients') AS ingredient
+          WHERE ingredient ILIKE $${paramIndex}
+        )
+        OR EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements_text(recipe->'steps') AS step
+          WHERE step ILIKE $${paramIndex}
+        )
+      )`);
+            params.push(`%${filters.query}%`);
+            paramIndex++;
+        }
+        if (filters.isVegetarian) {
+            conditions.push(`recipe->'options'->>'isVegetarian' = 'true'`);
+        }
+        if (filters.isVegan) {
+            conditions.push(`recipe->'options'->>'isVegan' = 'true'`);
+        }
+        if (filters.isDairyFree) {
+            conditions.push(`recipe->'options'->>'isDairyFree' = 'true'`);
+        }
+        if (filters.isGlutenFree) {
+            conditions.push(`recipe->'options'->>'isGlutenFree' = 'true'`);
+        }
+        if (filters.isCrockPot) {
+            conditions.push(`recipe->'options'->>'isCrockPot' = 'true'`);
+        }
+        const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+        const query = `
+      SELECT id,
+             recipe->>'name' AS name,
+             recipe->>'description' AS description,
+             recipe->>'options' AS options,
+             recipe->>'imageUrl' AS "imageUrl"
+      FROM recipes
+      ${whereClause}
+      ORDER BY recipe->>'name' ASC
+    `;
+        const res = await client.query(query, params);
+        return res.rows.map((r) => ({
+            ...r,
+            options: r.options ? JSON.parse(r.options) : {},
+        }));
+    }
+    finally {
+        client.release();
+    }
+}
 async function saveImage(_recipeId, _image) {
     return;
 }
 const cookbookdb = {
     search,
+    searchWithFilters,
     find,
     remove,
     save,

@@ -55,22 +55,44 @@ router.post('/temp', upload.single('image'), (req, res) => {
 });
 router.get('/serve/temp/:filename', (req, res) => {
     const filename = req.params['filename'] || '';
-    const imagePath = path_1.default.join(__dirname, '../images/temp', filename);
+    const tempImagesDir = path_1.default.join(__dirname, '../images/temp');
+    if (!fs_1.default.existsSync(tempImagesDir)) {
+        fs_1.default.mkdirSync(tempImagesDir, { recursive: true });
+    }
+    const imagePath = path_1.default.join(tempImagesDir, filename);
     if (fs_1.default.existsSync(imagePath)) {
+        res.setHeader('Content-Type', 'image/jpeg');
+        res.setHeader('Cache-Control', 'public, max-age=31536000');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
         res.sendFile(imagePath);
     }
     else {
-        res.status(404).json({ error: 'Image not found.' });
+        res.setHeader('Content-Type', 'text/plain');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.status(404).send('Image not found');
     }
 });
 router.get('/serve/recipes/:filename', (req, res) => {
     const filename = req.params['filename'] || '';
-    const imagePath = path_1.default.join(__dirname, '../images', filename);
+    const imagesDir = path_1.default.join(__dirname, '../images');
+    if (!fs_1.default.existsSync(imagesDir)) {
+        fs_1.default.mkdirSync(imagesDir, { recursive: true });
+    }
+    const imagePath = path_1.default.join(imagesDir, filename);
     if (fs_1.default.existsSync(imagePath)) {
+        res.setHeader('Content-Type', 'image/jpeg');
+        res.setHeader('Cache-Control', 'public, max-age=31536000');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
         res.sendFile(imagePath);
     }
     else {
-        res.status(404).json({ error: 'Image not found.' });
+        res.setHeader('Content-Type', 'text/plain');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.status(404).send('Image not found');
     }
 });
 exports.default = router;
