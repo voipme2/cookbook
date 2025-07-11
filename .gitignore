@@ -20,3 +20,10 @@ yarn-error.log*
 *.sln
 *.sw*
 /db/
+
+# SSL certificates (keep private keys secure)
+/ssl/*.pem
+/ssl/*.key
+/ssl/*.crt
+/ssl/*.csr
+/ssl/*.srl
