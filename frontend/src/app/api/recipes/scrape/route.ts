@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+// Auto-detect API URL based on environment
+const getApiBase = () => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  return 'http://localhost:3001/api';
+};
+
+const API_BASE = getApiBase();
 
 export async function POST(request: NextRequest) {
   try {

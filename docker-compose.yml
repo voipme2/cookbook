@@ -17,6 +17,8 @@ services:
   ui:
     container_name: ui
     image: cookbook/ui:latest
+    volumes:
+      - ./frontend/next.config.js:/app/next.config.js:ro
     depends_on:
       - api
       - nginx

@@ -1,6 +1,29 @@
 import { Recipe, SearchRecipe, SearchFilters } from '@/types';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+// Auto-detect API URL based on environment
+const getApiBase = () => {
+  // If environment variable is set, use it
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  
+  // In browser environment, use relative path
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}/api`;
+  }
+  
+  // Fallback for development (server-side)
+  return 'http://localhost:3001/api';
+};
+
+const API_BASE = getApiBase();
+
+// Debug logging to help troubleshoot
+if (typeof window !== 'undefined') {
+  console.log('API_BASE:', API_BASE);
+  console.log('Origin:', window.location.origin);
+  console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+}
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
