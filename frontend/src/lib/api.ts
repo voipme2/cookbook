@@ -80,7 +80,7 @@ export const api = {
   // Update recipe
   async updateRecipe(id: string, recipe: Recipe): Promise<Recipe> {
     const response = await fetch(`${API_BASE}/recipes/${id}`, {
-      method: 'PUT',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },

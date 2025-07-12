@@ -3,12 +3,13 @@
 
 import React from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Edit, Printer } from "lucide-react";
+import { Edit, Printer, ChefHat } from "lucide-react";
 import Ingredients from "./Ingredients";
 import Steps from "./Steps";
 import ImageUploader from "./ImageUploader";
 import { Recipe } from "@/types";
 import RecipePlaceholderIcon from './RecipePlaceholderIcon';
+import { useWakeLock } from "@/hooks/useWakeLock";
 
 // Utility to parse time strings like '2 hr', '15 min' into minutes
 function parseTimeToMinutes(time?: string): number {
@@ -34,6 +35,7 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
   const router = useRouter();
   const recipeId = params.recipeId as string;
   const [currentRecipe, setCurrentRecipe] = React.useState(recipe);
+  const { isWakeLockActive, isSupported, toggleWakeLock } = useWakeLock();
 
   // Calculate total time in minutes
   const totalMinutes =
@@ -90,6 +92,22 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
                   {currentRecipe.name}
                 </h1>
                 <div className="ml-4 flex gap-2">
+                  {/* Cook Mode Toggle */}
+                  <button
+                    onClick={toggleWakeLock}
+                    className={`p-2 rounded-lg transition-colors ${
+                      isWakeLockActive
+                        ? 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-400'
+                        : 'text-gray-600 hover:text-orange-600 dark:text-gray-400 dark:hover:text-orange-400'
+                    }`}
+                    title={
+                      isWakeLockActive 
+                        ? 'Disable cook mode' 
+                        : `Enable cook mode (keeps screen on)${!isSupported ? ' - Limited support in this browser' : ''}`
+                    }
+                  >
+                    <ChefHat size={20} />
+                  </button>
                   <button
                     onClick={() => router.push(`/edit/${recipeId}`)}
                     className="p-2 text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
@@ -106,6 +124,23 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
                   </button>
                 </div>
               </div>
+              
+              {/* Cook Mode Status */}
+              {isWakeLockActive && (
+                <div className="mb-4 p-2 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <ChefHat size={16} className="text-orange-600 dark:text-orange-400" />
+                    <span className="text-sm text-orange-800 dark:text-orange-200 font-medium">
+                      Cook mode active - Screen will stay on
+                      {!isSupported && (
+                        <span className="text-orange-600 dark:text-orange-400 ml-1">
+                          (Limited support in this browser)
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              )}
               
               {/* Dietary Restrictions */}
               {currentRecipe.options && (

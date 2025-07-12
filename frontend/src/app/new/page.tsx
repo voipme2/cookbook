@@ -39,6 +39,12 @@ export default function NewRecipePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevent double submission
+    if (createRecipeMutation.isPending) {
+      return;
+    }
+    
     const recipeData = {
       ...formData,
       servings: formData.servings ? parseInt(formData.servings) : undefined
