@@ -7,6 +7,7 @@ import { Edit, Printer, ChefHat } from "lucide-react";
 import Ingredients from "./Ingredients";
 import Steps from "./Steps";
 import ImageUploader from "./ImageUploader";
+import GroupManager from "./GroupManager";
 import { Recipe } from "@/types";
 import RecipePlaceholderIcon from './RecipePlaceholderIcon';
 import { useWakeLock } from "@/hooks/useWakeLock";
@@ -214,8 +215,9 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
           <hr className="my-6 border-gray-200 dark:border-gray-700" />
           
           <div className="flex gap-6 flex-col lg:flex-row">
-            <div className="lg:w-80 lg:flex-shrink-0">
+            <div className="lg:w-80 lg:flex-shrink-0 space-y-6">
               <Ingredients ingredients={currentRecipe.ingredients} />
+              <GroupManager recipeId={recipeId} />
             </div>
             <div className="flex-1">
               <Steps steps={currentRecipe.steps} />

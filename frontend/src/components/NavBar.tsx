@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Menu, X, Home, Plus, Download, Sun, Moon } from 'lucide-react';
+import { Search, Menu, X, Home, Plus, Download, Folder, Sun, Moon } from 'lucide-react';
 import { SearchBox } from './SearchBox';
 import { useTheme } from './providers/ThemeProvider';
 
@@ -16,6 +16,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { name: 'Home', path: '/', icon: Home, color: 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600' },
   { name: 'New', path: '/new', icon: Plus, color: 'bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600' },
+  { name: 'Groups', path: '/groups', icon: Folder, color: 'bg-orange-600 hover:bg-orange-700 dark:bg-orange-500 dark:hover:bg-orange-600' },
   { name: 'Download', path: '/import', icon: Download, color: 'bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600' },
 ];
 

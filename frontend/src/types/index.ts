@@ -50,4 +50,13 @@ export interface SearchRecipe {
     isCrockPot: boolean;
     isGlutenFree: boolean;
   };
+}
+
+export interface RecipeGroup {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+  recipeCount?: number;
 } 

@@ -40,7 +40,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      - nginx
+      nginx:
+        condition: service_started
     volumes:
       - cookbook_images:/app/images
     networks:

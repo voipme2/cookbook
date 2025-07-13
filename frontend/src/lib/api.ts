@@ -1,4 +1,4 @@
-import { Recipe, SearchRecipe, SearchFilters } from '@/types';
+import { Recipe, SearchRecipe, SearchFilters, RecipeGroup } from '@/types';
 
 // Auto-detect API URL based on environment
 const getApiBase = () => {
@@ -161,5 +161,85 @@ export const api = {
   // Get temp image URL
   getTempImageUrl(filename: string): string {
     return `${API_BASE}/images/serve/temp/${filename}`;
+  },
+
+  // Recipe Groups API
+  async getGroups(): Promise<RecipeGroup[]> {
+    const response = await fetch(`${API_BASE}/groups`);
+    return handleResponse<RecipeGroup[]>(response);
+  },
+
+  async getGroup(id: string): Promise<RecipeGroup> {
+    const response = await fetch(`${API_BASE}/groups/${id}`);
+    return handleResponse<RecipeGroup>(response);
+  },
+
+  async createGroup(group: Omit<RecipeGroup, 'id' | 'createdAt' | 'updatedAt'>): Promise<{ id: string }> {
+    const response = await fetch(`${API_BASE}/groups`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(group),
+    });
+    return handleResponse<{ id: string }>(response);
+  },
+
+  async updateGroup(id: string, group: Partial<RecipeGroup>): Promise<{ id: string }> {
+    const response = await fetch(`${API_BASE}/groups/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(group),
+    });
+    return handleResponse<{ id: string }>(response);
+  },
+
+  async deleteGroup(id: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/groups/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new ApiError(response.status, `Failed to delete group: ${response.statusText}`);
+    }
+  },
+
+  async getGroupRecipes(groupId: string): Promise<SearchRecipe[]> {
+    const response = await fetch(`${API_BASE}/groups/${groupId}/recipes`);
+    const recipes = await handleResponse<SearchRecipe[]>(response);
+    return recipes.map((recipe) => ({
+      ...recipe,
+      imageUrl: recipe.imageUrl && recipe.imageUrl.startsWith('/')
+        ? `${API_BASE}${recipe.imageUrl}`
+        : recipe.imageUrl,
+    }));
+  },
+
+  async addRecipeToGroup(groupId: string, recipeId: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/groups/${groupId}/recipes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ recipeId }),
+    });
+    if (!response.ok) {
+      throw new ApiError(response.status, `Failed to add recipe to group: ${response.statusText}`);
+    }
+  },
+
+  async removeRecipeFromGroup(groupId: string, recipeId: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/groups/${groupId}/recipes/${recipeId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new ApiError(response.status, `Failed to remove recipe from group: ${response.statusText}`);
+    }
+  },
+
+  async getRecipeGroups(recipeId: string): Promise<RecipeGroup[]> {
+    const response = await fetch(`${API_BASE}/recipes/${recipeId}/groups`);
+    return handleResponse<RecipeGroup[]>(response);
   },
 }; 

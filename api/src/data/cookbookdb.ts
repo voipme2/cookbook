@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import slugify from 'slugify';
 import fs from 'fs';
 import path from 'path';
-import { DatabaseInterface, Recipe, SearchRecipe } from '../types';
+import { DatabaseInterface, Recipe, SearchRecipe, RecipeGroup } from '../types';
 // SAFE TO IGNORE: No update needed for imageController import at this time.
 // import { moveTempImageToRecipe } from '../controllers/imageController';
 const { moveTempImageToRecipe } = require('../controllers/imageController');
@@ -227,6 +227,188 @@ async function saveImage(_recipeId: string, _image: string): Promise<void> {
   return;
 }
 
+// Recipe Groups functions
+async function createGroup(group: Omit<RecipeGroup, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+  const client = await pool.connect();
+  try {
+    const id = getId(group.name);
+    await client.query(
+      'INSERT INTO recipe_groups (id, name, description) VALUES ($1, $2, $3)',
+      [id, group.name.trim(), group.description?.trim() || null]
+    );
+    return id;
+  } finally {
+    client.release();
+  }
+}
+
+async function updateGroup(id: string, group: Partial<RecipeGroup>): Promise<void> {
+  const client = await pool.connect();
+  try {
+    const updates = [];
+    const params = [];
+    let paramIndex = 1;
+
+    if (group.name !== undefined) {
+      updates.push(`name = $${paramIndex++}`);
+      params.push(group.name.trim());
+    }
+    if (group.description !== undefined) {
+      updates.push(`description = $${paramIndex++}`);
+      params.push(group.description?.trim() || null);
+    }
+
+    if (updates.length === 0) return;
+
+    updates.push(`updated_at = CURRENT_TIMESTAMP`);
+    params.push(id);
+
+    await client.query(
+      `UPDATE recipe_groups SET ${updates.join(', ')} WHERE id = $${paramIndex}`,
+      params
+    );
+  } finally {
+    client.release();
+  }
+}
+
+async function deleteGroup(id: string): Promise<void> {
+  const client = await pool.connect();
+  try {
+    await client.query('DELETE FROM recipe_groups WHERE id = $1', [id]);
+  } finally {
+    client.release();
+  }
+}
+
+async function getGroup(id: string): Promise<RecipeGroup | null> {
+  const client = await pool.connect();
+  try {
+    const res = await client.query(
+      `SELECT g.*, COUNT(rgm.recipe_id) as recipe_count 
+       FROM recipe_groups g 
+       LEFT JOIN recipe_group_members rgm ON g.id = rgm.group_id 
+       WHERE g.id = $1 
+       GROUP BY g.id`,
+      [id]
+    );
+    
+    if (res.rows.length === 0) return null;
+    
+    const row = res.rows[0];
+    return {
+      id: row.id,
+      name: row.name,
+      description: row.description,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      recipeCount: parseInt(row.recipe_count)
+    };
+  } finally {
+    client.release();
+  }
+}
+
+async function listGroups(): Promise<RecipeGroup[]> {
+  const client = await pool.connect();
+  try {
+    const res = await client.query(
+      `SELECT g.*, COUNT(rgm.recipe_id) as recipe_count 
+       FROM recipe_groups g 
+       LEFT JOIN recipe_group_members rgm ON g.id = rgm.group_id 
+       GROUP BY g.id 
+       ORDER BY g.name ASC`
+    );
+    
+    return res.rows.map((row: any) => ({
+      id: row.id,
+      name: row.name,
+      description: row.description,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      recipeCount: parseInt(row.recipe_count)
+    }));
+  } finally {
+    client.release();
+  }
+}
+
+async function addRecipeToGroup(groupId: string, recipeId: string): Promise<void> {
+  const client = await pool.connect();
+  try {
+    await client.query(
+      'INSERT INTO recipe_group_members (group_id, recipe_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+      [groupId, recipeId]
+    );
+  } finally {
+    client.release();
+  }
+}
+
+async function removeRecipeFromGroup(groupId: string, recipeId: string): Promise<void> {
+  const client = await pool.connect();
+  try {
+    await client.query(
+      'DELETE FROM recipe_group_members WHERE group_id = $1 AND recipe_id = $2',
+      [groupId, recipeId]
+    );
+  } finally {
+    client.release();
+  }
+}
+
+async function getGroupRecipes(groupId: string): Promise<SearchRecipe[]> {
+  const client = await pool.connect();
+  try {
+    const res = await client.query(
+      `SELECT r.id, 
+              r.recipe->>'name' AS name, 
+              r.recipe->>'description' AS description, 
+              r.recipe->>'options' AS options, 
+              r.recipe->>'imageUrl' AS "imageUrl"
+       FROM recipes r
+       INNER JOIN recipe_group_members rgm ON r.id = rgm.recipe_id
+       WHERE rgm.group_id = $1
+       ORDER BY r.recipe->>'name' ASC`,
+      [groupId]
+    );
+    
+    return res.rows.map((r: any) => ({
+      ...r,
+      options: r.options ? JSON.parse(r.options) : {},
+    }));
+  } finally {
+    client.release();
+  }
+}
+
+async function getRecipeGroups(recipeId: string): Promise<RecipeGroup[]> {
+  const client = await pool.connect();
+  try {
+    const res = await client.query(
+      `SELECT g.*, COUNT(rgm2.recipe_id) as recipe_count
+       FROM recipe_groups g
+       INNER JOIN recipe_group_members rgm ON g.id = rgm.group_id
+       LEFT JOIN recipe_group_members rgm2 ON g.id = rgm2.group_id
+       WHERE rgm.recipe_id = $1
+       GROUP BY g.id
+       ORDER BY g.name ASC`,
+      [recipeId]
+    );
+    
+    return res.rows.map((row: any) => ({
+      id: row.id,
+      name: row.name,
+      description: row.description,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      recipeCount: parseInt(row.recipe_count)
+    }));
+  } finally {
+    client.release();
+  }
+}
+
 const cookbookdb: DatabaseInterface = {
   search,
   searchWithFilters,
@@ -235,6 +417,15 @@ const cookbookdb: DatabaseInterface = {
   save,
   list,
   saveImage,
+  createGroup,
+  updateGroup,
+  deleteGroup,
+  getGroup,
+  listGroups,
+  addRecipeToGroup,
+  removeRecipeFromGroup,
+  getGroupRecipes,
+  getRecipeGroups,
 };
 
 export default cookbookdb; 

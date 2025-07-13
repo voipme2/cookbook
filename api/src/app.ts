@@ -1,6 +1,7 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cookbookdb from './data/cookbookdb';
 import recipes from './routes/recipes';
+import groups from './routes/groups';
 import imageRoutes from './routes/imageRoutes';
 import cors from 'cors';
 
@@ -17,6 +18,7 @@ app.use((_req, res, next) => {
 
 // Routes
 app.use('/api', recipes(cookbookdb));
+app.use('/api', groups(cookbookdb));
 app.use('/api/images', imageRoutes);
 
 // Catch-all 404 handler
