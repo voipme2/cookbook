@@ -27,6 +27,7 @@ export interface Recipe {
     isCrockPot: boolean;
     isGlutenFree: boolean;
   };
+  groups?: { id: string; name: string }[];
 }
 
 export interface SearchFilters {
@@ -36,6 +37,7 @@ export interface SearchFilters {
   isDairyFree?: boolean;
   isGlutenFree?: boolean;
   isCrockPot?: boolean;
+  groups?: string[];
 }
 
 export interface SearchRecipe {
@@ -50,6 +52,7 @@ export interface SearchRecipe {
     isCrockPot: boolean;
     isGlutenFree: boolean;
   };
+  groups?: { id: string; name: string }[];
 }
 
 export interface RecipeGroup {

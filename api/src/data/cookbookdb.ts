@@ -49,14 +49,25 @@ function convertToDuration(minutes: number): string {
 async function find(slug_id: string): Promise<Recipe | null> {
   const client = await pool.connect();
   try {
-    const res = await client.query('SELECT * from recipes where id = $1', [slug_id]);
+    const res = await client.query(
+      `SELECT *,
+        COALESCE((
+          SELECT json_agg(json_build_object('id', g.id, 'name', g.name))
+          FROM recipe_group_members rgm
+          JOIN recipe_groups g ON g.id = rgm.group_id
+          WHERE rgm.recipe_id = recipes.id
+        ), '[]'::json) AS groups
+      FROM recipes WHERE id = $1`,
+      [slug_id]
+    );
     if (res.rows.length === 0) return null;
-    const { recipe } = res.rows[0];
+    const { recipe, groups } = res.rows[0];
     (['prepTime', 'inactiveTime', 'cookTime'] as const).forEach(function (t) {
       if ((recipe as any)[t]) {
         (recipe as any)[t] = convertToDuration((recipe as any)[t]);
       }
     });
+    recipe.groups = groups || [];
     return recipe;
   } finally {
     client.release();
@@ -69,11 +80,26 @@ async function list(): Promise<SearchRecipe[]> {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      "SELECT id, recipe->>'name' AS name, recipe->>'description' AS description, recipe->>'options' AS options, recipe->>'imageUrl' AS \"imageUrl\" FROM recipes ORDER BY recipe->>'name' ASC",
+      `SELECT r.id,
+              r.recipe->>'name' AS name,
+              r.recipe->>'description' AS description,
+              r.recipe->>'options' AS options,
+              r.recipe->>'imageUrl' AS "imageUrl",
+              COALESCE(
+                (
+                  SELECT json_agg(json_build_object('id', g.id, 'name', g.name))
+                  FROM recipe_group_members rgm
+                  JOIN recipe_groups g ON g.id = rgm.group_id
+                  WHERE rgm.recipe_id = r.id
+                ), '[]'::json
+              ) AS groups
+       FROM recipes r
+       ORDER BY r.recipe->>'name' ASC`
     );
     const recipes = res.rows.map((r: any) => ({
       ...r,
       options: r.options ? JSON.parse(r.options) : {},
+      groups: r.groups || [],
     }));
     return recipes;
   } finally {
@@ -133,28 +159,47 @@ async function search(query: string): Promise<SearchRecipe[]> {
   try {
     const res = await client.query(
       `
-          SELECT id,
-                 recipe ->>'name' AS name,
-                 recipe->>'description' AS description,
-                 recipe->>'options' AS options,
-                 recipe->>'imageUrl' AS "imageUrl"
-          FROM recipes
-          WHERE recipe->>'name' ILIKE $1
-             OR recipe->>'description' ILIKE $1
+          SELECT r.id,
+                 r.recipe ->>'name' AS name,
+                 r.recipe->>'description' AS description,
+                 r.recipe->>'options' AS options,
+                 r.recipe->>'imageUrl' AS "imageUrl",
+                 COALESCE(
+                   (
+                     SELECT json_agg(json_build_object('id', g.id, 'name', g.name))
+                     FROM recipe_group_members rgm
+                     JOIN recipe_groups g ON g.id = rgm.group_id
+                     WHERE rgm.recipe_id = r.id
+                   ), '[]'::json
+                 ) AS groups
+          FROM recipes r
+          WHERE r.recipe->>'name' ILIKE $1
+             OR r.recipe->>'description' ILIKE $1
              OR EXISTS (
                SELECT 1
-               FROM jsonb_array_elements_text(recipe->'ingredients') AS ingredient
+               FROM jsonb_array_elements_text(r.recipe->'ingredients') AS ingredient
                WHERE ingredient ILIKE $1
              )
              OR EXISTS (
                SELECT 1
-               FROM jsonb_array_elements_text(recipe->'steps') AS step
+               FROM jsonb_array_elements_text(r.recipe->'steps') AS step
                WHERE step ILIKE $1
+             )
+             OR EXISTS (
+               SELECT 1
+               FROM recipe_group_members rgm
+               JOIN recipe_groups g ON g.id = rgm.group_id
+               WHERE rgm.recipe_id = r.id
+               AND g.name ILIKE $1
              );
       `,
       [`%${query}%`],
     );
-    return res.rows;
+    return res.rows.map((r: any) => ({
+      ...r,
+      options: r.options ? JSON.parse(r.options) : {},
+      groups: r.groups || [],
+    }));
   } finally {
     client.release();
   }
@@ -182,6 +227,13 @@ async function searchWithFilters(filters: any): Promise<SearchRecipe[]> {
           FROM jsonb_array_elements_text(recipe->'steps') AS step
           WHERE step ILIKE $${paramIndex}
         )
+        OR EXISTS (
+          SELECT 1
+          FROM recipe_group_members rgm
+          JOIN recipe_groups g ON g.id = rgm.group_id
+          WHERE rgm.recipe_id = r.id
+          AND g.name ILIKE $${paramIndex}
+        )
       )`);
       params.push(`%${filters.query}%`);
       paramIndex++;
@@ -207,20 +259,29 @@ async function searchWithFilters(filters: any): Promise<SearchRecipe[]> {
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     const query = `
-      SELECT id,
-             recipe->>'name' AS name,
-             recipe->>'description' AS description,
-             recipe->>'options' AS options,
-             recipe->>'imageUrl' AS "imageUrl"
-      FROM recipes
+      SELECT r.id,
+             r.recipe->>'name' AS name,
+             r.recipe->>'description' AS description,
+             r.recipe->>'options' AS options,
+             r.recipe->>'imageUrl' AS "imageUrl",
+             COALESCE(
+               (
+                 SELECT json_agg(json_build_object('id', g.id, 'name', g.name))
+                 FROM recipe_group_members rgm
+                 JOIN recipe_groups g ON g.id = rgm.group_id
+                 WHERE rgm.recipe_id = r.id
+               ), '[]'::json
+             ) AS groups
+      FROM recipes r
       ${whereClause}
-      ORDER BY recipe->>'name' ASC
+      ORDER BY r.recipe->>'name' ASC
     `;
 
     const res = await client.query(query, params);
     return res.rows.map((r: any) => ({
       ...r,
       options: r.options ? JSON.parse(r.options) : {},
+      groups: r.groups || [],
     }));
   } finally {
     client.release();

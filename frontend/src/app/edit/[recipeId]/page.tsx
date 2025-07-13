@@ -2,150 +2,136 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import { Recipe } from '@/types';
 import Layout from '@/components/Layout';
+import { Recipe } from '@/types';
 import { Plus, X, Save, ArrowLeft } from 'lucide-react';
 import ImageUploader from '@/components/ImageUploader';
-import Image from 'next/image';
 
 interface EditRecipePageProps {
   params: Promise<{ recipeId: string }>;
 }
 
 export default function EditRecipePage({ params }: EditRecipePageProps) {
-  const router = useRouter();
   const unwrappedParams = React.use(params);
-  const [formData, setFormData] = useState({
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const { data: recipe, isLoading } = useQuery({
+    queryKey: ['recipe', unwrappedParams.recipeId],
+    queryFn: () => api.getRecipe(unwrappedParams.recipeId),
+  });
+
+  const [formData, setFormData] = useState<Partial<Recipe>>({
     name: '',
-    author: '',
     description: '',
+    author: '',
     servings: '',
     prepTime: '',
-    inactiveTime: '',
     cookTime: '',
-    ingredients: [{ text: '' }],
-    steps: [{ text: '' }],
+    inactiveTime: '',
+    ingredients: [],
+    steps: [],
+    imageUrl: '',
     options: {
       isVegetarian: false,
       isVegan: false,
       isDairyFree: false,
-      isCrockPot: false,
       isGlutenFree: false,
+      isCrockPot: false,
     },
-    imageUrl: '',
   });
 
-  const {
-    data: recipe,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ['recipe', unwrappedParams.recipeId],
-    queryFn: () => api.getRecipe(unwrappedParams.recipeId),
-    enabled: !!unwrappedParams.recipeId,
-  });
-
-  // Populate form when recipe loads
+  // Update form data when recipe loads
   useEffect(() => {
     if (recipe) {
       setFormData({
         name: recipe.name || '',
-        author: recipe.author || '',
         description: recipe.description || '',
-        servings: recipe.servings?.toString() || '',
-        prepTime: recipe.prepTime?.toString() || '',
-        inactiveTime: recipe.inactiveTime?.toString() || '',
-        cookTime: recipe.cookTime?.toString() || '',
-        ingredients: recipe.ingredients?.length > 0 ? recipe.ingredients : [{ text: '' }],
-        steps: recipe.steps?.length > 0 ? recipe.steps : [{ text: '' }],
-        options: recipe.options || {
-          isVegetarian: false,
-          isVegan: false,
-          isDairyFree: false,
-          isCrockPot: false,
-          isGlutenFree: false,
-        },
+        author: recipe.author || '',
+        servings: recipe.servings || '',
+        prepTime: recipe.prepTime || '',
+        cookTime: recipe.cookTime || '',
+        inactiveTime: recipe.inactiveTime || '',
+        ingredients: recipe.ingredients || [],
+        steps: recipe.steps || [],
         imageUrl: recipe.imageUrl || '',
+        options: {
+          isVegetarian: recipe.options?.isVegetarian || false,
+          isVegan: recipe.options?.isVegan || false,
+          isDairyFree: recipe.options?.isDairyFree || false,
+          isGlutenFree: recipe.options?.isGlutenFree || false,
+          isCrockPot: recipe.options?.isCrockPot || false,
+        },
       });
     }
   }, [recipe]);
 
   const updateRecipeMutation = useMutation({
-    mutationFn: (recipeData: Recipe) => api.updateRecipe(unwrappedParams.recipeId, recipeData),
+    mutationFn: (data: Partial<Recipe>) => api.updateRecipe(unwrappedParams.recipeId, data),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recipe', unwrappedParams.recipeId] });
+      queryClient.invalidateQueries({ queryKey: ['recipes'] });
       router.push(`/view/${unwrappedParams.recipeId}`);
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Prevent double submission
-    if (updateRecipeMutation.isPending) {
-      return;
-    }
-    
-    const recipeData = {
-      ...formData,
-      servings: formData.servings ? parseInt(formData.servings) : undefined
-    };
-    updateRecipeMutation.mutate(recipeData);
+    updateRecipeMutation.mutate(formData);
   };
 
   const addIngredient = () => {
     setFormData(prev => ({
       ...prev,
-      ingredients: [...prev.ingredients, { text: '' }]
+      ingredients: [...(prev.ingredients || []), { item: '', amount: '', unit: '' }]
     }));
   };
 
   const removeIngredient = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      ingredients: prev.ingredients.filter((_, i) => i !== index)
+      ingredients: prev.ingredients?.filter((_, i) => i !== index) || []
     }));
   };
 
-  const updateIngredient = (index: number, text: string) => {
+  const updateIngredient = (index: number, field: 'item' | 'amount' | 'unit', value: string) => {
     setFormData(prev => ({
       ...prev,
-      ingredients: prev.ingredients.map((ing, i) => 
-        i === index ? { text } : ing
-      )
+      ingredients: prev.ingredients?.map((ingredient, i) => 
+        i === index ? { ...ingredient, [field]: value } : ingredient
+      ) || []
     }));
   };
 
   const addStep = () => {
     setFormData(prev => ({
       ...prev,
-      steps: [...prev.steps, { text: '' }]
+      steps: [...(prev.steps || []), '']
     }));
   };
 
   const removeStep = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      steps: prev.steps.filter((_, i) => i !== index)
+      steps: prev.steps?.filter((_, i) => i !== index) || []
     }));
   };
 
-  const updateStep = (index: number, text: string) => {
+  const updateStep = (index: number, value: string) => {
     setFormData(prev => ({
       ...prev,
-      steps: prev.steps.map((step, i) => 
-        i === index ? { text } : step
-      )
+      steps: prev.steps?.map((step, i) => i === index ? value : step) || []
     }));
   };
 
-  const updateOption = (option: keyof typeof formData.options, value: boolean) => {
+  const updateOption = (option: keyof Recipe['options'], value: boolean) => {
     setFormData(prev => ({
       ...prev,
       options: {
         ...prev.options,
-        [option]: value
+        [option]: value,
       }
     }));
   };
@@ -153,20 +139,26 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
   if (isLoading) {
     return (
       <Layout>
-        <div className="flex justify-center py-16">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
         </div>
       </Layout>
     );
   }
 
-  if (error || !recipe) {
+  if (!recipe) {
     return (
       <Layout>
-        <div className="text-center py-16">
-          <h2 className="text-xl font-semibold text-red-600 dark:text-red-400">
-            Recipe not found or failed to load.
-          </h2>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Recipe not found</h1>
+            <button
+              onClick={() => router.push('/')}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Go Home
+            </button>
+          </div>
         </div>
       </Layout>
     );
@@ -175,16 +167,15 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
   return (
     <Layout>
       <div className="max-w-4xl mx-auto p-6">
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center mb-6">
           <button
             onClick={() => router.back()}
-            className="p-2 text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+            className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mr-4"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={20} className="mr-2" />
+            Back
           </button>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Edit Recipe
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Edit Recipe</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -200,25 +191,24 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
                 </label>
                 <input
                   type="text"
-                  required
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Author *
+                  Author
                 </label>
                 <input
                   type="text"
-                  required
                   value={formData.author}
                   onChange={(e) => setFormData(prev => ({ ...prev, author: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
-              <div className="md:col-span-2">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Description
                 </label>
@@ -226,40 +216,40 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Servings
+                </label>
+                <input
+                  type="text"
+                  value={formData.servings}
+                  onChange={(e) => setFormData(prev => ({ ...prev, servings: e.target.value }))}
+                  placeholder="e.g., 4 servings"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
             </div>
           </div>
 
-          {/* Time and Servings */}
+          {/* Timing */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Time & Servings
+              Timing
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Prep Time
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g., 30 min"
                   value={formData.prepTime}
                   onChange={(e) => setFormData(prev => ({ ...prev, prepTime: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Inactive Time
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g., 2 hr"
-                  value={formData.inactiveTime}
-                  onChange={(e) => setFormData(prev => ({ ...prev, inactiveTime: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="e.g., 15 minutes"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
               <div>
@@ -268,22 +258,22 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g., 45 min"
                   value={formData.cookTime}
                   onChange={(e) => setFormData(prev => ({ ...prev, cookTime: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  placeholder="e.g., 45 minutes"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Servings
+                  Inactive Time
                 </label>
                 <input
-                  type="number"
-                  min="1"
-                  value={formData.servings}
-                  onChange={(e) => setFormData(prev => ({ ...prev, servings: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  type="text"
+                  value={formData.inactiveTime}
+                  onChange={(e) => setFormData(prev => ({ ...prev, inactiveTime: e.target.value }))}
+                  placeholder="e.g., 2 hours"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
             </div>
@@ -298,27 +288,41 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
               <button
                 type="button"
                 onClick={addIngredient}
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                className="flex items-center px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                <Plus size={16} />
+                <Plus size={16} className="mr-1" />
                 Add Ingredient
               </button>
             </div>
             <div className="space-y-3">
-              {formData.ingredients.map((ingredient, index) => (
-                <div key={index} className="flex gap-2">
+              {formData.ingredients?.map((ingredient, index) => (
+                <div key={index} className="flex items-center space-x-3">
                   <input
                     type="text"
-                    value={ingredient.text}
-                    onChange={(e) => updateIngredient(index, e.target.value)}
-                    placeholder="e.g., 2 cups flour"
-                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                    value={ingredient.amount}
+                    onChange={(e) => updateIngredient(index, 'amount', e.target.value)}
+                    placeholder="Amount"
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
-                  {formData.ingredients.length > 1 && (
+                  <input
+                    type="text"
+                    value={ingredient.unit}
+                    onChange={(e) => updateIngredient(index, 'unit', e.target.value)}
+                    placeholder="Unit"
+                    className="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                  <input
+                    type="text"
+                    value={ingredient.item}
+                    onChange={(e) => updateIngredient(index, 'item', e.target.value)}
+                    placeholder="Ingredient"
+                    className="flex-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                  {formData.ingredients && formData.ingredients.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeIngredient(index)}
-                      className="p-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                      className="flex-shrink-0 p-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
                     >
                       <X size={16} />
                     </button>
@@ -337,26 +341,26 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
               <button
                 type="button"
                 onClick={addStep}
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                className="flex items-center px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                <Plus size={16} />
+                <Plus size={16} className="mr-1" />
                 Add Step
               </button>
             </div>
             <div className="space-y-3">
-              {formData.steps.map((step, index) => (
-                <div key={index} className="flex gap-2">
-                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-sm font-medium">
+              {formData.steps?.map((step, index) => (
+                <div key={index} className="flex items-start space-x-3">
+                  <span className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full flex items-center justify-center text-sm font-medium mt-2">
                     {index + 1}
-                  </div>
+                  </span>
                   <textarea
-                    value={step.text}
+                    value={step}
                     onChange={(e) => updateStep(index, e.target.value)}
-                    placeholder="Describe this step..."
+                    placeholder={`Step ${index + 1}`}
                     rows={2}
-                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
-                  {formData.steps.length > 1 && (
+                  {formData.steps && formData.steps.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeStep(index)}
@@ -378,12 +382,10 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
             {formData.imageUrl && (
               <div className="mb-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Current image:</p>
-                <Image
+                <img
                   src={formData.imageUrl}
                   alt={formData.name}
                   className="max-h-48 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md"
-                  width={320}
-                  height={192}
                 />
               </div>
             )}
@@ -401,80 +403,64 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Dietary Options
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <label className="flex items-center">
                 <input
                   type="checkbox"
-                  checked={formData.options.isVegetarian}
+                  checked={formData.options?.isVegetarian || false}
                   onChange={(e) => updateOption('isVegetarian', e.target.checked)}
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
                 />
-                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Vegetarian</span>
+                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">🥬 Vegetarian</span>
               </label>
               <label className="flex items-center">
                 <input
                   type="checkbox"
-                  checked={formData.options.isVegan}
+                  checked={formData.options?.isVegan || false}
                   onChange={(e) => updateOption('isVegan', e.target.checked)}
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
                 />
-                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Vegan</span>
+                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">🌱 Vegan</span>
               </label>
               <label className="flex items-center">
                 <input
                   type="checkbox"
-                  checked={formData.options.isDairyFree}
+                  checked={formData.options?.isDairyFree || false}
                   onChange={(e) => updateOption('isDairyFree', e.target.checked)}
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
                 />
-                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Dairy Free</span>
+                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">🥛 Dairy Free</span>
               </label>
               <label className="flex items-center">
                 <input
                   type="checkbox"
-                  checked={formData.options.isGlutenFree}
+                  checked={formData.options?.isGlutenFree || false}
                   onChange={(e) => updateOption('isGlutenFree', e.target.checked)}
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
                 />
-                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Gluten Free</span>
+                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">🌾 Gluten Free</span>
               </label>
               <label className="flex items-center">
                 <input
                   type="checkbox"
-                  checked={formData.options.isCrockPot}
+                  checked={formData.options?.isCrockPot || false}
                   onChange={(e) => updateOption('isCrockPot', e.target.checked)}
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
                 />
-                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Crock Pot</span>
+                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">🍲 Crock Pot</span>
               </label>
             </div>
           </div>
 
           {/* Submit Button */}
-          <div className="flex justify-end gap-4">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Cancel
-            </button>
+          <div className="flex justify-end">
             <button
               type="submit"
               disabled={updateRecipeMutation.isPending}
-              className="flex items-center gap-2 px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {updateRecipeMutation.isPending ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save size={16} />
-                  Save Changes
-                </>
-              )}
+              <Save size={20} className="mr-2" />
+              {updateRecipeMutation.isPending ? 'Saving...' : 'Save Recipe'}
             </button>
           </div>
         </form>

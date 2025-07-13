@@ -7,7 +7,6 @@ import { api } from "@/lib/api";
 import { Search, Filter, X } from "lucide-react";
 import { SearchFilters, SearchRecipe } from "@/types";
 import RecipePlaceholderIcon from './RecipePlaceholderIcon';
-import Image from 'next/image';
 
 interface SearchBoxProps {
   mode?: 'global' | 'filter';
@@ -32,6 +31,7 @@ export function SearchBox({
     isDairyFree: false,
     isGlutenFree: false,
     isCrockPot: false,
+    groups: [],
   });
 
   const hasActiveFilters = Object.values(filters).some(Boolean);
@@ -62,7 +62,10 @@ export function SearchBox({
       // Text search
       const matchesText = !searchValue.trim() || 
         recipe.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-        (recipe.description && recipe.description.toLowerCase().includes(searchValue.toLowerCase()));
+        (recipe.description && recipe.description.toLowerCase().includes(searchValue.toLowerCase())) ||
+        (recipe.groups && recipe.groups.some(group => 
+          group.name.toLowerCase().includes(searchValue.toLowerCase())
+        ));
 
       // Dietary filters
       const matchesFilters = !hasActiveFilters || (
@@ -73,6 +76,13 @@ export function SearchBox({
         (!filters.isCrockPot || recipe.options?.isCrockPot)
       );
 
+      // Group filters
+      if (filters.groups && filters.groups.length > 0) {
+        const recipeGroupIds = (recipe.groups || []).map((g: { id: string }) => g.id);
+        const hasGroup = filters.groups.some((gid: string) => recipeGroupIds.includes(gid));
+        if (!hasGroup) return false;
+      }
+
       return matchesText && matchesFilters;
     });
   }, [mode, allRecipes, searchValue, filters, hasActiveFilters]);
@@ -82,7 +92,7 @@ export function SearchBox({
     if (mode === 'filter' && onFilterChange) {
       onFilterChange(filteredRecipes);
     }
-  }, [filteredRecipes, mode, onFilterChange]);
+  }, [filteredRecipes, mode]); // Removed onFilterChange from dependencies
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,6 +115,7 @@ export function SearchBox({
       isDairyFree: false,
       isGlutenFree: false,
       isCrockPot: false,
+      groups: [],
     });
   };
 
@@ -228,12 +239,10 @@ export function SearchBox({
             >
               <div className="flex items-center space-x-3">
                 {recipe.imageUrl ? (
-                  <Image
+                  <img
                     src={recipe.imageUrl}
                     alt={recipe.name}
                     className="w-12 h-12 rounded object-cover"
-                    width={48}
-                    height={48}
                   />
                 ) : (
                   <div className="w-12 h-12 flex items-center justify-center bg-gray-50 dark:bg-gray-900 rounded">

@@ -4,7 +4,6 @@ import React, { useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Image as LucideImage } from "lucide-react";
 import { api } from "@/lib/api";
-import Image from 'next/image';
 
 interface ImageUploaderProps {
   onImageUpload: (imageUrl: string) => void;
@@ -90,12 +89,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       )}
       {preview && (
         <div className="mt-4">
-          <Image
+          <img
             src={preview}
             alt="Preview"
             className="max-h-48 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md"
-            width={320}
-            height={192}
           />
         </div>
       )}

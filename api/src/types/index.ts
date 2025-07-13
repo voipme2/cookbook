@@ -27,6 +27,7 @@ export interface Recipe {
   steps: Step[];
   imageUrl?: string;
   options?: RecipeOptions;
+  groups?: { id: string; name: string }[];
 }
 
 export interface SearchRecipe {
@@ -35,6 +36,7 @@ export interface SearchRecipe {
   description: string;
   imageUrl?: string;
   options?: RecipeOptions;
+  groups?: { id: string; name: string }[];
 }
 
 export interface DatabaseRecipe {
