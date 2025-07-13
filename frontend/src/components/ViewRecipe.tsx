@@ -11,6 +11,7 @@ import GroupManager from "./GroupManager";
 import { Recipe } from "@/types";
 import RecipePlaceholderIcon from './RecipePlaceholderIcon';
 import { useWakeLock } from "@/hooks/useWakeLock";
+import Image from 'next/image';
 
 // Utility to parse time strings like '2 hr', '15 min' into minutes
 function parseTimeToMinutes(time?: string): number {
@@ -37,6 +38,7 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
   const recipeId = params.recipeId as string;
   const [currentRecipe, setCurrentRecipe] = React.useState(recipe);
   const { isWakeLockActive, isSupported, toggleWakeLock } = useWakeLock();
+  const [imageError, setImageError] = React.useState(false);
 
   // Calculate total time in minutes
   const totalMinutes =
@@ -57,21 +59,21 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
           <div className="flex flex-col lg:flex-row gap-6 mb-6">
             {currentRecipe.imageUrl ? (
               <div className="flex-shrink-0 w-80">
-                <img
-                  src={currentRecipe.imageUrl}
-                  alt={currentRecipe.name}
-                  className="w-full h-auto max-h-48 rounded-lg object-cover"
-                  onLoad={() => {}}
-                  onError={(e) => {
-                    // Fallback to placeholder if image fails to load
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    target.nextElementSibling?.classList.remove('hidden');
-                  }}
-                />
-                <div className="hidden w-full h-48 flex items-center justify-center bg-gray-50 dark:bg-gray-900 rounded-lg">
-                  <RecipePlaceholderIcon className="w-12 h-12 text-gray-400 dark:text-gray-600" />
-                </div>
+                {!imageError ? (
+                  <Image
+                    src={currentRecipe.imageUrl}
+                    alt={currentRecipe.name}
+                    className="w-full h-auto max-h-48 rounded-lg object-cover"
+                    width={320}
+                    height={192}
+                    onLoadingComplete={() => {}}
+                    onError={() => setImageError(true)}
+                  />
+                ) : (
+                  <div className="w-full h-48 flex items-center justify-center bg-gray-50 dark:bg-gray-900 rounded-lg">
+                    <RecipePlaceholderIcon className="w-12 h-12 text-gray-400 dark:text-gray-600" />
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex-shrink-0 w-80 flex items-center justify-center">

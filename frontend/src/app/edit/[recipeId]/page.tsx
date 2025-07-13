@@ -8,6 +8,7 @@ import { Recipe } from '@/types';
 import Layout from '@/components/Layout';
 import { Plus, X, Save, ArrowLeft } from 'lucide-react';
 import ImageUploader from '@/components/ImageUploader';
+import Image from 'next/image';
 
 interface EditRecipePageProps {
   params: Promise<{ recipeId: string }>;
@@ -377,10 +378,12 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
             {formData.imageUrl && (
               <div className="mb-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Current image:</p>
-                <img
+                <Image
                   src={formData.imageUrl}
                   alt={formData.name}
                   className="max-h-48 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md"
+                  width={320}
+                  height={192}
                 />
               </div>
             )}

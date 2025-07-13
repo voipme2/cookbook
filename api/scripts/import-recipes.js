@@ -29,7 +29,7 @@ function convertToMinutes(time) {
 
 // Function to generate ID from recipe name
 function getId(name) {
-  return slugify(name, { lower: true, strict: true });
+  return slugify(name, { lower: true });
 }
 
 // Function to process a recipe and prepare it for database insertion
@@ -52,6 +52,9 @@ function processRecipe(recipe) {
     // Add description if missing
     description: recipe.description || '',
   };
+
+  // Remove the id field from the recipe JSON since we'll use the database ID
+  delete processedRecipe.id;
 
   // Remove any undefined or null values
   Object.keys(processedRecipe).forEach(key => {

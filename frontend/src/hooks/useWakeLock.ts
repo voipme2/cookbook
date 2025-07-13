@@ -1,9 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
+// TypeScript interfaces for Wake Lock API
+interface WakeLockSentinel {
+  addEventListener: (type: string, listener: EventListener) => void;
+  release: () => Promise<void>;
+}
+
 export function useWakeLock() {
   const [isWakeLockActive, setIsWakeLockActive] = useState(false);
-  // @ts-ignore - Wake Lock API is experimental and not well-typed
-  const [wakeLockSentinel, setWakeLockSentinel] = useState<any>(null);
+  const [wakeLockSentinel, setWakeLockSentinel] = useState<WakeLockSentinel | null>(null);
   const [isSupported, setIsSupported] = useState(false);
   const fallbackIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -39,9 +44,10 @@ export function useWakeLock() {
   const requestWakeLock = useCallback(async () => {
     if (isSupported) {
       try {
-        // @ts-ignore - Wake Lock API is experimental
-        const sentinel = await (navigator as any).wakeLock.request('screen');
-        setWakeLockSentinel(sentinel);
+        // Type assertion for experimental Wake Lock API
+        const wakeLock = (navigator as Navigator & { wakeLock?: { request: (type: 'screen') => Promise<WakeLockSentinel> } }).wakeLock;
+        const sentinel = await wakeLock?.request('screen');
+        setWakeLockSentinel(sentinel || null);
         setIsWakeLockActive(true);
         
         // Listen for when wake lock is released

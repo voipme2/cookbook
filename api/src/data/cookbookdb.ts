@@ -63,6 +63,8 @@ async function find(slug_id: string): Promise<Recipe | null> {
   }
 }
 
+
+
 async function list(): Promise<SearchRecipe[]> {
   const client = await pool.connect();
   try {
@@ -87,6 +89,10 @@ async function save(recipe: Recipe): Promise<string> {
   });
   if ((recipe as any).totalTime) {
     delete (recipe as any).totalTime;
+  }
+  // Remove the id field from the recipe JSON since we'll use the database ID
+  if ((recipe as any).id) {
+    delete (recipe as any).id;
   }
   recipe.name = recipe.name.trim();
   const client = await pool.connect();

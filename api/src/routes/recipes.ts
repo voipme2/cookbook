@@ -48,6 +48,8 @@ export default function (database: DatabaseInterface) {
     recipesController.searchWithFilters(req, res, db);
   });
   
+
+  
   // Get a recipe
   router.get('/recipes/:recipeId', (req: Request, res: Response) => {
     recipesController.get(req, res, db);

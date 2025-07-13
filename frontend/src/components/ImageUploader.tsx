@@ -2,8 +2,9 @@
 
 import React, { useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Image } from "lucide-react";
+import { Image as LucideImage } from "lucide-react";
 import { api } from "@/lib/api";
+import Image from 'next/image';
 
 interface ImageUploaderProps {
   onImageUpload: (imageUrl: string) => void;
@@ -56,7 +57,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     <div className="mt-4">
       <div className="flex items-center gap-4">
         <label className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200">
-          <Image size={20} />
+          <LucideImage size={20} />
           <span>{file ? "Change Image" : "Select Image"}</span>
           <input
             ref={fileInputRef}
@@ -89,10 +90,12 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       )}
       {preview && (
         <div className="mt-4">
-          <img
+          <Image
             src={preview}
             alt="Preview"
             className="max-h-48 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md"
+            width={320}
+            height={192}
           />
         </div>
       )}

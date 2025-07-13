@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Plus, Search } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { api } from '@/lib/api';
+import Image from 'next/image';
 
 interface AddRecipesPageProps {
   params: Promise<{ groupId: string }>;
@@ -208,10 +209,12 @@ export default function AddRecipesPage({ params }: AddRecipesPageProps) {
               >
                 <div className="flex items-center space-x-3">
                   {recipe.imageUrl ? (
-                    <img
+                    <Image
                       src={recipe.imageUrl}
                       alt={recipe.name}
                       className="w-12 h-12 rounded object-cover flex-shrink-0"
+                      width={48}
+                      height={48}
                     />
                   ) : (
                     <div className="w-12 h-12 flex items-center justify-center bg-gray-50 dark:bg-gray-900 rounded flex-shrink-0">

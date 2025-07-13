@@ -65,6 +65,8 @@ export const api = {
     };
   },
 
+
+
   // Create new recipe
   async createRecipe(recipe: Omit<Recipe, 'id'>): Promise<Recipe> {
     const response = await fetch(`${API_BASE}/recipes`, {

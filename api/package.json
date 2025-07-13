@@ -10,7 +10,8 @@
     "test:ci": "npm run build && mocha \"spec/**/*.{js,mjs}\"",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
-    "import-recipes": "node scripts/import-recipes.js"
+    "import-recipes": "node scripts/import-recipes.js",
+    "migrate-production": "node scripts/migrate-production.js"
   },
   "dependencies": {
     "@types/cors": "^2.8.19",

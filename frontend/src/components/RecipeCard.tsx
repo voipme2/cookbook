@@ -7,6 +7,7 @@ import { Folder } from 'lucide-react';
 import { api } from '@/lib/api';
 import { SearchRecipe } from '@/types';
 import RecipePlaceholderIcon from './RecipePlaceholderIcon';
+import Image from 'next/image';
 
 interface RecipeCardProps {
   recipe: SearchRecipe;
@@ -42,10 +43,12 @@ export default function RecipeCard({
       >
         <div className="flex items-center space-x-3">
           {recipe.imageUrl ? (
-            <img
+            <Image
               src={recipe.imageUrl}
               alt={recipe.name}
               className="w-12 h-12 rounded object-cover flex-shrink-0"
+              width={48}
+              height={48}
             />
           ) : (
             <div className="w-12 h-12 flex items-center justify-center bg-gray-50 dark:bg-gray-900 rounded flex-shrink-0">
@@ -117,10 +120,12 @@ export default function RecipeCard({
       className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-200 ${className}`}
     >
       {recipe.imageUrl ? (
-        <img
+        <Image
           src={recipe.imageUrl}
           alt={recipe.name}
           className="w-full h-48 object-cover"
+          width={400}
+          height={192}
         />
       ) : (
         <div className="w-full h-48 flex items-center justify-center bg-gray-50 dark:bg-gray-900">

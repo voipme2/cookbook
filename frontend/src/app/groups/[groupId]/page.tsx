@@ -7,6 +7,7 @@ import { ArrowLeft, Edit, Trash2, Plus } from 'lucide-react';
 import Layout from '@/components/Layout';
 import RecipeList from '@/components/RecipeList';
 import { api } from '@/lib/api';
+import Image from 'next/image';
 
 interface GroupDetailPageProps {
   params: Promise<{ groupId: string }>;
@@ -166,10 +167,12 @@ export default function GroupDetailPage({ params }: GroupDetailPageProps) {
                         className="flex items-center space-x-4 flex-1 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded transition-colors duration-200"
                       >
                         {recipe.imageUrl ? (
-                          <img
+                          <Image
                             src={recipe.imageUrl}
                             alt={recipe.name}
                             className="w-16 h-16 rounded object-cover"
+                            width={64}
+                            height={64}
                           />
                         ) : (
                           <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center">

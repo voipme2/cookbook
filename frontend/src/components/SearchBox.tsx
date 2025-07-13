@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 import { Search, Filter, X } from "lucide-react";
 import { SearchFilters, SearchRecipe } from "@/types";
 import RecipePlaceholderIcon from './RecipePlaceholderIcon';
+import Image from 'next/image';
 
 interface SearchBoxProps {
   mode?: 'global' | 'filter';
@@ -227,10 +228,12 @@ export function SearchBox({
             >
               <div className="flex items-center space-x-3">
                 {recipe.imageUrl ? (
-                  <img
+                  <Image
                     src={recipe.imageUrl}
                     alt={recipe.name}
                     className="w-12 h-12 rounded object-cover"
+                    width={48}
+                    height={48}
                   />
                 ) : (
                   <div className="w-12 h-12 flex items-center justify-center bg-gray-50 dark:bg-gray-900 rounded">
