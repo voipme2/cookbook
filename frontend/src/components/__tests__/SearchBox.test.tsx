@@ -35,6 +35,10 @@ describe('SearchBox', () => {
         isGlutenFree: false,
         isCrockPot: false,
       },
+      groups: [
+        { id: '1', name: 'Italian' },
+        { id: '2', name: 'Dinner' }
+      ],
     },
     {
       id: '2',
@@ -47,6 +51,10 @@ describe('SearchBox', () => {
         isGlutenFree: true,
         isCrockPot: false,
       },
+      groups: [
+        { id: '3', name: 'Healthy' },
+        { id: '4', name: 'Lunch' }
+      ],
     },
     {
       id: '3',
@@ -59,6 +67,9 @@ describe('SearchBox', () => {
         isGlutenFree: true,
         isCrockPot: true,
       },
+      groups: [
+        { id: '5', name: 'Comfort Food' }
+      ],
     },
   ]
 
@@ -149,6 +160,29 @@ describe('SearchBox', () => {
       await waitFor(() => {
         expect(onFilterChange).toHaveBeenCalledWith([
           expect.objectContaining({ name: 'Vegetarian Salad' })
+        ])
+      })
+    })
+
+    it('filters recipes by group names in search', async () => {
+      const user = userEvent.setup()
+      const onFilterChange = jest.fn()
+      
+      render(
+        <SearchBox 
+          mode="filter" 
+          allRecipes={mockRecipes} 
+          onFilterChange={onFilterChange}
+        />
+      )
+
+      // Search for a group name
+      const searchInput = screen.getByPlaceholderText('Filter recipes...')
+      await user.type(searchInput, 'italian')
+
+      await waitFor(() => {
+        expect(onFilterChange).toHaveBeenCalledWith([
+          expect.objectContaining({ name: 'Chicken Pasta' })
         ])
       })
     })

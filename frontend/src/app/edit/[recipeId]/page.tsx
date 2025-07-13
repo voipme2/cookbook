@@ -9,6 +9,32 @@ import { Recipe } from '@/types';
 import { Plus, X, Save, ArrowLeft } from 'lucide-react';
 import ImageUploader from '@/components/ImageUploader';
 
+interface FormIngredient {
+  item: string;
+  amount: string;
+  unit: string;
+}
+
+interface FormData {
+  name: string;
+  description: string;
+  author: string;
+  servings: string;
+  prepTime: string;
+  cookTime: string;
+  inactiveTime: string;
+  ingredients: FormIngredient[];
+  steps: string[];
+  imageUrl: string;
+  options: {
+    isVegetarian: boolean;
+    isVegan: boolean;
+    isDairyFree: boolean;
+    isGlutenFree: boolean;
+    isCrockPot: boolean;
+  };
+}
+
 interface EditRecipePageProps {
   params: Promise<{ recipeId: string }>;
 }
@@ -23,7 +49,7 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
     queryFn: () => api.getRecipe(unwrappedParams.recipeId),
   });
 
-  const [formData, setFormData] = useState<Partial<Recipe>>({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     description: '',
     author: '',
@@ -50,12 +76,16 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
         name: recipe.name || '',
         description: recipe.description || '',
         author: recipe.author || '',
-        servings: recipe.servings || '',
-        prepTime: recipe.prepTime || '',
-        cookTime: recipe.cookTime || '',
-        inactiveTime: recipe.inactiveTime || '',
-        ingredients: recipe.ingredients || [],
-        steps: recipe.steps || [],
+        servings: recipe.servings?.toString() || '',
+        prepTime: recipe.prepTime?.toString() || '',
+        cookTime: recipe.cookTime?.toString() || '',
+        inactiveTime: recipe.inactiveTime?.toString() || '',
+        ingredients: recipe.ingredients?.map(ing => ({
+          item: ing.text,
+          amount: '',
+          unit: ''
+        })) || [],
+        steps: recipe.steps?.map(step => step.text) || [],
         imageUrl: recipe.imageUrl || '',
         options: {
           isVegetarian: recipe.options?.isVegetarian || false,
@@ -69,7 +99,7 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
   }, [recipe]);
 
   const updateRecipeMutation = useMutation({
-    mutationFn: (data: Partial<Recipe>) => api.updateRecipe(unwrappedParams.recipeId, data),
+    mutationFn: (data: Recipe) => api.updateRecipe(unwrappedParams.recipeId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recipe', unwrappedParams.recipeId] });
       queryClient.invalidateQueries({ queryKey: ['recipes'] });
@@ -79,7 +109,20 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateRecipeMutation.mutate(formData);
+    const recipeData: Recipe = {
+      name: formData.name,
+      description: formData.description,
+      author: formData.author,
+      servings: formData.servings ? parseInt(formData.servings, 10) : undefined,
+      prepTime: formData.prepTime,
+      cookTime: formData.cookTime,
+      inactiveTime: formData.inactiveTime,
+      ingredients: formData.ingredients.map(ing => ({ text: `${ing.amount} ${ing.unit} ${ing.item}`.trim() })),
+      steps: formData.steps.map(step => ({ text: step })),
+      imageUrl: formData.imageUrl,
+      options: formData.options,
+    };
+    updateRecipeMutation.mutate(recipeData);
   };
 
   const addIngredient = () => {
@@ -126,7 +169,7 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
     }));
   };
 
-  const updateOption = (option: keyof Recipe['options'], value: boolean) => {
+  const updateOption = (option: keyof FormData['options'], value: boolean) => {
     setFormData(prev => ({
       ...prev,
       options: {

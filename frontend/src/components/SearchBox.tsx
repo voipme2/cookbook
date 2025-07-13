@@ -34,7 +34,12 @@ export function SearchBox({
     groups: [],
   });
 
-  const hasActiveFilters = Object.values(filters).some(Boolean);
+  const hasActiveFilters = Object.entries(filters).some(([key, value]) => {
+    if (key === 'groups') {
+      return Array.isArray(value) && value.length > 0;
+    }
+    return Boolean(value);
+  });
 
   // For global search mode
   const {
