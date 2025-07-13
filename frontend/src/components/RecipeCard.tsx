@@ -90,7 +90,7 @@ export default function RecipeCard({
                 {recipe.groups.slice(0, 2).map((group) => (
                   <span
                     key={group.id}
-                    className="inline-block px-1.5 py-0.5 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded"
+                    className="inline-block px-1.5 py-0.5 text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded"
                   >
                     {group.name}
                   </span>
@@ -174,7 +174,7 @@ export default function RecipeCard({
             {recipe.groups.slice(0, 3).map((group) => (
               <span
                 key={group.id}
-                className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded"
+                className="inline-block px-2 py-1 text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded"
               >
                 {group.name}
               </span>

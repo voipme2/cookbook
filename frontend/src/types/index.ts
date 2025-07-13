@@ -61,5 +61,4 @@ export interface RecipeGroup {
   description?: string;
   createdAt: string;
   updatedAt: string;
-  recipeCount?: number;
 } 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import Layout from '@/components/Layout';
+import RecipeCard from '@/components/RecipeCard';
 import { SearchRecipe } from '@/types';
 
 interface GroupPageProps {
@@ -120,59 +121,26 @@ export default function GroupPage({ params }: GroupPageProps) {
           </div>
         </div>
 
-        {/* Recipe Count */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
-          <p className="text-gray-600 dark:text-gray-400">
-            {recipes?.length || 0} recipe{(recipes?.length || 0) !== 1 ? 's' : ''} in this group
-          </p>
-        </div>
+
 
         {/* Recipes List */}
         {recipes && recipes.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-4">
             {recipes.map((recipe: SearchRecipe) => (
-              <div
-                key={recipe.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow duration-200"
-              >
-                {recipe.imageUrl ? (
-                  <img
-                    src={recipe.imageUrl}
-                    alt={recipe.name}
-                    className="w-full h-48 object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-48 bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                    <span className="text-gray-400 dark:text-gray-500 text-2xl">🍽️</span>
-                  </div>
-                )}
-                
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                    {recipe.name}
-                  </h3>
-                  
-                  {recipe.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
-                      {recipe.description}
-                    </p>
-                  )}
-                  
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => router.push(`/view/${recipe.id}`)}
-                      className="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      View Recipe
-                    </button>
-                    <button
-                      onClick={() => handleRemoveRecipe(recipe.id)}
-                      disabled={removeRecipeMutation.isPending}
-                      className="px-3 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      Remove
-                    </button>
-                  </div>
+              <div key={recipe.id} className="relative group">
+                <RecipeCard 
+                  recipe={recipe} 
+                  variant="mobile"
+                  showGroups={false}
+                />
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => handleRemoveRecipe(recipe.id)}
+                    disabled={removeRecipeMutation.isPending}
+                    className="px-3 py-1 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Remove
+                  </button>
                 </div>
               </div>
             ))}

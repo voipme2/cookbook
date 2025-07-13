@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { Plus, Folder, Edit, Trash2, Eye } from 'lucide-react';
 import Layout from '@/components/Layout';
 import GroupTemplates from '@/components/GroupTemplates';
-import GroupStats from '@/components/GroupStats';
 import { api } from '@/lib/api';
 
 export default function GroupsPage() {
@@ -171,10 +170,7 @@ export default function GroupsPage() {
           <GroupTemplates className="mb-8" />
         )}
 
-        {/* Group Statistics */}
-        {groups && groups.length > 0 && (
-          <GroupStats className="mb-8" />
-        )}
+
 
         {/* Groups Grid */}
         {groups && groups.length > 0 ? (
@@ -191,9 +187,6 @@ export default function GroupsPage() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{group.name}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {group.recipeCount || 0} recipe{(group.recipeCount || 0) !== 1 ? 's' : ''}
-                      </p>
                     </div>
                   </div>
                   <div className="flex space-x-1">

@@ -3,14 +3,15 @@
 
 import React from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Edit, Printer, ChefHat } from "lucide-react";
+import { Edit, Printer, ChefHat, Plus } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Ingredients from "./Ingredients";
 import Steps from "./Steps";
 import ImageUploader from "./ImageUploader";
-import GroupManager from "./GroupManager";
 import { Recipe } from "@/types";
 import RecipePlaceholderIcon from './RecipePlaceholderIcon';
 import { useWakeLock } from "@/hooks/useWakeLock";
+import { api } from "@/lib/api";
 
 // Utility to parse time strings like '2 hr', '15 min' into minutes
 function parseTimeToMinutes(time?: string): number {
@@ -30,6 +31,65 @@ function formatMinutes(total: number): string {
   if (hours) return `${hours} hr`;
   return `${minutes} min`;
 }
+
+// Recipe Groups Chips Component
+const RecipeGroupsChips = ({ recipeId }: { recipeId: string }) => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  const { data: recipeGroups, isLoading } = useQuery({
+    queryKey: ['recipe-groups', recipeId],
+    queryFn: () => api.getRecipeGroups(recipeId),
+    enabled: !!recipeId,
+  });
+
+  const removeFromGroupMutation = useMutation({
+    mutationFn: ({ groupId, recipeId }: { groupId: string; recipeId: string }) =>
+      api.removeRecipeFromGroup(groupId, recipeId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recipe-groups', recipeId] });
+      queryClient.invalidateQueries({ queryKey: ['groups'] });
+    },
+  });
+
+  const handleRemoveFromGroup = (groupId: string) => {
+    removeFromGroupMutation.mutate({ groupId, recipeId });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-wrap gap-2">
+        <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-full px-3 py-1 h-6 w-16"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {recipeGroups && recipeGroups.map((group) => (
+        <span
+          key={group.id}
+          className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors cursor-pointer group"
+          onClick={() => handleRemoveFromGroup(group.id)}
+          title="Click to remove from group"
+        >
+          📁 {group.name}
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity text-purple-600 dark:text-purple-300">
+            ×
+          </span>
+        </span>
+      ))}
+      <button
+        onClick={() => router.push(`/groups?addRecipe=${recipeId}`)}
+        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+        title="Add to group"
+      >
+        <Plus size={12} />
+        Add to Group
+      </button>
+    </div>
+  );
+};
 
 const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
   const params = useParams();
@@ -177,6 +237,12 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
               <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
                 {currentRecipe.description} by {currentRecipe.author}
               </p>
+              
+              {/* Recipe Groups */}
+              <div className="mb-4">
+                <RecipeGroupsChips recipeId={recipeId} />
+              </div>
+              
               <div className="space-y-2">
                 {currentRecipe.servings && (
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -218,7 +284,6 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
           <div className="flex gap-6 flex-col lg:flex-row">
             <div className="lg:w-80 lg:flex-shrink-0 space-y-6">
               <Ingredients ingredients={currentRecipe.ingredients} />
-              <GroupManager recipeId={recipeId} />
             </div>
             <div className="flex-1">
               <Steps steps={currentRecipe.steps} />

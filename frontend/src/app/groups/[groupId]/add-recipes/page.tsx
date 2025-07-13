@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import Layout from '@/components/Layout';
-import SearchBox from '@/components/SearchBox';
+import { SearchBox } from '@/components/SearchBox';
 import { SearchRecipe } from '@/types';
 
 interface AddRecipesPageProps {
@@ -16,7 +16,6 @@ export default function AddRecipesPage({ params }: AddRecipesPageProps) {
   const unwrappedParams = React.use(params);
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecipes, setSelectedRecipes] = useState<Set<string>>(new Set());
   const [filteredRecipes, setFilteredRecipes] = useState<SearchRecipe[]>([]);
 
@@ -40,7 +39,12 @@ export default function AddRecipesPage({ params }: AddRecipesPageProps) {
 
   // Add recipes to group mutation
   const addRecipesMutation = useMutation({
-    mutationFn: (recipeIds: string[]) => api.addRecipesToGroup(unwrappedParams.groupId, recipeIds),
+    mutationFn: async (recipeIds: string[]) => {
+      // Add recipes one by one since the API only supports single recipe addition
+      for (const recipeId of recipeIds) {
+        await api.addRecipeToGroup(unwrappedParams.groupId, recipeId);
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['group-recipes', unwrappedParams.groupId] });
       queryClient.invalidateQueries({ queryKey: ['group', unwrappedParams.groupId] });
@@ -48,23 +52,14 @@ export default function AddRecipesPage({ params }: AddRecipesPageProps) {
     },
   });
 
-  // Filter recipes based on search and exclude already added recipes
+  // Initialize filtered recipes with all available recipes
   useEffect(() => {
     if (allRecipes && groupRecipes) {
       const groupRecipeIds = new Set(groupRecipes.map(r => r.id));
       const availableRecipes = allRecipes.filter(recipe => !groupRecipeIds.has(recipe.id));
-      
-      if (searchQuery.trim()) {
-        const filtered = availableRecipes.filter(recipe =>
-          recipe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (recipe.description && recipe.description.toLowerCase().includes(searchQuery.toLowerCase()))
-        );
-        setFilteredRecipes(filtered);
-      } else {
-        setFilteredRecipes(availableRecipes);
-      }
+      setFilteredRecipes(availableRecipes);
     }
-  }, [allRecipes, groupRecipes, searchQuery]);
+  }, [allRecipes, groupRecipes]);
 
   const handleRecipeToggle = (recipeId: string) => {
     setSelectedRecipes(prev => {
@@ -190,7 +185,7 @@ export default function AddRecipesPage({ params }: AddRecipesPageProps) {
           {filteredRecipes.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500 dark:text-gray-400">
-                {searchQuery.trim() ? 'No recipes found matching your search.' : 'No recipes available to add.'}
+                No recipes available to add.
               </p>
             </div>
           ) : (

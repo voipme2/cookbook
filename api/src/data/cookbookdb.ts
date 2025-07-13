@@ -352,11 +352,7 @@ async function getGroup(id: string): Promise<RecipeGroup | null> {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      `SELECT g.*, COUNT(rgm.recipe_id) as recipe_count 
-       FROM recipe_groups g 
-       LEFT JOIN recipe_group_members rgm ON g.id = rgm.group_id 
-       WHERE g.id = $1 
-       GROUP BY g.id`,
+      `SELECT g.* FROM recipe_groups g WHERE g.id = $1`,
       [id]
     );
     
@@ -369,7 +365,6 @@ async function getGroup(id: string): Promise<RecipeGroup | null> {
       description: row.description,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
-      recipeCount: parseInt(row.recipe_count)
     };
   } finally {
     client.release();
@@ -380,11 +375,7 @@ async function listGroups(): Promise<RecipeGroup[]> {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      `SELECT g.*, COUNT(rgm.recipe_id) as recipe_count 
-       FROM recipe_groups g 
-       LEFT JOIN recipe_group_members rgm ON g.id = rgm.group_id 
-       GROUP BY g.id 
-       ORDER BY g.name ASC`
+      `SELECT g.* FROM recipe_groups g ORDER BY g.name ASC`
     );
     
     return res.rows.map((row: any) => ({
@@ -393,7 +384,6 @@ async function listGroups(): Promise<RecipeGroup[]> {
       description: row.description,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
-      recipeCount: parseInt(row.recipe_count)
     }));
   } finally {
     client.release();
@@ -453,12 +443,10 @@ async function getRecipeGroups(recipeId: string): Promise<RecipeGroup[]> {
   const client = await pool.connect();
   try {
     const res = await client.query(
-      `SELECT g.*, COUNT(rgm2.recipe_id) as recipe_count
+      `SELECT g.*
        FROM recipe_groups g
        INNER JOIN recipe_group_members rgm ON g.id = rgm.group_id
-       LEFT JOIN recipe_group_members rgm2 ON g.id = rgm2.group_id
        WHERE rgm.recipe_id = $1
-       GROUP BY g.id
        ORDER BY g.name ASC`,
       [recipeId]
     );
@@ -469,7 +457,6 @@ async function getRecipeGroups(recipeId: string): Promise<RecipeGroup[]> {
       description: row.description,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
-      recipeCount: parseInt(row.recipe_count)
     }));
   } finally {
     client.release();

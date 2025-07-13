@@ -117,11 +117,6 @@ export default function GroupManager({ recipeId, className = '' }: GroupManagerP
                 <div className="flex items-center space-x-2">
                   <Check className="h-4 w-4 text-orange-600 dark:text-orange-400" />
                   <span className="text-sm font-medium text-gray-900 dark:text-white">{group.name}</span>
-                  {group.recipeCount && (
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      ({group.recipeCount} recipe{(group.recipeCount || 0) !== 1 ? 's' : ''})
-                    </span>
-                  )}
                 </div>
                 <button
                   onClick={() => handleRemoveFromGroup(group.id)}
@@ -215,11 +210,6 @@ export default function GroupManager({ recipeId, className = '' }: GroupManagerP
                     <div className="flex items-center space-x-2">
                       <Folder className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                       <span className="text-sm text-gray-900 dark:text-white">{group.name}</span>
-                      {group.recipeCount && (
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          ({group.recipeCount} recipe{(group.recipeCount || 0) !== 1 ? 's' : ''})
-                        </span>
-                      )}
                     </div>
                     <button
                       onClick={() => handleAddToGroup(group.id)}
