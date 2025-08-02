@@ -76,7 +76,7 @@ export default function NewRecipePage() {
     }));
   };
 
-  const handleIngredientKeyDown = (e: React.KeyboardEvent, index: number) => {
+  const handleIngredientKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       addIngredient();
@@ -112,7 +112,7 @@ export default function NewRecipePage() {
     }));
   };
 
-  const handleStepKeyDown = (e: React.KeyboardEvent, index: number) => {
+  const handleStepKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       addStep();
@@ -294,7 +294,7 @@ export default function NewRecipePage() {
                       required
                       value={ingredient.text}
                       onChange={(e) => updateIngredient(index, e.target.value)}
-                      onKeyDown={(e) => handleIngredientKeyDown(e, index)}
+                      onKeyDown={(e) => handleIngredientKeyDown(e)}
                       placeholder="e.g., 2 cups flour"
                       className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     />
@@ -337,7 +337,7 @@ export default function NewRecipePage() {
                       required
                       value={step.text}
                       onChange={(e) => updateStep(index, e.target.value)}
-                      onKeyDown={(e) => handleStepKeyDown(e, index)}
+                      onKeyDown={(e) => handleStepKeyDown(e)}
                       placeholder="Describe this step..."
                       minRows={3}
                       maxRows={15}

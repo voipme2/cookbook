@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 
 interface AutoResizeTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   minRows?: number;
@@ -17,7 +17,7 @@ const AutoResizeTextarea: React.FC<AutoResizeTextareaProps> = ({
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const adjustHeight = () => {
+  const adjustHeight = useCallback(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
@@ -33,11 +33,11 @@ const AutoResizeTextarea: React.FC<AutoResizeTextareaProps> = ({
     const newHeight = Math.min(Math.max(scrollHeight, minHeight), maxHeight);
     
     textarea.style.height = `${newHeight}px`;
-  };
+  }, [minRows, maxRows]);
 
   useEffect(() => {
     adjustHeight();
-  }, [value]);
+  }, [value, adjustHeight]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     adjustHeight();

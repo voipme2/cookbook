@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import Layout from '@/components/Layout';
@@ -143,7 +143,7 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
     }));
   };
 
-  const handleIngredientKeyDown = (e: React.KeyboardEvent, index: number) => {
+  const handleIngredientKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       addIngredient();
@@ -177,7 +177,7 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
     }));
   };
 
-  const handleStepKeyDown = (e: React.KeyboardEvent, index: number) => {
+  const handleStepKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       addStep();
@@ -365,7 +365,7 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
                     type="text"
                     value={ingredient.text}
                     onChange={(e) => updateIngredient(index, 'text', e.target.value)}
-                    onKeyDown={(e) => handleIngredientKeyDown(e, index)}
+                    onKeyDown={(e) => handleIngredientKeyDown(e)}
                     placeholder="e.g., 2 cups flour"
                     className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
@@ -407,7 +407,7 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
                   <AutoResizeTextarea
                     value={step}
                     onChange={(e) => updateStep(index, e.target.value)}
-                    onKeyDown={(e) => handleStepKeyDown(e, index)}
+                    onKeyDown={(e) => handleStepKeyDown(e)}
                     placeholder={`Step ${index + 1}`}
                     minRows={3}
                     maxRows={15}

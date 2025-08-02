@@ -97,7 +97,7 @@ export function SearchBox({
     if (mode === 'filter' && onFilterChange) {
       onFilterChange(filteredRecipes);
     }
-  }, [filteredRecipes, mode]); // Removed onFilterChange from dependencies
+  }, [filteredRecipes, mode, onFilterChange]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
