@@ -3,7 +3,7 @@
 
 import React from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Edit, Printer, ChefHat, Plus } from "lucide-react";
+import { Edit, Printer, ChefHat, Plus, Scale } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Ingredients from "./Ingredients";
 import Steps from "./Steps";
@@ -12,6 +12,7 @@ import { Recipe } from "@/types";
 import RecipePlaceholderIcon from './RecipePlaceholderIcon';
 import { useWakeLock } from "@/hooks/useWakeLock";
 import { api } from "@/lib/api";
+import { scaleIngredients, SCALING_OPTIONS } from "@/utils/ingredientScaling";
 
 // Utility to parse time strings like '2 hr', '15 min' into minutes
 function parseTimeToMinutes(time?: string): number {
@@ -96,6 +97,7 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
   const router = useRouter();
   const recipeId = params.recipeId as string;
   const [currentRecipe, setCurrentRecipe] = React.useState(recipe);
+  const [scalingFactor, setScalingFactor] = React.useState(1);
   const { isWakeLockActive, isSupported, supportChecked, toggleWakeLock } = useWakeLock();
 
   // Calculate total time in minutes
@@ -105,9 +107,15 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
     parseTimeToMinutes(currentRecipe.cookTime != null ? String(currentRecipe.cookTime) : '');
   const totalTimeStr = formatMinutes(totalMinutes);
 
+  // Scale ingredients based on current scaling factor
+  const scaledIngredients = React.useMemo(() => {
+    return scaleIngredients(currentRecipe.ingredients, scalingFactor);
+  }, [currentRecipe.ingredients, scalingFactor]);
+
   // Update recipe when prop changes
   React.useEffect(() => {
     setCurrentRecipe(recipe);
+    setScalingFactor(1); // Reset scaling when recipe changes
   }, [recipe]);
 
   return (
@@ -184,6 +192,34 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
                   >
                     <Printer size={20} />
                   </button>
+                </div>
+              </div>
+
+              {/* Recipe Scaling */}
+              <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <Scale size={16} className="text-blue-600 dark:text-blue-400" />
+                    <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                      Scale Recipe:
+                    </span>
+                  </div>
+                  <select
+                    value={scalingFactor}
+                    onChange={(e) => setScalingFactor(parseFloat(e.target.value))}
+                    className="px-3 py-1 text-sm border border-blue-300 dark:border-blue-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    {SCALING_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  {scalingFactor !== 1 && (
+                    <span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded">
+                      Ingredients scaled to {scalingFactor}x
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -288,7 +324,7 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
           
           <div className="flex gap-6 flex-col lg:flex-row">
             <div className="lg:w-80 lg:flex-shrink-0 space-y-6">
-              <Ingredients ingredients={currentRecipe.ingredients} />
+              <Ingredients ingredients={scaledIngredients} />
             </div>
             <div className="flex-1">
               <Steps steps={currentRecipe.steps} />
