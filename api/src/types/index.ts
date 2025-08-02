@@ -19,7 +19,7 @@ export interface Recipe {
   name: string;
   author: string;
   description: string;
-  servings?: number;
+  servings?: string;
   prepTime?: string | number;
   inactiveTime?: string | number;
   cookTime?: string | number;

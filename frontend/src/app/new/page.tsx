@@ -7,6 +7,7 @@ import { api } from '@/lib/api';
 import Layout from '@/components/Layout';
 import { Plus, X } from 'lucide-react';
 import ImageUploader from '@/components/ImageUploader';
+import AutoResizeTextarea from '@/components/AutoResizeTextarea';
 
 export default function NewRecipePage() {
   const router = useRouter();
@@ -47,7 +48,7 @@ export default function NewRecipePage() {
     
     const recipeData = {
       ...formData,
-      servings: formData.servings ? parseInt(formData.servings) : undefined
+      servings: formData.servings || undefined
     };
     createRecipeMutation.mutate(recipeData);
   };
@@ -75,6 +76,19 @@ export default function NewRecipePage() {
     }));
   };
 
+  const handleIngredientKeyDown = (e: React.KeyboardEvent, index: number) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addIngredient();
+      // Focus the new ingredient input after a brief delay
+      setTimeout(() => {
+        const inputs = document.querySelectorAll('input[placeholder*="flour"]');
+        const newInput = inputs[inputs.length - 1] as HTMLInputElement;
+        if (newInput) newInput.focus();
+      }, 0);
+    }
+  };
+
   const addStep = () => {
     setFormData(prev => ({
       ...prev,
@@ -96,6 +110,19 @@ export default function NewRecipePage() {
         i === index ? { text } : step
       )
     }));
+  };
+
+  const handleStepKeyDown = (e: React.KeyboardEvent, index: number) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addStep();
+      // Focus the new step textarea after a brief delay
+      setTimeout(() => {
+        const textareas = document.querySelectorAll('textarea[placeholder*="step"]');
+        const newTextarea = textareas[textareas.length - 1] as HTMLTextAreaElement;
+        if (newTextarea) newTextarea.focus();
+      }, 0);
+    }
   };
 
   return (
@@ -153,9 +180,10 @@ export default function NewRecipePage() {
                   Servings
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   value={formData.servings}
                   onChange={(e) => setFormData(prev => ({ ...prev, servings: e.target.value }))}
+                  placeholder="e.g., 4 servings, 24 muffins"
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
@@ -266,6 +294,7 @@ export default function NewRecipePage() {
                       required
                       value={ingredient.text}
                       onChange={(e) => updateIngredient(index, e.target.value)}
+                      onKeyDown={(e) => handleIngredientKeyDown(e, index)}
                       placeholder="e.g., 2 cups flour"
                       className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     />
@@ -304,12 +333,14 @@ export default function NewRecipePage() {
                     <span className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full flex items-center justify-center text-sm font-medium mt-2">
                       {index + 1}
                     </span>
-                    <textarea
+                    <AutoResizeTextarea
                       required
                       value={step.text}
                       onChange={(e) => updateStep(index, e.target.value)}
+                      onKeyDown={(e) => handleStepKeyDown(e, index)}
                       placeholder="Describe this step..."
-                      rows={2}
+                      minRows={3}
+                      maxRows={15}
                       className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     />
                     {formData.steps.length > 1 && (

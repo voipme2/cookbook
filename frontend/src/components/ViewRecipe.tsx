@@ -96,7 +96,7 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
   const router = useRouter();
   const recipeId = params.recipeId as string;
   const [currentRecipe, setCurrentRecipe] = React.useState(recipe);
-  const { isWakeLockActive, isSupported, toggleWakeLock } = useWakeLock();
+  const { isWakeLockActive, isSupported, supportChecked, toggleWakeLock } = useWakeLock();
 
   // Calculate total time in minutes
   const totalMinutes =
@@ -165,7 +165,7 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
                     title={
                       isWakeLockActive 
                         ? 'Disable cook mode' 
-                        : `Enable cook mode (keeps screen on)${!isSupported ? ' - Limited support in this browser' : ''}`
+                        : `Enable cook mode (keeps screen on)${!supportChecked ? ' - Checking browser support...' : !isSupported ? ' - Limited support in this browser' : ''}`
                     }
                   >
                     <ChefHat size={20} />
@@ -194,9 +194,14 @@ const ViewRecipe = ({ recipe }: { recipe: Recipe }) => {
                     <ChefHat size={16} className="text-orange-600 dark:text-orange-400" />
                     <span className="text-sm text-orange-800 dark:text-orange-200 font-medium">
                       Cook mode active - Screen will stay on
-                      {!isSupported && (
+                      {!isSupported && supportChecked && (
                         <span className="text-orange-600 dark:text-orange-400 ml-1">
                           (Limited support in this browser)
+                        </span>
+                      )}
+                      {!supportChecked && (
+                        <span className="text-orange-600 dark:text-orange-400 ml-1">
+                          (Checking browser support...)
                         </span>
                       )}
                     </span>
