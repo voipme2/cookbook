@@ -3,10 +3,43 @@ import parseDuration from 'parse-duration';
 import { ScrapedRecipe } from '../types';
 
 const { JSDOM } = jsdom;
-const HEADERS = {
-  'User-Agent':
-    'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36',
+
+// Pool of modern user agents to rotate through (looks less like a bot)
+const USER_AGENTS = [
+  // Chrome on Windows
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+  // Chrome on Mac
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+  // Firefox on Windows
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0',
+  // Safari on Mac
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15',
+  // Edge on Windows
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0',
+];
+
+// Pick a consistent but randomized user agent based on the URL
+const getUserAgent = (url: string): string => {
+  const hash = url.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const index = hash % USER_AGENTS.length;
+  const agent = USER_AGENTS[index];
+  return agent ?? USER_AGENTS[0]!;
 };
+
+const getDefaultHeaders = (url: string) => ({
+  'User-Agent': getUserAgent(url),
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.9',
+  'Accept-Encoding': 'gzip, deflate, br',
+  'DNT': '1',
+  'Connection': 'keep-alive',
+  'Upgrade-Insecure-Requests': '1',
+  'Sec-Fetch-Dest': 'document',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'none',
+  'Sec-Fetch-User': '?1',
+  'Cache-Control': 'max-age=0',
+});
 
 const parseIngredients = (ing: any): string[] => {
   if (!Array.isArray(ing)) return [];
@@ -131,18 +164,40 @@ const getDocument = (text: string): Document => {
 };
 
 const getHeadersForUrl = (url: string) => {
+  const baseHeaders = getDefaultHeaders(url);
+  
+  // Site-specific headers for picky websites
   if (url.includes('foodnetwork.com')) {
     return {
-      ...HEADERS,
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-      'Accept-Language': 'en-US,en;q=0.9',
+      ...baseHeaders,
       'Referer': 'https://www.foodnetwork.com/',
-      'Connection': 'keep-alive',
-      'Cookie': 'euConsent=true;', // dummy cookie, may help bypass some checks
+      'Origin': 'https://www.foodnetwork.com',
+      'Cookie': 'euConsent=true;',
     };
   }
-  return HEADERS;
+  
+  if (url.includes('allrecipes.com')) {
+    return {
+      ...baseHeaders,
+      'Referer': 'https://www.allrecipes.com/',
+    };
+  }
+  
+  if (url.includes('bonappetit.com')) {
+    return {
+      ...baseHeaders,
+      'Referer': 'https://www.bonappetit.com/',
+    };
+  }
+  
+  if (url.includes('epicurious.com')) {
+    return {
+      ...baseHeaders,
+      'Referer': 'https://www.epicurious.com/',
+    };
+  }
+  
+  return baseHeaders;
 };
 
 const scraper = {
