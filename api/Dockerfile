@@ -29,6 +29,9 @@ COPY --from=builder /app/package*.json ./
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nodejs
 
+# Create images directory with proper permissions
+RUN mkdir -p /app/images/temp && chown -R nodejs:nodejs /app/images
+
 # Change ownership of the app directory
 RUN chown -R nodejs:nodejs /app
 USER nodejs

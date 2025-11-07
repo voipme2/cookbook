@@ -3,6 +3,7 @@ import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { IMAGES_DIR, TEMP_IMAGES_DIR } from '../config/paths';
 
 // Configure multer for memory storage
 const upload = multer({
@@ -32,15 +33,9 @@ router.post('/temp', upload.single('image'), (req: Request, res: Response) => {
       return;
     }
 
-    // Ensure temp images directory exists
-    const tempImagesDir = path.join(__dirname, '../images/temp');
-    if (!fs.existsSync(tempImagesDir)) {
-      fs.mkdirSync(tempImagesDir, { recursive: true });
-    }
-
     // Generate unique filename
     const tempFilename = `${uuidv4()}.jpg`;
-    const tempImagePath = path.join(tempImagesDir, tempFilename);
+    const tempImagePath = path.join(TEMP_IMAGES_DIR, tempFilename);
 
     // Save image
     fs.writeFileSync(tempImagePath, file.buffer);
@@ -67,13 +62,7 @@ router.post('/temp', upload.single('image'), (req: Request, res: Response) => {
 router.get('/serve/temp/:filename', (req: Request, res: Response) => {
   const filename = req.params['filename'] || '';
   
-  // Ensure temp images directory exists
-  const tempImagesDir = path.join(__dirname, '../images/temp');
-  if (!fs.existsSync(tempImagesDir)) {
-    fs.mkdirSync(tempImagesDir, { recursive: true });
-  }
-  
-  const imagePath = path.join(tempImagesDir, filename);
+  const imagePath = path.join(TEMP_IMAGES_DIR, filename);
   if (fs.existsSync(imagePath)) {
     // Set proper headers for image serving
     res.setHeader('Content-Type', 'image/jpeg');
@@ -94,13 +83,7 @@ router.get('/serve/temp/:filename', (req: Request, res: Response) => {
 router.get('/serve/recipes/:filename', (req: Request, res: Response) => {
   const filename = req.params['filename'] || '';
   
-  // Ensure images directory exists
-  const imagesDir = path.join(__dirname, '../images');
-  if (!fs.existsSync(imagesDir)) {
-    fs.mkdirSync(imagesDir, { recursive: true });
-  }
-  
-  const imagePath = path.join(imagesDir, filename);
+  const imagePath = path.join(IMAGES_DIR, filename);
   
   if (fs.existsSync(imagePath)) {
     // Set proper headers for image serving

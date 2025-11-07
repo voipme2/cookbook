@@ -191,30 +191,30 @@ export default function PrintRecipePage({ params }: PrintRecipePageProps) {
         {/* Ingredients */}
         <div className="mb-4 print:mb-2">
           <h2 className="text-lg font-bold text-gray-900 mb-2 print:text-base">Ingredients</h2>
-          <ul className="space-y-1">
+          <div className="space-y-1">
             {recipe.ingredients.map((ingredient, index) => (
-              <li key={index} className="flex items-start text-sm print:text-xs">
+              <div key={index} className="flex items-start text-sm print:text-xs">
                 <span className="text-gray-500 mr-2 mt-0.5">•</span>
                 <span className="text-gray-700">{ingredient.text}</span>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
 
         {/* Instructions */}
         <div className="mb-4 print:mb-2">
           <h2 className="text-lg font-bold text-gray-900 mb-2 print:text-base">Instructions</h2>
           {recipe.steps && recipe.steps.length > 0 && recipe.steps.some(step => step.text.trim()) ? (
-            <ol className="space-y-2">
+            <div className="space-y-2">
               {recipe.steps.map((step, index) => (
-                <li key={index} className="flex text-sm print:text-xs">
+                <div key={index} className="flex text-sm print:text-xs">
                   <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium mr-2 print:bg-transparent print:border print:border-blue-300">
                     {index + 1}
                   </span>
                   <span className="text-gray-700 leading-relaxed">{step.text}</span>
-                </li>
+                </div>
               ))}
-            </ol>
+            </div>
           ) : (
             <p className="text-gray-700 text-sm print:text-xs italic">Just mix the ingredients.</p>
           )}

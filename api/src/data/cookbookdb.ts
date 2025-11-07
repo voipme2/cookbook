@@ -3,6 +3,7 @@ import slugify from 'slugify';
 import fs from 'fs';
 import path from 'path';
 import { DatabaseInterface, Recipe, SearchRecipe, RecipeGroup } from '../types';
+import { IMAGES_DIR } from '../config/paths';
 // SAFE TO IGNORE: No update needed for imageController import at this time.
 // import { moveTempImageToRecipe } from '../controllers/imageController';
 const { moveTempImageToRecipe } = require('../controllers/imageController');
@@ -13,11 +14,6 @@ const pool = new Pool({
   database: process.env['PGDATABASE'],
   password: process.env['PGPASSWORD'],
 });
-
-const IMAGES_DIR = path.join(__dirname, '../images');
-if (!fs.existsSync(IMAGES_DIR)) {
-  fs.mkdirSync(IMAGES_DIR, { recursive: true });
-}
 
 function getId(name: string): string {
   return slugify(name, { lower: true });
@@ -116,6 +112,8 @@ async function save(recipe: Recipe): Promise<string> {
   if ((recipe as any).totalTime) {
     delete (recipe as any).totalTime;
   }
+  // Preserve the original ID for updates, or generate a new one for creates
+  const originalId = (recipe as any).id;
   // Remove the id field from the recipe JSON since we'll use the database ID
   if ((recipe as any).id) {
     delete (recipe as any).id;
@@ -123,7 +121,8 @@ async function save(recipe: Recipe): Promise<string> {
   recipe.name = recipe.name.trim();
   const client = await pool.connect();
   try {
-    const id = getId(recipe.name);
+    // Use the original ID if provided (update), otherwise generate from name (create)
+    const id = originalId || getId(recipe.name);
     if (recipe.imageUrl && recipe.imageUrl.includes('/temp/')) {
       const match = recipe.imageUrl.match(/\/temp\/([^\/]+)$/);
       if (match && match[1]) {

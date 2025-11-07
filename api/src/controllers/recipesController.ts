@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { DatabaseInterface, Recipe } from '../types';
 import fs from 'fs';
 import path from 'path';
+import { IMAGES_DIR } from '../config/paths';
 // SAFE TO IGNORE: No update needed for scraper import at this time.
 const scraper: any = require('../routes/scraper');
 
@@ -72,14 +73,8 @@ const recipesController = {
         return;
       }
 
-      // Ensure images directory exists
-      const imagesDir = path.join(__dirname, '../images');
-      if (!fs.existsSync(imagesDir)) {
-        fs.mkdirSync(imagesDir, { recursive: true });
-      }
-
       // Save image with recipe ID as filename
-      const imagePath = path.join(imagesDir, `${recipeId}.jpg`);
+      const imagePath = path.join(IMAGES_DIR, `${recipeId}.jpg`);
       fs.writeFileSync(imagePath, req.file.buffer);
 
       // Update recipe with new image URL

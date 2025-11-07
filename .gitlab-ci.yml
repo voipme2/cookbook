@@ -51,7 +51,7 @@ test-frontend:
     - install-node-modules-frontend
   script:
     - cd frontend
-    - npm run test
+    - npm run test:ci
   allow_failure: true
   only:
     - main

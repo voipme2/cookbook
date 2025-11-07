@@ -1,6 +1,16 @@
 .DS_Store
 node_modules
+
+# Build artifacts
 /dist
+/api/dist
+*.tsbuildinfo
+*.d.ts.map
+*.js.map
+
+# Testing
+/coverage
+/frontend/coverage
 
 # local env files
 .env.local
@@ -19,7 +29,13 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
+
+# Database
 /db/
+
+# Images (generated/uploaded at runtime)
+/api/images
+/api/src/images
 
 # SSL certificates (keep private keys secure)
 /ssl/*.pem
