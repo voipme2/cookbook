@@ -23,7 +23,7 @@ export default function RecipeList({ recipes, showSkeleton = false }: RecipeList
 
   if (showSkeleton || isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="py-2">
         {/* Mobile skeleton - horizontal layout */}
         <div className="sm:hidden space-y-2">
           {[...Array(8)].map((_, i) => (
@@ -55,7 +55,7 @@ export default function RecipeList({ recipes, showSkeleton = false }: RecipeList
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="py-8">
         <div className="text-center">
           <p className="text-red-600 dark:text-red-400">Failed to load recipes</p>
         </div>
@@ -65,7 +65,7 @@ export default function RecipeList({ recipes, showSkeleton = false }: RecipeList
 
   if (!displayRecipes || displayRecipes.length === 0) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="py-8">
         <div className="text-center">
           <p className="text-gray-500 dark:text-gray-400">
             {recipes ? 'No recipes match your filters' : 'No recipes found'}
@@ -76,7 +76,7 @@ export default function RecipeList({ recipes, showSkeleton = false }: RecipeList
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="py-2">
       {/* Mobile layout - horizontal compact cards like search results */}
       <div className="sm:hidden space-y-2">
         {displayRecipes.map((recipe) => (

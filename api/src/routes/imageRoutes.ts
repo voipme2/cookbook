@@ -3,7 +3,7 @@ import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { IMAGES_DIR, TEMP_IMAGES_DIR } from '../config/paths';
+import { IMAGES_DIR, TEMP_IMAGES_DIR, ensureDirectoryExists } from '../config/paths';
 
 // Configure multer for memory storage
 const upload = multer({
@@ -32,6 +32,9 @@ router.post('/temp', upload.single('image'), (req: Request, res: Response) => {
       res.status(400).json({ error: 'No image file provided.' });
       return;
     }
+
+    // Ensure temp directory exists
+    ensureDirectoryExists(TEMP_IMAGES_DIR);
 
     // Generate unique filename
     const tempFilename = `${uuidv4()}.jpg`;

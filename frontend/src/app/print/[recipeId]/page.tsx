@@ -4,7 +4,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
-import { ArrowLeft, Printer } from 'lucide-react';
+import { ArrowLeft, Printer, Copy } from 'lucide-react';
 
 interface PrintRecipePageProps {
   params: Promise<{ recipeId: string }>;
@@ -52,6 +52,41 @@ export default function PrintRecipePage({ params }: PrintRecipePageProps) {
     router.back();
   };
 
+  const handleCopy = async () => {
+    if (!recipe) return;
+
+    const ingredientsList = recipe.ingredients
+      .map(ing => `- ${ing.text}`)
+      .join('\n');
+    
+    const stepsList = recipe.steps
+      .map((step, index) => `${index + 1}. ${step.text}`)
+      .join('\n');
+
+    const totalMinutes =
+      parseTimeToMinutes(recipe.prepTime) +
+      parseTimeToMinutes(recipe.inactiveTime) +
+      parseTimeToMinutes(recipe.cookTime);
+    const totalTimeStr = formatMinutes(totalMinutes);
+
+    const text = `${recipe.name}
+
+Servings: ${recipe.servings || 'N/A'}
+Total Time: ${totalTimeStr || 'N/A'}
+
+Ingredients:
+${ingredientsList}
+
+Steps:
+${stepsList}`;
+
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      console.error('Failed to copy recipe:', err);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white p-8">
@@ -93,13 +128,23 @@ export default function PrintRecipePage({ params }: PrintRecipePageProps) {
             <ArrowLeft size={16} />
             Back to Recipe
           </button>
-          <button
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
-          >
-            <Printer size={16} />
-            Print Recipe
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-2 px-2 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors text-sm"
+              title="Copy recipe to clipboard"
+            >
+              <Copy size={16} />
+              Copy Recipe
+            </button>
+            <button
+              onClick={handlePrint}
+              className="flex items-center gap-2 px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
+            >
+              <Printer size={16} />
+              Print Recipe
+            </button>
+          </div>
         </div>
       </div>
 

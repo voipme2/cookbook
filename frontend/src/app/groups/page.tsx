@@ -58,9 +58,9 @@ export default function GroupsPage() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-8"></div>
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-6"></div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
@@ -78,7 +78,7 @@ export default function GroupsPage() {
   if (error) {
     return (
       <Layout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="text-center">
             <p className="text-red-600 dark:text-red-400">Failed to load groups</p>
           </div>
@@ -89,9 +89,9 @@ export default function GroupsPage() {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Recipe Groups</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-2">
@@ -109,7 +109,7 @@ export default function GroupsPage() {
 
         {/* Create Group Form */}
         {isCreating && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Create New Group</h2>
             <form onSubmit={handleCreateGroup}>
               <div className="space-y-4">
@@ -167,7 +167,7 @@ export default function GroupsPage() {
 
         {/* Group Templates */}
         {!isCreating && groups && groups.length === 0 && (
-          <GroupTemplates className="mb-8" />
+          <GroupTemplates className="mb-6" />
         )}
 
 

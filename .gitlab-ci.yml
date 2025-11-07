@@ -2,8 +2,7 @@ image: node:current-alpine
 
 stages:
   - build
-  - test
-  - docker
+  - package
 
 cache:
   key: $CI_COMMIT_REF_SLUG
@@ -11,53 +10,36 @@ cache:
     - api/node_modules
     - frontend/node_modules
 
-# build the frontend app
-install-node-modules-frontend:
+# Build and test everything
+build:
   stage: build
   script:
-    - cd frontend
+    # Install dependencies for both projects
+    - cd api
     - npm install
+    - cd ../frontend
+    - npm install
+    - cd ..
+    # Build both projects
+    - cd api
+    - npm run build
+    - cd ../frontend
+    - npm run build
+    - cd ..
+    # Run tests for both projects
+    - cd api
+    - npm run test
+    - cd ../frontend
+    - npm run test
+    - cd ..
   artifacts:
     paths:
+      - api/dist
       - frontend/.next
     expire_in: 1 week
 
-install-node-modules-api:
-  stage: build
-  script:
-    - cd api
-    - npm install
-  artifacts:
-    paths:
-      - api/build
-    expire_in: 1 week
-
-# test the api
-test-api:
-  stage: test
-  dependencies:
-    - install-node-modules-api
-  script:
-    - cd api
-    - npm run test:ci
-  allow_failure: true
-  only:
-    - main
-
-# test the frontend app
-test-frontend:
-  stage: test
-  dependencies:
-    - install-node-modules-frontend
-  script:
-    - cd frontend
-    - npm run test:ci
-  allow_failure: true
-  only:
-    - main
-
 .build-image:
-  stage: docker
+  stage: package
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [ "" ]

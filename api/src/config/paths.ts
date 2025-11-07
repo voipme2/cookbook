@@ -10,18 +10,42 @@ export const IMAGES_DIR = process.env['IMAGES_DIR'] ||
     : path.join(__dirname, '../images'));
 
 // Ensure the images directory exists
-if (!fs.existsSync(IMAGES_DIR)) {
-  fs.mkdirSync(IMAGES_DIR, { recursive: true });
+try {
+  if (!fs.existsSync(IMAGES_DIR)) {
+    fs.mkdirSync(IMAGES_DIR, { recursive: true });
+    console.log(`Created images directory: ${IMAGES_DIR}`);
+  }
+} catch (err) {
+  console.error(`Failed to create images directory: ${IMAGES_DIR}`, err);
 }
 
 // Ensure temp directory exists
 export const TEMP_IMAGES_DIR = path.join(IMAGES_DIR, 'temp');
-if (!fs.existsSync(TEMP_IMAGES_DIR)) {
-  fs.mkdirSync(TEMP_IMAGES_DIR, { recursive: true });
+try {
+  if (!fs.existsSync(TEMP_IMAGES_DIR)) {
+    fs.mkdirSync(TEMP_IMAGES_DIR, { recursive: true });
+    console.log(`Created temp images directory: ${TEMP_IMAGES_DIR}`);
+  }
+} catch (err) {
+  console.error(`Failed to create temp images directory: ${TEMP_IMAGES_DIR}`, err);
+}
+
+// Helper function to ensure directory exists before writing
+export function ensureDirectoryExists(dirPath: string): void {
+  try {
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+      console.log(`Created directory on-demand: ${dirPath}`);
+    }
+  } catch (err) {
+    console.error(`Failed to ensure directory exists: ${dirPath}`, err);
+    throw err; // Re-throw so caller knows it failed
+  }
 }
 
 export default {
   IMAGES_DIR,
   TEMP_IMAGES_DIR,
+  ensureDirectoryExists,
 };
 

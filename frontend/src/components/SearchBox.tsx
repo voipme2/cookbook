@@ -151,7 +151,7 @@ export function SearchBox({
             }}
             onFocus={() => setIsOpen(shouldShowResults)}
             placeholder={mode === 'filter' ? "Filter recipes..." : "Search recipes..."}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+            className="w-full pl-10 pr-20 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
           />
           <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
             {hasActiveFilters && (
@@ -181,9 +181,9 @@ export function SearchBox({
 
       {/* Filters Dropdown */}
       {showFilters && (
-        <div className="absolute z-20 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg p-4">
-          <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Dietary Filters</h3>
-          <div className="grid grid-cols-2 gap-3">
+        <div className="absolute z-20 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg p-3">
+          <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Dietary Filters</h3>
+          <div className="grid grid-cols-2 gap-2">
             <label className="flex items-center">
               <input
                 type="checkbox"
