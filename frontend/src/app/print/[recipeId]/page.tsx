@@ -81,7 +81,22 @@ Steps:
 ${stepsList}`;
 
     try {
-      await navigator.clipboard.writeText(text);
+      // Try modern clipboard API first (requires HTTPS or localhost)
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback for HTTP sites using legacy method
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-999999px';
+        textarea.style.top = '-999999px';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand('copy');
+        textarea.remove();
+      }
     } catch (err) {
       console.error('Failed to copy recipe:', err);
     }

@@ -15,6 +15,9 @@ RUN npm run build
 # Production stage
 FROM node:18-alpine AS runner
 
+# Install su-exec for running commands as different user
+RUN apk add --no-cache su-exec
+
 WORKDIR /app
 
 # Install dependencies for production
@@ -34,10 +37,16 @@ RUN mkdir -p /app/images/temp && chown -R nodejs:nodejs /app/images
 
 # Change ownership of the app directory
 RUN chown -R nodejs:nodejs /app
-USER nodejs
+
+# Copy entrypoint script and make it executable
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Expose port
 EXPOSE 3000
 
-# Start the application
-CMD ["npm", "run", "start"]
+# Set entrypoint to handle permissions
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+
+# Start the application (will be executed by entrypoint as nodejs user)
+CMD ["su-exec", "nodejs", "npm", "run", "start"]
