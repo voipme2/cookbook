@@ -21,6 +21,27 @@ const upload = multer({
   },
 });
 
+// Sanitize filename to prevent path traversal attacks
+const sanitizeFilename = (filename: string): string | null => {
+  if (!filename) return null;
+
+  // Remove any path separators and parent directory references
+  const sanitized = path.basename(filename);
+
+  // Validate that the filename only contains safe characters
+  // Allow alphanumeric, hyphens, underscores, and dots
+  if (!/^[a-zA-Z0-9._-]+$/.test(sanitized)) {
+    return null;
+  }
+
+  // Prevent hidden files
+  if (sanitized.startsWith('.')) {
+    return null;
+  }
+
+  return sanitized;
+};
+
 const router = Router();
 
 // Temporary image upload (for new recipes)
@@ -64,8 +85,17 @@ router.post('/temp', upload.single('image'), (req: Request, res: Response) => {
 // Serve temp images
 router.get('/serve/temp/:filename', (req: Request, res: Response) => {
   const filename = req.params['filename'] || '';
-  
-  const imagePath = path.join(TEMP_IMAGES_DIR, filename);
+
+  // Sanitize filename to prevent path traversal
+  const sanitized = sanitizeFilename(filename);
+  if (!sanitized) {
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.status(400).send('Invalid filename');
+    return;
+  }
+
+  const imagePath = path.join(TEMP_IMAGES_DIR, sanitized);
   if (fs.existsSync(imagePath)) {
     // Set proper headers for image serving
     res.setHeader('Content-Type', 'image/jpeg');
@@ -85,9 +115,18 @@ router.get('/serve/temp/:filename', (req: Request, res: Response) => {
 // Serve images
 router.get('/serve/recipes/:filename', (req: Request, res: Response) => {
   const filename = req.params['filename'] || '';
-  
-  const imagePath = path.join(IMAGES_DIR, filename);
-  
+
+  // Sanitize filename to prevent path traversal
+  const sanitized = sanitizeFilename(filename);
+  if (!sanitized) {
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.status(400).send('Invalid filename');
+    return;
+  }
+
+  const imagePath = path.join(IMAGES_DIR, sanitized);
+
   if (fs.existsSync(imagePath)) {
     // Set proper headers for image serving
     res.setHeader('Content-Type', 'image/jpeg');

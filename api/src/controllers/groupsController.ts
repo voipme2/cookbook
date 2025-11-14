@@ -8,6 +8,7 @@ const groupsController = {
       const groups = await db.listGroups();
       res.json(groups);
     } catch (err) {
+      console.error('Groups list error:', err);
       res.status(500).json({ error: 'Failed to list groups.' });
     }
   },
@@ -22,6 +23,7 @@ const groupsController = {
       }
       res.json(group);
     } catch (err) {
+      console.error('Group get error:', err);
       res.status(500).json({ error: 'Failed to get group.' });
     }
   },
@@ -29,7 +31,7 @@ const groupsController = {
   create: async (req: Request, res: Response, db: DatabaseInterface) => {
     try {
       const { name, description } = req.body;
-      
+
       if (!name || !name.trim()) {
         res.status(400).json({ error: 'Group name is required.' });
         return;
@@ -38,6 +40,7 @@ const groupsController = {
       const groupId = await db.createGroup({ name: name.trim(), description });
       res.json({ id: groupId });
     } catch (err) {
+      console.error('Group creation error:', err);
       res.status(500).json({ error: 'Failed to create group.' });
     }
   },
@@ -46,7 +49,13 @@ const groupsController = {
     try {
       const groupId = req.params['groupId'] ?? '';
       const { name, description } = req.body;
-      
+
+      // Validate name if provided (cannot be empty)
+      if (name !== undefined && (!name || !name.trim())) {
+        res.status(400).json({ error: 'Group name cannot be empty.' });
+        return;
+      }
+
       const updates: Partial<RecipeGroup> = {};
       if (name !== undefined) updates.name = name;
       if (description !== undefined) updates.description = description;
@@ -54,6 +63,7 @@ const groupsController = {
       await db.updateGroup(groupId, updates);
       res.json({ id: groupId });
     } catch (err) {
+      console.error('Group update error:', err);
       res.status(500).json({ error: 'Failed to update group.' });
     }
   },
@@ -64,6 +74,7 @@ const groupsController = {
       await db.deleteGroup(groupId);
       res.json({ success: true });
     } catch (err) {
+      console.error('Group deletion error:', err);
       res.status(500).json({ error: 'Failed to delete group.' });
     }
   },
@@ -74,6 +85,7 @@ const groupsController = {
       const recipes = await db.getGroupRecipes(groupId);
       res.json(recipes);
     } catch (err) {
+      console.error('Get group recipes error:', err);
       res.status(500).json({ error: 'Failed to get group recipes.' });
     }
   },
@@ -82,7 +94,7 @@ const groupsController = {
     try {
       const groupId = req.params['groupId'] ?? '';
       const { recipeId } = req.body;
-      
+
       if (!recipeId) {
         res.status(400).json({ error: 'Recipe ID is required.' });
         return;
@@ -91,6 +103,7 @@ const groupsController = {
       await db.addRecipeToGroup(groupId, recipeId);
       res.json({ success: true });
     } catch (err) {
+      console.error('Add recipe to group error:', err);
       res.status(500).json({ error: 'Failed to add recipe to group.' });
     }
   },
@@ -99,10 +112,11 @@ const groupsController = {
     try {
       const groupId = req.params['groupId'] ?? '';
       const recipeId = req.params['recipeId'] ?? '';
-      
+
       await db.removeRecipeFromGroup(groupId, recipeId);
       res.json({ success: true });
     } catch (err) {
+      console.error('Remove recipe from group error:', err);
       res.status(500).json({ error: 'Failed to remove recipe from group.' });
     }
   },
@@ -113,6 +127,7 @@ const groupsController = {
       const groups = await db.getRecipeGroups(recipeId);
       res.json(groups);
     } catch (err) {
+      console.error('Get recipe groups error:', err);
       res.status(500).json({ error: 'Failed to get recipe groups.' });
     }
   },

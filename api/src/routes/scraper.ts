@@ -203,7 +203,7 @@ const getHeadersForUrl = (url: string) => {
 const scraper = {
   fetch: async (recipeUrl: string): Promise<ScrapedRecipe> => {
     const page = await fetch(recipeUrl, { headers: getHeadersForUrl(recipeUrl) });
-    if (page && (page as any).ok) {
+    if (page && page.ok) {
       const text = await page.text();
       const document = getDocument(text);
       const ldJsonNodes = Array.from(

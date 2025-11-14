@@ -39,6 +39,7 @@ export default function (database: DatabaseInterface) {
       const results = await db.search(query);
       res.json(results);
     } catch (err) {
+      console.error('Recipe search error:', err);
       res.status(500).json({ error: 'Failed to search recipes.' });
     }
   });
