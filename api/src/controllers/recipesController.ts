@@ -63,11 +63,6 @@ const recipesController = {
         return;
       }
 
-      if (!Array.isArray(newRecipe.steps) || newRecipe.steps.length === 0) {
-        res.status(400).json({ error: 'Recipe must have at least one step.' });
-        return;
-      }
-
       // Validate ingredients have text
       for (const ingredient of newRecipe.ingredients) {
         if (!ingredient.text || !ingredient.text.trim()) {
@@ -76,11 +71,13 @@ const recipesController = {
         }
       }
 
-      // Validate steps have text
-      for (const step of newRecipe.steps) {
-        if (!step.text || !step.text.trim()) {
-          res.status(400).json({ error: 'All steps must have text.' });
-          return;
+      // Validate steps have text (if steps are provided)
+      if (Array.isArray(newRecipe.steps)) {
+        for (const step of newRecipe.steps) {
+          if (!step.text || !step.text.trim()) {
+            res.status(400).json({ error: 'All steps must have text.' });
+            return;
+          }
         }
       }
 
@@ -126,11 +123,6 @@ const recipesController = {
         return;
       }
 
-      if (!Array.isArray(newRecipe.steps) || newRecipe.steps.length === 0) {
-        res.status(400).json({ error: 'Recipe must have at least one step.' });
-        return;
-      }
-
       // Validate ingredients have text
       for (const ingredient of newRecipe.ingredients) {
         if (!ingredient.text || !ingredient.text.trim()) {
@@ -139,11 +131,13 @@ const recipesController = {
         }
       }
 
-      // Validate steps have text
-      for (const step of newRecipe.steps) {
-        if (!step.text || !step.text.trim()) {
-          res.status(400).json({ error: 'All steps must have text.' });
-          return;
+      // Validate steps have text (if steps are provided)
+      if (Array.isArray(newRecipe.steps)) {
+        for (const step of newRecipe.steps) {
+          if (!step.text || !step.text.trim()) {
+            res.status(400).json({ error: 'All steps must have text.' });
+            return;
+          }
         }
       }
 
