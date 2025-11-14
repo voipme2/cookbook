@@ -17,6 +17,7 @@ const recipesController = {
       const recipes = await db.list();
       res.json(recipes);
     } catch (err) {
+      console.error('Recipe list error:', err);
       res.status(500).json({ error: 'Failed to list recipes.' });
     }
   },
@@ -32,6 +33,7 @@ const recipesController = {
       recipe.id = recipeId;
       res.json(recipe);
     } catch (err) {
+      console.error('Recipe get error:', err);
       res.status(500).json({ error: 'Failed to get recipe.' });
     }
   },
@@ -39,9 +41,53 @@ const recipesController = {
   create: async (req: Request, res: Response, db: DatabaseInterface) => {
     try {
       const newRecipe: Recipe = req.body;
+
+      // Validate required fields
+      if (!newRecipe.name || !newRecipe.name.trim()) {
+        res.status(400).json({ error: 'Recipe name is required.' });
+        return;
+      }
+
+      if (!newRecipe.author || !newRecipe.author.trim()) {
+        res.status(400).json({ error: 'Recipe author is required.' });
+        return;
+      }
+
+      if (!newRecipe.description || !newRecipe.description.trim()) {
+        res.status(400).json({ error: 'Recipe description is required.' });
+        return;
+      }
+
+      if (!Array.isArray(newRecipe.ingredients) || newRecipe.ingredients.length === 0) {
+        res.status(400).json({ error: 'Recipe must have at least one ingredient.' });
+        return;
+      }
+
+      if (!Array.isArray(newRecipe.steps) || newRecipe.steps.length === 0) {
+        res.status(400).json({ error: 'Recipe must have at least one step.' });
+        return;
+      }
+
+      // Validate ingredients have text
+      for (const ingredient of newRecipe.ingredients) {
+        if (!ingredient.text || !ingredient.text.trim()) {
+          res.status(400).json({ error: 'All ingredients must have text.' });
+          return;
+        }
+      }
+
+      // Validate steps have text
+      for (const step of newRecipe.steps) {
+        if (!step.text || !step.text.trim()) {
+          res.status(400).json({ error: 'All steps must have text.' });
+          return;
+        }
+      }
+
       const recipeId = await db.save(newRecipe);
       res.json({ id: recipeId });
     } catch (err) {
+      console.error('Recipe creation error:', err);
       res.status(500).json({ error: 'Failed to create recipe.' });
     }
   },
@@ -49,11 +95,63 @@ const recipesController = {
   update: async (req: Request, res: Response, db: DatabaseInterface) => {
     try {
       const recipeId = req.params['recipeId'] ?? '';
+
+      // Check if recipe exists
+      const existingRecipe = await db.find(recipeId);
+      if (!existingRecipe) {
+        res.status(404).json({ error: 'Recipe not found.' });
+        return;
+      }
+
       const newRecipe: Recipe = req.body;
+
+      // Validate required fields
+      if (!newRecipe.name || !newRecipe.name.trim()) {
+        res.status(400).json({ error: 'Recipe name is required.' });
+        return;
+      }
+
+      if (!newRecipe.author || !newRecipe.author.trim()) {
+        res.status(400).json({ error: 'Recipe author is required.' });
+        return;
+      }
+
+      if (!newRecipe.description || !newRecipe.description.trim()) {
+        res.status(400).json({ error: 'Recipe description is required.' });
+        return;
+      }
+
+      if (!Array.isArray(newRecipe.ingredients) || newRecipe.ingredients.length === 0) {
+        res.status(400).json({ error: 'Recipe must have at least one ingredient.' });
+        return;
+      }
+
+      if (!Array.isArray(newRecipe.steps) || newRecipe.steps.length === 0) {
+        res.status(400).json({ error: 'Recipe must have at least one step.' });
+        return;
+      }
+
+      // Validate ingredients have text
+      for (const ingredient of newRecipe.ingredients) {
+        if (!ingredient.text || !ingredient.text.trim()) {
+          res.status(400).json({ error: 'All ingredients must have text.' });
+          return;
+        }
+      }
+
+      // Validate steps have text
+      for (const step of newRecipe.steps) {
+        if (!step.text || !step.text.trim()) {
+          res.status(400).json({ error: 'All steps must have text.' });
+          return;
+        }
+      }
+
       newRecipe.id = recipeId;
       await db.save(newRecipe);
       res.json({ id: recipeId });
     } catch (err) {
+      console.error('Recipe update error:', err);
       res.status(500).json({ error: 'Failed to update recipe.' });
     }
   },
@@ -123,6 +221,7 @@ const recipesController = {
       const recipes = await db.searchWithFilters(filters);
       res.json(recipes);
     } catch (err) {
+      console.error('Recipe search with filters error:', err);
       res.status(500).json({ error: 'Failed to search recipes with filters.' });
     }
   },

@@ -8,13 +8,35 @@ import cors from 'cors';
 // Create Express app
 const app: Express = express();
 
+// Configure CORS with environment-based origin control
+const allowedOrigins = process.env['ALLOWED_ORIGINS']
+  ? process.env['ALLOWED_ORIGINS'].split(',').map(origin => origin.trim())
+  : [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:5173',
+    ];
+
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked request from origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
-app.use((_req, res, next) => {
-  res.header('Content-Type', 'application/json');
-  next();
-});
 
 // Routes
 app.use('/api', recipes(cookbookdb));
