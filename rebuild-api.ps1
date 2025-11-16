@@ -10,3 +10,4 @@ docker-compose up -d
 Write-Host "Done! Checking API logs..." -ForegroundColor Green
 docker logs -f api
 
+

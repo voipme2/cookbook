@@ -12,3 +12,4 @@ docker-compose up -d
 echo "Done! Checking API logs..."
 docker logs -f api
 
+

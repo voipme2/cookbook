@@ -7,57 +7,35 @@ stages:
 cache:
   key: $CI_COMMIT_REF_SLUG
   paths:
-    - api/node_modules
-    - frontend/node_modules
+    - node_modules
 
-# Build and test everything
+# Build and test the Remix application
 build:
   stage: build
   script:
-    # Install dependencies for both projects
-    - cd api
+    # Install dependencies
     - npm install
-    - cd ../frontend
-    - npm install
-    - cd ..
-    # Build both projects
-    - cd api
+    # Build the application
     - npm run build
-    - cd ../frontend
-    - npm run build
-    - cd ..
-    # Run tests for both projects
-    - cd api
+    # Run tests
     - npm run test
-    - cd ../frontend
-    - npm run test
-    - cd ..
   artifacts:
     paths:
-      - api/dist
-      - frontend/.next
+      - build/
+      - public/
     expire_in: 1 week
 
-.build-image:
+# Package and push Docker image
+package:
   stage: package
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [ "" ]
   script:
     - /kaniko/executor
-      --context "${CI_PROJECT_DIR}/${APP}"
-      --dockerfile "${CI_PROJECT_DIR}/${APP}/Dockerfile"
-      --destination "${CI_REGISTRY_IMAGE}/${APP}:${CI_COMMIT_REF_SLUG}"
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}"
       --custom-platform=linux/arm/v7
   only:
     - tags
-
-package-api:
-  extends: .build-image
-  variables:
-    APP: api
-
-package-frontend:
-  extends: .build-image
-  variables:
-    APP: frontend
