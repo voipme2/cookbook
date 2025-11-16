@@ -57,22 +57,24 @@ export default function RecipesIndex() {
 
   return (
     <div className="space-y-8">
-      <div className="flex gap-2 flex-col sm:flex-row">
-        <input
-          type="text"
-          placeholder="Search recipes by name, ingredients, or more..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1 px-4 py-2 border border-gray-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-        />
-        {searchQuery && (
-          <button
-            onClick={() => setSearchQuery("")}
-            className="bg-gray-400 hover:bg-gray-500 dark:bg-slate-700 dark:hover:bg-slate-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg"
-          >
-            Clear
-          </button>
-        )}
+      <div className="sticky top-20 bg-white dark:bg-slate-950 pb-4 pt-4 -mx-4 px-4 sm:-mx-4 sm:px-4 border-b border-gray-200 dark:border-slate-700 z-30 shadow-md">
+        <div className="flex gap-2 flex-col sm:flex-row">
+          <input
+            type="text"
+            placeholder="Search recipes by name, ingredients, or more..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 px-4 py-2 border border-gray-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="bg-gray-400 hover:bg-gray-500 dark:bg-slate-700 dark:hover:bg-slate-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg"
+            >
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
       {filteredRecipes.length === 0 ? (
@@ -113,11 +115,11 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
   return (
     <Link
       to={`/recipes/${recipe.id}`}
-      className="border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden hover:shadow-lg hover:scale-102 transition-all duration-300 bg-white dark:bg-slate-800 flex flex-col h-full sm:flex-row sm:gap-4"
+      className="border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden hover:shadow-lg hover:scale-102 transition-all duration-300 bg-white dark:bg-slate-800 flex flex-row gap-4 h-full"
     >
-      {/* Image Section - Mobile: small, Desktop: side-by-side */}
+      {/* Image Section - Same layout on mobile and desktop */}
       {recipe.image && (
-        <div className="sm:w-32 sm:flex-shrink-0 h-28 sm:h-32 bg-gray-100 dark:bg-slate-700 overflow-hidden">
+        <div className="w-24 sm:w-32 flex-shrink-0 h-24 sm:h-32 bg-gray-100 dark:bg-slate-700 overflow-hidden">
           <img
             src={recipe.image}
             alt={recipe.name}
@@ -127,7 +129,7 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
       )}
       
       {/* Content Section */}
-      <div className="p-4 sm:p-4 flex flex-col flex-grow min-w-0">
+      <div className="p-4 flex flex-col flex-grow min-w-0">
         {/* Title */}
         <h3 className="font-bold text-base sm:text-lg line-clamp-2 dark:text-slate-100 mb-1">
           {recipe.name}

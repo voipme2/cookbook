@@ -11,7 +11,7 @@ import { LoadingIndicator } from "~/components/LoadingIndicator";
 import "./root.css";
 
 export const links: LinksFunction = () => [
-  { rel: "icon", href: "/favicon.ico" },
+  { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
 ];
 
 // Script to prevent flash of unstyled content (FOUC) on theme change
