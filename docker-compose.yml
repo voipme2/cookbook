@@ -1,32 +1,12 @@
+version: "3.8"
+
 services:
-  nginx:
-    container_name: nginx
-    image: nginx:alpine
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
-    ports:
-      - "8000:80"
-      - "8443:443"
-    networks:
-      - cookbook
-    restart: unless-stopped
-
-  ui:
-    container_name: ui
-    image: cookbook/ui:latest
-    volumes:
-      - ./frontend/next.config.js:/app/next.config.js:ro
-    depends_on:
-      - api
-      - nginx
-    networks:
-      - cookbook
-    restart: unless-stopped
-
-  api:
-    container_name: api
-    image: cookbook/api:latest
+  app:
+    container_name: cookbook
+    image: cookbook:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -35,19 +15,19 @@ services:
       PGPASSWORD: cookbook123
       PGDATABASE: cookbook
       PGPORT: 5432
+    ports:
+      - "3000:3000"
     depends_on:
       db:
         condition: service_healthy
-      nginx:
-        condition: service_started
     volumes:
-      - cookbook_images:/app/images
+      - cookbook_images:/app/public/images
     networks:
       - cookbook
     restart: unless-stopped
 
   db:
-    container_name: db
+    container_name: cookbook-db
     image: postgres:15-alpine
     environment:
       POSTGRES_USER: cookbook
@@ -55,7 +35,7 @@ services:
       POSTGRES_DB: cookbook
     volumes:
       - cookbook_db_data:/var/lib/postgresql/data
-      - ./api/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - cookbook
     healthcheck:
