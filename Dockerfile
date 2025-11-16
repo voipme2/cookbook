@@ -39,9 +39,6 @@ RUN adduser --system --uid 1001 nodejs
 # Create images directory with proper permissions
 RUN mkdir -p /app/public/images && chown -R nodejs:nodejs /app
 
-# Change ownership of app directory
-RUN chown -R nodejs:nodejs /app
-
 # Expose port
 EXPOSE 3000
 
