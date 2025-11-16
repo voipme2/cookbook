@@ -29,26 +29,55 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const formData = await request.formData();
+  const url = new URL(request.url);
+
+  // Helper function to get values from form data or URL params
+  const getValue = (key: string) => {
+    const formValue = formData.get(key);
+    if (formValue) return formValue as string;
+    return url.searchParams.get(key) || "";
+  };
+
+  // Helper function to get array values (handles both JSON arrays from URL and newline-separated from form)
+  const getArrayValue = (key: string): string[] => {
+    const formValue = formData.get(key);
+    const urlValue = url.searchParams.get(key);
+    const value = formValue || urlValue;
+    
+    if (!value) return [];
+    
+    try {
+      // Try to parse as JSON first (from URL params)
+      const parsed = JSON.parse(value as string);
+      if (Array.isArray(parsed)) {
+        return parsed.map((item) => String(item).trim()).filter((item) => item.length > 0);
+      }
+    } catch {
+      // If JSON parsing fails, treat as newline-separated (from form data)
+      if (typeof value === "string") {
+        return value
+          .split("\n")
+          .map((item) => item.trim())
+          .filter((item) => item.length > 0);
+      }
+    }
+    
+    return [];
+  };
 
   // Get form values
-  const name = formData.get("name") as string;
-  const description = formData.get("description") as string;
-  const servings = formData.get("servings") as string;
-  const prepTime = formData.get("prepTime") as string;
-  const cookTime = formData.get("cookTime") as string;
-  const inactiveTime = formData.get("inactiveTime") as string;
-  const difficulty = formData.get("difficulty") as string;
-  const notes = formData.get("notes") as string;
-  const source = formData.get("source") as string;
-  const image = formData.get("image") as string;
-  const ingredients = (formData.get("ingredients") as string)
-    .split("\n")
-    .map((i) => i.trim())
-    .filter((i) => i.length > 0);
-  const steps = (formData.get("steps") as string)
-    .split("\n")
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
+  const name = getValue("name");
+  const description = getValue("description");
+  const servings = getValue("servings");
+  const prepTime = getValue("prepTime");
+  const cookTime = getValue("cookTime");
+  const inactiveTime = getValue("inactiveTime");
+  const difficulty = getValue("difficulty");
+  const notes = getValue("notes");
+  const source = getValue("source");
+  const image = getValue("image");
+  const ingredients = getArrayValue("ingredients");
+  const steps = getArrayValue("steps");
   
   // Get recipe options
   const options = {
