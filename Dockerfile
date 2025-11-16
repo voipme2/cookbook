@@ -46,10 +46,6 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
 
-# Create startup script to run migrations and start app
-RUN echo '#!/bin/sh\nset -e\necho "Running database migrations..."\nnpm run db:migrate\necho "Starting application..."\nnpm start' > /app/entrypoint.sh && \
-    chmod +x /app/entrypoint.sh
-
 # Start the application with migrations
 CMD ["su-exec", "nodejs", "/app/entrypoint.sh"]
 
