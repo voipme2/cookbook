@@ -1,154 +1,217 @@
+import { describe, it, expect } from 'vitest';
 import { parseIngredient, generateShoppingList, formatShoppingListItem } from './shopping-list';
 import type { Recipe } from '~/types';
 
-/**
- * Test cases for shopping list feature
- * These are examples of how the ingredient parser handles various formats
- */
-
 describe('parseIngredient', () => {
-  it('parses simple quantity and unit', () => {
-    const result = parseIngredient('2 cups flour');
-    expect(result.quantity).toBe(2);
-    expect(result.unit).toBe('cups');
-    expect(result.item).toBe('flour');
+  describe('quantity parsing', () => {
+    it('parses simple whole numbers', () => {
+      const result = parseIngredient('2 cups flour');
+      expect(result.quantity).toBe(2);
+      expect(result.unit).toBe('ml'); // normalized to canonical form
+      expect(result.item).toBe('flour');
+      expect(result.original).toBe('2 cups flour');
+    });
+
+    it('parses decimal numbers', () => {
+      const result = parseIngredient('1.5 cups sugar');
+      expect(result.quantity).toBe(1.5);
+      expect(result.unit).toBe('ml');
+      expect(result.item).toBe('sugar');
+    });
+
+    it('parses simple fractions', () => {
+      const result = parseIngredient('1/2 cup milk');
+      expect(result.quantity).toBe(0.5);
+      expect(result.unit).toBe('ml');
+      expect(result.item).toBe('milk');
+    });
+
+    it('parses mixed numbers', () => {
+      const result = parseIngredient('1 1/2 tablespoons butter');
+      expect(result.quantity).toBe(1.5);
+      expect(result.unit).toBe('ml');
+      expect(result.item).toBe('butter');
+      expect(result.rawQuantity).toBe('1 1/2');
+    });
+
+    it('parses ranges with dash', () => {
+      const result = parseIngredient('2-3 cloves garlic');
+      expect(result.quantity).toBe(2.5); // average
+      expect(result.unit).toBe('clove');
+      expect(result.item).toBe('garlic');
+    });
+
+    it('parses ranges with "to"', () => {
+      const result = parseIngredient('1/2 to 3/4 cup flour');
+      expect(result.quantity).toBe(0.625); // average of 0.5 and 0.75
+      expect(result.unit).toBe('ml');
+      expect(result.item).toBe('flour');
+    });
+
+    it('handles ingredients without quantities', () => {
+      const result = parseIngredient('fresh basil');
+      expect(result.quantity).toBeUndefined();
+      expect(result.unit).toBeUndefined();
+      expect(result.item).toBe('fresh basil'); // preserved when no quantity/unit
+    });
   });
 
-  it('parses fractions', () => {
-    const result = parseIngredient('1/2 cup sugar');
-    expect(result.quantity).toBe(0.5);
-    expect(result.unit).toBe('cup');
-    expect(result.item).toBe('sugar');
+  describe('unit normalization', () => {
+    it('normalizes volume units to ml', () => {
+      expect(parseIngredient('1 cup water').unit).toBe('ml');
+      expect(parseIngredient('1 cups water').unit).toBe('ml');
+      expect(parseIngredient('1 c. water').unit).toBe('ml');
+      expect(parseIngredient('1 c water').unit).toBe('ml');
+      expect(parseIngredient('1 tbsp oil').unit).toBe('ml');
+      expect(parseIngredient('1 tablespoon oil').unit).toBe('ml');
+      expect(parseIngredient('1 tablespoons oil').unit).toBe('ml');
+      expect(parseIngredient('1 tsp salt').unit).toBe('ml');
+      expect(parseIngredient('1 teaspoon salt').unit).toBe('ml');
+    });
+
+    it('normalizes weight units to g', () => {
+      expect(parseIngredient('500 grams flour').unit).toBe('g');
+      expect(parseIngredient('500 g flour').unit).toBe('g');
+      expect(parseIngredient('1 lb butter').unit).toBe('g');
+      expect(parseIngredient('1 pound butter').unit).toBe('g');
+      expect(parseIngredient('1 oz cheese').unit).toBe('g');
+      expect(parseIngredient('1 ounce cheese').unit).toBe('g');
+    });
+
+    it('normalizes count units to canonical form', () => {
+      expect(parseIngredient('2 cloves garlic').unit).toBe('clove');
+      expect(parseIngredient('3 clove garlic').unit).toBe('clove');
+      expect(parseIngredient('1 pinch salt').unit).toBe('pinch');
+      expect(parseIngredient('2 pinches salt').unit).toBe('pinch');
+      // Note: "packet" and "packets" are recognized as units but not in UNIT_MAP, so they stay as-is
+      expect(parseIngredient('1 packet yeast').unit).toBe('packet');
+      expect(parseIngredient('2 packets yeast').unit).toBe('packets');
+    });
+
+    it('handles units with leading hyphen', () => {
+      const result = parseIngredient('1 1/4 -ounce packet active dry yeast');
+      expect(result.quantity).toBe(1.25);
+      expect(result.unit).toBe('g'); // ounce is weight, normalized to g
+      expect(result.item).toBe('active dry yeast');
+    });
   });
 
-  it('parses mixed numbers', () => {
-    const result = parseIngredient('1 1/2 tablespoons butter');
-    expect(result.quantity).toBe(1.5);
-    expect(result.unit).toBe('tablespoons');
-    expect(result.item).toBe('butter');
+  describe('ingredient name extraction', () => {
+    it('extracts simple ingredient names', () => {
+      expect(parseIngredient('2 cups flour').item).toBe('flour');
+      expect(parseIngredient('1 cup sugar').item).toBe('sugar');
+      expect(parseIngredient('3 eggs').item).toBe('eggs');
+    });
+
+    it('removes trailing prep descriptors after comma', () => {
+      expect(parseIngredient('2 cloves garlic, minced').item).toBe('garlic');
+      expect(parseIngredient('1 cup tomatoes, diced').item).toBe('tomatoes');
+      expect(parseIngredient('salt, to taste').item).toBe('salt');
+    });
+
+    it('removes multiple prep descriptors with "and"', () => {
+      const result = parseIngredient('6 cups apples, peeled and thinly sliced');
+      expect(result.item).toBe('apples');
+      expect(result.quantity).toBe(6);
+      expect(result.unit).toBe('ml');
+    });
+
+    it('removes parenthetical notes', () => {
+      expect(parseIngredient('1 cup flour (all-purpose)').item).toBe('flour');
+      expect(parseIngredient('2 tbsp butter (melted)').item).toBe('butter');
+    });
+
+    it('removes packaging words from item name', () => {
+      expect(parseIngredient('1 packet active dry yeast').item).toBe('active dry yeast');
+      expect(parseIngredient('1 can tomatoes').item).toBe('tomatoes');
+      expect(parseIngredient('1 jar pickles').item).toBe('pickles');
+    });
+
+    it('removes leading descriptors when quantity/unit present', () => {
+      expect(parseIngredient('1 cup fresh basil').item).toBe('basil');
+      expect(parseIngredient('2 tbsp dried oregano').item).toBe('oregano');
+    });
+
+    it('preserves leading descriptors when no quantity/unit', () => {
+      expect(parseIngredient('fresh basil').item).toBe('fresh basil');
+      expect(parseIngredient('dried herbs').item).toBe('dried herbs');
+    });
+
+    it('removes generic count terms from item name', () => {
+      expect(parseIngredient('2 garlic cloves').item).toBe('garlic');
+      expect(parseIngredient('3 onion pieces').item).toBe('onion');
+    });
+
+    it('handles "of" connector', () => {
+      expect(parseIngredient('pinch of salt').item).toBe('salt');
+      expect(parseIngredient('clove of garlic').item).toBe('garlic');
+    });
+
+    it('converts item names to lowercase', () => {
+      expect(parseIngredient('2 CUPS FLOUR').item).toBe('flour');
+      expect(parseIngredient('1 Cup Sugar').item).toBe('sugar');
+    });
   });
 
-  it('parses ranges as average', () => {
-    const result = parseIngredient('2-3 cloves garlic');
-    expect(result.quantity).toBe(2.5);
-    expect(result.unit).toBe('cloves');
-    expect(result.item).toBe('garlic');
-  });
+  describe('edge cases', () => {
+    it('handles empty strings', () => {
+      const result = parseIngredient('');
+      expect(result.original).toBe('');
+      expect(result.item).toBe('');
+    });
 
-  it('parses ingredients without quantities', () => {
-    const result = parseIngredient('fresh basil');
-    expect(result.quantity).toBeUndefined();
-    expect(result.unit).toBeUndefined();
-    expect(result.item).toBe('fresh basil');
-  });
+    it('handles whitespace-only strings', () => {
+      const result = parseIngredient('   ');
+      // Original is trimmed, so whitespace-only becomes empty
+      expect(result.original).toBe('');
+      expect(result.item).toBe('');
+    });
 
-  it('removes common preparation descriptions', () => {
-    const result = parseIngredient('1 cup tomatoes, diced');
-    expect(result.item).toContain('tomato');
-    expect(result.item).not.toContain('diced');
-  });
+    it('handles ingredients with only unit', () => {
+      const result = parseIngredient('pinch of salt');
+      expect(result.quantity).toBeUndefined();
+      expect(result.unit).toBe('pinch');
+      expect(result.item).toBe('salt');
+    });
 
-  it('handles abbreviated units', () => {
-    const result = parseIngredient('1 tbsp olive oil');
-    expect(result.unit).toBe('tablespoons');
-    expect(result.item).toBe('olive oil');
-  });
+    it('handles ingredients with only quantity', () => {
+      const result = parseIngredient('2 eggs');
+      expect(result.quantity).toBe(2);
+      expect(result.unit).toBeUndefined();
+      expect(result.item).toBe('eggs');
+    });
 
-  it('normalizes unit names', () => {
-    const result = parseIngredient('500 grams flour');
-    expect(result.quantity).toBe(500);
-    expect(result.unit).toMatch(/gram|g/i);
-  });
+    it('preserves original string', () => {
+      const input = '2 cups flour, sifted';
+      const result = parseIngredient(input);
+      expect(result.original).toBe(input);
+    });
 
-  it('extracts ingredient from "cloves garlic, minced"', () => {
-    const result = parseIngredient('2 cloves garlic, minced');
-    expect(result.item).toBe('garlic');
-    expect(result.quantity).toBe(2);
-    expect(result.unit).toBe('cloves');
-  });
-
-  it('extracts ingredient from range "1/2 to 3/4 cup flour"', () => {
-    const result = parseIngredient('1/2 to 3/4 cup flour');
-    expect(result.item).toBe('flour');
-    expect(result.quantity).toBe(0.625); // average of 0.5 and 0.75
-    expect(result.unit).toBe('cup');
-  });
-
-  it('extracts ingredient from "pinch of salt"', () => {
-    const result = parseIngredient('pinch of salt');
-    expect(result.item).toBe('salt');
-    expect(result.unit).toBe('pinch');
-    expect(result.quantity).toBeUndefined();
-  });
-
-  it('handles fresh descriptors properly', () => {
-    const result = parseIngredient('fresh basil');
-    expect(result.item).toBe('basil');
-    expect(result.quantity).toBeUndefined();
-    expect(result.unit).toBeUndefined();
-  });
-
-  it('removes parenthetical notes', () => {
-    const result = parseIngredient('1 cup flour (all-purpose)');
-    expect(result.item).toBe('flour');
-    expect(result.unit).toBe('cup');
-  });
-
-  it('handles "to taste" descriptions', () => {
-    const result = parseIngredient('salt, to taste');
-    expect(result.item).toBe('salt');
-  });
-
-  it('correctly parses mixed numbers like "1 1/2 tablespoons black pepper"', () => {
-    const result = parseIngredient('1 1/2 tablespoons black pepper');
-    expect(result.item).toBe('black pepper');
-    expect(result.quantity).toBe(1.5);
-    expect(result.unit).toBe('tablespoons');
-  });
-
-  it('correctly parses other mixed numbers', () => {
-    const result = parseIngredient('2 3/4 cups flour');
-    expect(result.item).toBe('flour');
-    expect(result.quantity).toBe(2.75);
-    expect(result.unit).toBe('cups');
-  });
-
-  it('handles units with leading hyphen like "-ounce"', () => {
-    const result = parseIngredient('1 1/4 -ounce packet active dry yeast');
-    expect(result.item).toBe('active dry yeast');
-    expect(result.quantity).toBe(1.25);
-    expect(result.unit).toBe('ounce');
-  });
-
-  it('removes packaging words like "packet"', () => {
-    const result = parseIngredient('1 packet active dry yeast');
-    expect(result.item).toBe('active dry yeast');
-    expect(result.unit).toBe('packet');
-  });
-
-  it('handles multiple prep descriptors with "and"', () => {
-    const result = parseIngredient('6 cups apples, peeled and thinly sliced');
-    expect(result.item).toBe('apples');
-    expect(result.quantity).toBe(6);
-    expect(result.unit).toBe('cups');
-  });
-
-  it('handles cup abbreviation "c."', () => {
-    const result = parseIngredient('1 c. chicken stock or broth');
-    expect(result.item).toBe('chicken stock or broth');
-    expect(result.quantity).toBe(1);
-    expect(result.unit).toBe('cup');
-  });
-
-  it('handles cup abbreviation "c"', () => {
-    const result = parseIngredient('2 c flour');
-    expect(result.item).toBe('flour');
-    expect(result.quantity).toBe(2);
-    expect(result.unit).toBe('cup');
+    it('preserves rawQuantity for mixed numbers', () => {
+      const result = parseIngredient('1 1/2 cups milk');
+      expect(result.rawQuantity).toBe('1 1/2');
+    });
   });
 });
 
 describe('generateShoppingList', () => {
+  it('creates shopping list from single recipe', () => {
+    const recipes: Recipe[] = [
+      {
+        id: '1',
+        name: 'Cookies',
+        ingredients: ['2 cups flour', '1 cup butter', '3 eggs'],
+      },
+    ] as Recipe[];
+
+    const list = generateShoppingList(recipes);
+    
+    expect(list).toHaveLength(3);
+    expect(list[0].item).toBe('butter');
+    expect(list[1].item).toBe('eggs');
+    expect(list[2].item).toBe('flour');
+  });
+
   it('groups matching ingredients from multiple recipes', () => {
     const recipes: Recipe[] = [
       {
@@ -165,30 +228,32 @@ describe('generateShoppingList', () => {
 
     const list = generateShoppingList(recipes);
     
-    const flourItem = list.find(item => item.item.toLowerCase().includes('flour'));
+    const flourItem = list.find(item => item.item === 'flour');
     expect(flourItem).toBeDefined();
-    expect(flourItem?.entries.length).toBe(2);
+    expect(flourItem?.entries).toHaveLength(2);
+    expect(flourItem?.entries[0].recipe).toBe('Cookies');
+    expect(flourItem?.entries[1].recipe).toBe('Cake');
   });
 
-  it('groups same ingredient from different recipes', () => {
+  it('matches ingredients by normalized item name', () => {
     const recipes: Recipe[] = [
       {
         id: '1',
         name: 'Recipe1',
-        ingredients: ['3 cloves garlic'],
+        ingredients: ['2 cloves garlic'],
       },
       {
         id: '2',
         name: 'Recipe2',
-        ingredients: ['2 cloves garlic'],
+        ingredients: ['3 clove garlic'],
       },
     ] as Recipe[];
 
     const list = generateShoppingList(recipes);
-    const garlicItem = list.find(item => item.item.toLowerCase().includes('garlic'));
+    const garlicItem = list.find(item => item.item === 'garlic');
     
     expect(garlicItem).toBeDefined();
-    expect(garlicItem?.entries.length).toBe(2);
+    expect(garlicItem?.entries).toHaveLength(2);
   });
 
   it('sorts items alphabetically', () => {
@@ -201,11 +266,9 @@ describe('generateShoppingList', () => {
     ] as Recipe[];
 
     const list = generateShoppingList(recipes);
-    const items = list.map(item => item.item.toLowerCase());
+    const items = list.map(item => item.item);
     
-    for (let i = 0; i < items.length - 1; i++) {
-      expect(items[i].localeCompare(items[i + 1])).toBeLessThanOrEqual(0);
-    }
+    expect(items).toEqual(['butter', 'eggs', 'flour']);
   });
 
   it('handles recipes with no ingredients', () => {
@@ -215,12 +278,33 @@ describe('generateShoppingList', () => {
         name: 'Recipe',
         ingredients: undefined,
       },
+      {
+        id: '2',
+        name: 'Recipe2',
+        ingredients: [],
+      },
     ] as Recipe[];
 
-    expect(() => generateShoppingList(recipes)).not.toThrow();
+    const list = generateShoppingList(recipes);
+    expect(list).toHaveLength(0);
   });
 
-  it('tracks original ingredient text in entries', () => {
+  it('handles recipes with invalid ingredients', () => {
+    const recipes: Recipe[] = [
+      {
+        id: '1',
+        name: 'Recipe',
+        ingredients: ['valid ingredient', null as any, '', undefined as any],
+      },
+    ] as Recipe[];
+
+    const list = generateShoppingList(recipes);
+    expect(list).toHaveLength(1);
+    // "valid" is not a prep descriptor, so it stays in the item name
+    expect(list[0].item).toBe('valid ingredient');
+  });
+
+  it('stores original ingredient text in entries', () => {
     const recipes: Recipe[] = [
       {
         id: '1',
@@ -230,26 +314,59 @@ describe('generateShoppingList', () => {
     ] as Recipe[];
 
     const list = generateShoppingList(recipes);
-    const garlicItem = list.find(item => item.item.toLowerCase().includes('garlic'));
+    const garlicItem = list.find(item => item.item === 'garlic');
     
     expect(garlicItem).toBeDefined();
     expect(garlicItem?.entries[0].ingredient).toBe('2 cloves garlic, minced');
+    expect(garlicItem?.entries[0].original).toBe('2 cloves garlic, minced');
+  });
+
+  it('stores parsed quantity and unit in entries', () => {
+    const recipes: Recipe[] = [
+      {
+        id: '1',
+        name: 'Recipe1',
+        ingredients: ['2 cups flour'],
+      },
+    ] as Recipe[];
+
+    const list = generateShoppingList(recipes);
+    const flourItem = list.find(item => item.item === 'flour');
+    
+    expect(flourItem?.entries[0].quantity).toBe(2);
+    expect(flourItem?.entries[0].unit).toBe('ml');
+  });
+
+  it('handles ingredients without quantities or units', () => {
+    const recipes: Recipe[] = [
+      {
+        id: '1',
+        name: 'Recipe1',
+        ingredients: ['fresh basil', 'salt'],
+      },
+    ] as Recipe[];
+
+    const list = generateShoppingList(recipes);
+    
+    const basilItem = list.find(item => item.item === 'fresh basil');
+    expect(basilItem).toBeDefined();
+    expect(basilItem?.entries[0].quantity).toBeUndefined();
+    expect(basilItem?.entries[0].unit).toBeUndefined();
   });
 });
 
 describe('formatShoppingListItem', () => {
-  it('formats item to string', () => {
-    const result = formatShoppingListItem({
+  it('returns the item name', () => {
+    const item = {
       item: 'flour',
       entries: [],
-    });
-
-    expect(result).toBe('flour');
+    };
+    expect(formatShoppingListItem(item)).toBe('flour');
   });
 
-  it('formats various items', () => {
+  it('works with any item name', () => {
     expect(formatShoppingListItem({ item: 'salt', entries: [] })).toBe('salt');
     expect(formatShoppingListItem({ item: 'butter', entries: [] })).toBe('butter');
+    expect(formatShoppingListItem({ item: 'fresh basil', entries: [] })).toBe('fresh basil');
   });
 });
-

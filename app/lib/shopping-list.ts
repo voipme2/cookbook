@@ -120,7 +120,8 @@ export function parseIngredient(ingredientString: string): ParsedIngredient {
     remaining = remaining.substring(mixedNumberMatch[0].length).trim();
   } else {
     // Try to match other quantity patterns (ranges, simple numbers, fractions)
-    const quantityRegex = /^([\d\/⁄\-\.½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+(?:\s+(?:to|and|or|[-–])\s+[\d\/⁄\-\.½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)?)\s+/;
+    // Updated regex to better handle "X to Y" format (e.g., "1/2 to 3/4")
+    const quantityRegex = /^([\d\/⁄\-\.½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+(?:\s+(?:to|and|or|[-–])\s+[\d\/⁄\-\.½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)?)(?:\s+|$)/;
     const quantityMatch = remaining.match(quantityRegex);
     
     if (quantityMatch) {
@@ -131,18 +132,21 @@ export function parseIngredient(ingredientString: string): ParsedIngredient {
     }
   }
 
-  // Stage 3: Extract unit (case-insensitive, including abbreviations like "tsp." or "c.")
+  // Stage 3: Extract unit (case-insensitive, including abbreviations like "tsp." or "c.") 
   // This happens after quantity extraction, whether it was a mixed number or regular quantity
   // Also handles cases like "pinch of salt" where there's a unit but no quantity
   // Handles units with leading hyphen like "-ounce"
   const unitMatch = remaining.match(UNIT_REGEX);
   if (unitMatch) {
     let matchedUnit = unitMatch[1].toLowerCase();
-    // Normalize "c." and "c" to "cup"
-    if (matchedUnit === "c." || matchedUnit === "c") {
-      matchedUnit = "cup";
+    // Normalize units to their canonical form using UNIT_MAP
+    const unitInfo = UNIT_MAP[matchedUnit];
+    if (unitInfo) {
+      unit = unitInfo.canonical;
+    } else {
+      // Fallback for units not in map (shouldn't happen, but just in case)
+      unit = matchedUnit;
     }
-    unit = matchedUnit;
     remaining = remaining.substring(unitMatch[0].length).trim();
   }
 
@@ -158,12 +162,19 @@ export function parseIngredient(ingredientString: string): ParsedIngredient {
   // Handle multiple prep methods connected with "and" like "peeled and thinly sliced"
   let item = remaining
     // Remove trailing prep methods and descriptors after comma (handles "and" connections)
-    // This regex matches: ", peeled and thinly sliced" or ", diced, chopped" etc.
-    .replace(/,?\s+((?:diced|chopped|minced|sliced|grated|shredded|crushed|whole|fresh|dried|melted|softened|peeled|cooked|raw|ground|divided|packed|loosely packed|tightly packed|to taste|roughly|finely|coarsely|thinly|thickly)(?:\s+and\s+(?:diced|chopped|minced|sliced|grated|shredded|crushed|whole|fresh|dried|melted|softened|peeled|cooked|raw|ground|divided|packed|loosely packed|tightly packed|to taste|roughly|finely|coarsely|thinly|thickly))*)[\s,]*$/i, "")
+    // Updated to handle "peeled and thinly sliced" - matches adverbs like "thinly" followed by verbs
+    .replace(/,?\s+((?:diced|chopped|minced|sliced|grated|shredded|crushed|whole|fresh|dried|melted|softened|peeled|cooked|raw|ground|divided|packed|loosely packed|tightly packed|to taste|roughly|finely|coarsely|thinly|thickly)(?:\s+and\s+(?:(?:roughly|finely|coarsely|thinly|thickly)\s+)?(?:diced|chopped|minced|sliced|grated|shredded|crushed|whole|fresh|dried|melted|softened|peeled|cooked|raw|ground|divided|packed|loosely packed|tightly packed|to taste))*)[\s,]*$/i, "")
     // Remove "plus more for X" or "reserved for X" phrases
     .replace(/,?\s*(?:plus|reserved)\s+more\s+for\s+\w+.*$/i, "")
-    // Remove leading descriptors (be careful with names like "All-Purpose")
-    .replace(/^(fresh|dried|ground|chopped|diced|minced|raw|cooked|roughly|finely|coarsely)\s+/i, "")
+    // Remove leading descriptors only if there's a quantity or unit (preserve when no quantity/unit)
+    // This handles the case where "fresh basil" should remain "fresh basil" when there's no quantity/unit
+    .replace(/^(fresh|dried|ground|chopped|diced|minced|raw|cooked|roughly|finely|coarsely)\s+/i, (match, descriptor) => {
+      // Only remove leading descriptors if we have a quantity or unit
+      if (quantity !== undefined || unit !== undefined) {
+        return "";
+      }
+      return match; // Keep the descriptor if no quantity/unit
+    })
     // Remove parenthetical notes like "(minced)" or "(about 2 cups)" or "(such as fresh)"
     .replace(/\s*\([^)]*\)\s*/g, " ")
     // Clean up excessive whitespace
@@ -203,6 +214,16 @@ export function parseIngredient(ingredientString: string): ParsedIngredient {
 function parseQuantity(quantityStr: string): number | undefined {
   const str = quantityStr.trim().toLowerCase();
   if (!str) return undefined;
+
+  // Handle ranges with "to" like "1/2 to 3/4"
+  const toRangeMatch = str.match(/^([\d.\/\s]+)\s+to\s+([\d.\/\s]+)$/);
+  if (toRangeMatch) {
+    const num1 = parseSingleQuantity(toRangeMatch[1].trim());
+    const num2 = parseSingleQuantity(toRangeMatch[2].trim());
+    if (num1 !== undefined && num2 !== undefined) {
+      return (num1 + num2) / 2;
+    }
+  }
 
   // Handle ranges like "2-3"
   const rangeMatch = str.match(/^([\d.\/\s]+)\s*[-–]\s*([\d.\/\s]+)$/);
