@@ -3,8 +3,10 @@ import { Pool } from "pg";
 import * as schema from "./db.schema";
 import dotenv from "dotenv";
 
-// Load environment variables from .env file
-dotenv.config();
+// Load environment variables from .env file (development only)
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config();
+}
 
 const pool = new Pool({
   user: process.env.PGUSER,
