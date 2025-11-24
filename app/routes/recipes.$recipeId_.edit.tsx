@@ -4,6 +4,7 @@ import { Form, Link, useLoaderData, useActionData, useNavigation } from "@remix-
 import { useState } from "react";
 import { getRecipeById, updateRecipe } from "~/lib/queries/recipes";
 import { ImageUploader } from "~/components/ImageUploader";
+import { IngredientInput } from "~/components/IngredientInput";
 import type { Recipe } from "~/types";
 import React from "react";
 
@@ -186,14 +187,24 @@ function ListItemManager({
       <div className="space-y-2">
         {items.map((item, idx) => (
           <div key={idx} className="flex items-center gap-2">
-            <input
-              type="text"
-              name={`${label.toLowerCase().replace(/\s+/g, '-').slice(0, -1)}-${idx}`}
-              value={item}
-              onChange={(e) => handleChange(idx, e.target.value)}
-              placeholder={placeholder}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            {label.toLowerCase() === "ingredients" ? (
+              <IngredientInput
+                name={`${label.toLowerCase().replace(/\s+/g, '-').slice(0, -1)}-${idx}`}
+                value={item}
+                onChange={(value) => handleChange(idx, value)}
+                placeholder={placeholder}
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800 dark:text-slate-100"
+              />
+            ) : (
+              <input
+                type="text"
+                name={`${label.toLowerCase().replace(/\s+/g, '-').slice(0, -1)}-${idx}`}
+                value={item}
+                onChange={(e) => handleChange(idx, e.target.value)}
+                placeholder={placeholder}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            )}
             <div className="flex gap-1">
               <button
                 type="button"

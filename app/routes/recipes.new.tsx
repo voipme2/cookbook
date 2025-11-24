@@ -4,6 +4,7 @@ import { Form, Link, useActionData, useNavigation, useSearchParams } from "@remi
 import { useState } from "react";
 import { createRecipe } from "~/lib/queries/recipes";
 import { ImageUploader } from "~/components/ImageUploader";
+import { IngredientInput } from "~/components/IngredientInput";
 import type { Recipe } from "~/types";
 
 export const meta: MetaFunction = () => {
@@ -368,13 +369,12 @@ export default function NewRecipe() {
           <div className="space-y-2">
             {ingredients.map((ingredient, idx) => (
               <div key={idx} className="flex items-center gap-2">
-                <input
-                  type="text"
+                <IngredientInput
                   name={`ingredient-${idx}`}
                   value={ingredient}
-                  onChange={(e) => updateIngredient(idx, e.target.value)}
+                  onChange={(value) => updateIngredient(idx, value)}
                   placeholder="Enter ingredient..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800 dark:text-slate-100"
                 />
                 <div className="flex gap-1">
                   <button

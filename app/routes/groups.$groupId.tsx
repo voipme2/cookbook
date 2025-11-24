@@ -5,7 +5,7 @@ import type { Group, Recipe } from "~/types";
 import { getGroupById, getGroupRecipeCount } from "~/lib/queries/groups";
 import { getRecipesByGroup } from "~/lib/queries/recipes";
 import { RecipeOptions } from "~/components/RecipeOptions";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, ShoppingCart } from "lucide-react";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   if (!data || !data.group) {
@@ -62,21 +62,30 @@ export default function GroupDetail() {
         </div>
         <div className="flex gap-2">
           {recipes.length > 0 && (
-            <button
-              onClick={() => {
-                recipes.forEach((recipe) => {
-                  window.open(`/recipes/${recipe.id}`, '_blank');
-                });
-              }}
-              title="Open all recipes in new tabs"
-              className="p-2 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950 rounded-lg transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-              </svg>
-            </button>
+            <>
+              <Link
+                to={`/groups/${group.id}/shopping-list`}
+                title="Generate shopping list"
+                className="p-2 text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950 rounded-lg transition-colors"
+              >
+                <ShoppingCart size={20} />
+              </Link>
+              <button
+                onClick={() => {
+                  recipes.forEach((recipe) => {
+                    window.open(`/recipes/${recipe.id}`, '_blank');
+                  });
+                }}
+                title="Open all recipes in new tabs"
+                className="p-2 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950 rounded-lg transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+              </button>
+            </>
           )}
           <Link
             to={`/groups/${group.id}/edit`}

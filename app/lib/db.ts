@@ -1,6 +1,10 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "./db.schema";
+import dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config();
 
 const pool = new Pool({
   user: process.env.PGUSER,
