@@ -310,6 +310,14 @@ const getHeadersForUrl = (url: string) => {
     };
   }
 
+  if (url.includes('claude.ai')) {
+    return {
+      ...baseHeaders,
+      'Referer': 'https://claude.ai/',
+      'Origin': 'https://claude.ai',
+    };
+  }
+
   return baseHeaders;
 };
 
@@ -322,6 +330,9 @@ export const scraper = {
       });
 
       if (!page.ok) {
+        if (recipeUrl.includes('claude.ai') && page.status === 403) {
+          throw new Error(`HTTP ${page.status}: Claude.ai artifacts require authentication. Please make sure the artifact is publicly accessible or copy the recipe content manually.`);
+        }
         throw new Error(`HTTP ${page.status}: Unable to fetch the page`);
       }
 
