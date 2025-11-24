@@ -347,6 +347,31 @@ export default function EditGroup() {
           </Link>
         </div>
       </Form>
+      
+      {/* Delete Button */}
+      <div className="pt-4 border-t border-gray-300">
+        <Form
+          method="post"
+          action={`/groups/${group.id}/delete`}
+          onSubmit={(e) => {
+            if (
+              !window.confirm(
+                `Are you sure you want to delete "${group.name}"? This will not delete the recipes, only the group. This action cannot be undone.`
+              )
+            ) {
+              e.preventDefault();
+            }
+          }}
+          className="inline"
+        >
+          <button
+            type="submit"
+            className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+          >
+            Delete Group
+          </button>
+        </Form>
+      </div>
     </div>
   );
 }

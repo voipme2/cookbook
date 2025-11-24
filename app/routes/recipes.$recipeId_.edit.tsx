@@ -596,6 +596,31 @@ export default function EditRecipe() {
           </Link>
         </div>
       </Form>
+      
+      {/* Delete Button */}
+      <div className="pt-4 border-t border-gray-300">
+        <Form
+          method="post"
+          action={`/recipes/${recipe.id}/delete`}
+          onSubmit={(e) => {
+            if (
+              !window.confirm(
+                `Are you sure you want to delete "${recipe.name}"? This action cannot be undone.`
+              )
+            ) {
+              e.preventDefault();
+            }
+          }}
+          className="inline"
+        >
+          <button
+            type="submit"
+            className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+          >
+            Delete Recipe
+          </button>
+        </Form>
+      </div>
     </div>
   );
 }

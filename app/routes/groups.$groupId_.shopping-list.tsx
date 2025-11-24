@@ -95,7 +95,11 @@ export default function GroupShoppingList() {
       )}
 
       {/* Shopping list */}
-      <ShoppingList items={shoppingList} groupName={group.name} groupId={group.id} />
+      <ShoppingList 
+        items={shoppingList} 
+        printUrl={`/print/groups/${group.id}/shopping-list`}
+        recipes={recipes}
+      />
     </div>
   );
 }

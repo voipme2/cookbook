@@ -5,7 +5,7 @@ import type { Recipe } from "~/types";
 import { getRecipeById } from "~/lib/queries/recipes";
 import { RecipeOptions } from "~/components/RecipeOptions";
 import { CookModeButton } from "~/components/CookModeButton";
-import { Edit, Trash2, Printer } from "lucide-react";
+import { Edit, Printer, ShoppingCart } from "lucide-react";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   if (!data || !data.recipe) {
@@ -91,37 +91,15 @@ export default function RecipeDetail() {
           ← Back to Recipes
         </Link>
         <div className="flex items-start gap-3 mb-3">
-          <h1 className="text-4xl md:text-5xl font-bold flex-1 dark:text-slate-100">{recipe.name}</h1>
+          <h1 className="text-4xl font-bold flex-1 dark:text-slate-100">{recipe.name}</h1>
           <div className="flex gap-2 items-center">
             <Link
-              to={`/recipes/${recipe.id}/edit`}
-              title="Edit recipe"
-              className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition-colors"
+              to={`/recipes/${recipe.id}/shopping-list`}
+              title="Generate shopping list"
+              className="p-2 text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950 rounded-lg transition-colors"
             >
-              <Edit size={20} />
+              <ShoppingCart size={20} />
             </Link>
-            <Form
-              method="post"
-              action={`/recipes/${recipe.id}/delete`}
-              onSubmit={(e) => {
-                if (
-                  !window.confirm(
-                    `Are you sure you want to delete "${recipe.name}"?`
-                  )
-                ) {
-                  e.preventDefault();
-                }
-              }}
-              className="inline"
-            >
-              <button
-                type="submit"
-                title="Delete recipe"
-                className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors"
-              >
-                <Trash2 size={20} />
-              </button>
-            </Form>
             <a
               href={`/print/${recipe.id}`}
               target="_blank"
@@ -131,12 +109,19 @@ export default function RecipeDetail() {
             >
               <Printer size={20} />
             </a>
+            <Link
+              to={`/recipes/${recipe.id}/edit`}
+              title="Edit recipe"
+              className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition-colors"
+            >
+              <Edit size={20} />
+            </Link>
           </div>
         </div>
         {recipe.description && (
           <p className="text-gray-700 dark:text-slate-300 text-lg leading-relaxed mb-6">{recipe.description}</p>
         )}
-        <div className="mb-6">
+        <div className="mb-6 flex flex-wrap items-center gap-4">
           <CookModeButton />
         </div>
       </div>
