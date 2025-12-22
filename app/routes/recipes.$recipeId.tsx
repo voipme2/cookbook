@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, Link, Form } from "@remix-run/react";
+import { useLoaderData, Link, Form, useSearchParams } from "@remix-run/react";
 import type { Recipe } from "~/types";
 import { getRecipeById } from "~/lib/queries/recipes";
 import { RecipeOptions } from "~/components/RecipeOptions";
@@ -73,6 +73,11 @@ function formatMinutesToTime(totalMinutes: number): string {
 
 export default function RecipeDetail() {
   const { recipe } = useLoaderData<typeof loader>();
+  const [searchParams] = useSearchParams();
+  
+  // Get search query from URL if we came from a search
+  const fromSearch = searchParams.get("fromSearch");
+  const backUrl = fromSearch ? `/recipes?q=${encodeURIComponent(fromSearch)}` : "/recipes";
 
   // Calculate total time
   const prepMinutes = parseTimeToMinutes(recipe.prepTime || "");
@@ -85,7 +90,7 @@ export default function RecipeDetail() {
     <div className="space-y-8">
       <div className="flex-1">
         <Link
-          to="/recipes"
+          to={backUrl}
           className="text-blue-500 hover:text-blue-600 mb-4 inline-flex items-center gap-1 transition-colors"
         >
           ← Back to Recipes
@@ -126,8 +131,8 @@ export default function RecipeDetail() {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-6">
+      <div className="flex flex-col md:grid md:grid-cols-3 gap-6">
+        <div className="md:col-span-2 space-y-6 order-2 md:order-none">
           {/* Ingredients */}
           {recipe.ingredients && recipe.ingredients.length > 0 && (
             <section className="border border-gray-200 dark:border-slate-700 rounded-xl p-6 bg-white dark:bg-slate-800 shadow-sm">
@@ -161,7 +166,7 @@ export default function RecipeDetail() {
         </div>
 
         {/* Sidebar */}
-        <aside className="space-y-6">
+        <aside className="space-y-6 order-1 md:order-none">
           {/* Recipe Image */}
           {recipe.image && (
             <div className="rounded-xl overflow-hidden shadow-lg">
@@ -174,7 +179,7 @@ export default function RecipeDetail() {
           )}
 
           {/* Cooking Info */}
-          <section className="border border-gray-200 dark:border-slate-700 rounded-xl p-6 bg-white dark:bg-slate-800 shadow-sm sticky top-24">
+          <section className="border border-gray-200 dark:border-slate-700 rounded-xl p-6 bg-white dark:bg-slate-800 shadow-sm md:sticky md:top-24">
             <h3 className="font-bold text-lg mb-4 dark:text-slate-100">⏱️ Cooking Info</h3>
             <div className="space-y-3 text-sm">
               {recipe.servings && (

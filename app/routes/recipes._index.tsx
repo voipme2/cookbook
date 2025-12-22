@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, Link } from "@remix-run/react";
-import { useState, useMemo } from "react";
+import { useLoaderData, Link, useSearchParams, useNavigate } from "@remix-run/react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import type { Recipe } from "~/types";
 import { getAllRecipes } from "~/lib/queries/recipes";
 import { RecipeOptions } from "~/components/RecipeOptions";
@@ -24,7 +24,46 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function RecipesIndex() {
   const { recipes } = useLoaderData<typeof loader>();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  
+  // Initialize search query from URL params
+  const searchQueryFromUrl = searchParams.get("q") || "";
+  const [searchQuery, setSearchQuery] = useState(searchQueryFromUrl);
+  const isSyncingFromUrl = useRef(false);
+
+  // Sync state from URL when navigating back/forward
+  useEffect(() => {
+    const urlQuery = searchParams.get("q") || "";
+    if (urlQuery !== searchQuery) {
+      isSyncingFromUrl.current = true;
+      setSearchQuery(urlQuery);
+      // Reset flag after state update
+      setTimeout(() => {
+        isSyncingFromUrl.current = false;
+      }, 0);
+    }
+  }, [searchParams]);
+
+  // Sync URL when search query changes (use replace to avoid cluttering history)
+  useEffect(() => {
+    // Don't update URL if we're syncing from URL (to avoid loops)
+    if (isSyncingFromUrl.current) {
+      return;
+    }
+    
+    const currentQuery = searchParams.get("q") || "";
+    if (searchQuery !== currentQuery) {
+      const newParams = new URLSearchParams(searchParams);
+      if (searchQuery.trim()) {
+        newParams.set("q", searchQuery);
+      } else {
+        newParams.delete("q");
+      }
+      // Use replace to avoid adding to history for every keystroke
+      navigate(`?${newParams.toString()}`, { replace: true });
+    }
+  }, [searchQuery, navigate, searchParams]);
 
   const filteredRecipes = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -97,7 +136,7 @@ export default function RecipesIndex() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {filteredRecipes.map((recipe) => (
-            <RecipeCard key={recipe.id} recipe={recipe} />
+            <RecipeCard key={recipe.id} recipe={recipe} searchQuery={searchQuery} />
           ))}
         </div>
       )}
@@ -111,10 +150,15 @@ function isValidTime(time: string | undefined): boolean {
   return !time.match(/^0+$/);
 }
 
-function RecipeCard({ recipe }: { recipe: Recipe }) {
+function RecipeCard({ recipe, searchQuery }: { recipe: Recipe; searchQuery: string }) {
+  // Preserve search query when navigating to recipe
+  const recipeUrl = searchQuery.trim() 
+    ? `/recipes/${recipe.id}?fromSearch=${encodeURIComponent(searchQuery)}`
+    : `/recipes/${recipe.id}`;
+
   return (
     <Link
-      to={`/recipes/${recipe.id}`}
+      to={recipeUrl}
       className="border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden hover:shadow-lg hover:scale-102 transition-all duration-300 bg-white dark:bg-slate-800 flex flex-row gap-4 h-full"
     >
       {/* Image Section - Same layout on mobile and desktop */}
