@@ -124,10 +124,10 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
       className="border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden hover:shadow-lg hover:scale-102 transition-all duration-300 bg-white dark:bg-slate-800 flex flex-col h-full sm:flex-row sm:gap-4"
     >
       {/* Image Section - Mobile: small, Desktop: side-by-side */}
-      {recipe.image && (
-        <div className="sm:w-32 sm:flex-shrink-0 h-28 sm:h-32 bg-gray-100 dark:bg-slate-700 overflow-hidden">
+      {(recipe.image || recipe.imageUrl) && (
+        <div className="w-full sm:w-32 sm:flex-shrink-0 h-28 sm:h-32 bg-gray-100 dark:bg-slate-700 overflow-hidden">
           <img
-            src={recipe.image}
+            src={recipe.image || recipe.imageUrl}
             alt={recipe.name}
             className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
           />

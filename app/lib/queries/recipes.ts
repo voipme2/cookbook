@@ -96,6 +96,12 @@ function formatRecipe(row: any): Recipe {
   // If row has an id property, use it; otherwise fall back to recipe.id
   const id = row.id || recipe.id;
   
+  // Normalize image field - use imageUrl if image doesn't exist
+  // Handle empty strings by treating them as undefined
+  const getImageValue = (val: any) => (val && typeof val === 'string' && val.trim()) || undefined;
+  const image = getImageValue(recipe.image) || getImageValue(recipe.imageUrl);
+  const imageUrl = getImageValue(recipe.imageUrl) || getImageValue(recipe.image);
+  
   // Explicitly construct the Recipe object to avoid spreading unknown properties
   const formattedRecipe: Recipe = {
     id,
@@ -108,8 +114,8 @@ function formatRecipe(row: any): Recipe {
     inactiveTime: recipe.inactiveTime,
     cookTime: recipe.cookTime,
     difficulty: recipe.difficulty,
-    image: recipe.image,
-    imageUrl: recipe.imageUrl,
+    image,
+    imageUrl,
     notes: recipe.notes,
     ingredients,
     steps,

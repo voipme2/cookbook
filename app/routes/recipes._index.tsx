@@ -162,10 +162,10 @@ function RecipeCard({ recipe, searchQuery }: { recipe: Recipe; searchQuery: stri
       className="border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden hover:shadow-lg hover:scale-102 transition-all duration-300 bg-white dark:bg-slate-800 flex flex-row gap-4 h-full"
     >
       {/* Image Section - Same layout on mobile and desktop */}
-      {recipe.image && (
+      {(recipe.image || recipe.imageUrl) && (
         <div className="w-24 sm:w-32 flex-shrink-0 h-24 sm:h-32 bg-gray-100 dark:bg-slate-700 overflow-hidden">
           <img
-            src={recipe.image}
+            src={recipe.image || recipe.imageUrl}
             alt={recipe.name}
             className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
           />

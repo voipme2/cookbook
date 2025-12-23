@@ -5,6 +5,40 @@ interface RecipeOptionsProps {
   variant?: "inline" | "block";
 }
 
+// Color scheme for each tag type
+const tagColors: Record<string, { bg: string; text: string; darkBg: string; darkText: string }> = {
+  "Vegetarian": {
+    bg: "bg-green-100",
+    text: "text-green-800",
+    darkBg: "dark:bg-green-900",
+    darkText: "dark:text-green-200",
+  },
+  "Vegan": {
+    bg: "bg-emerald-100",
+    text: "text-emerald-800",
+    darkBg: "dark:bg-emerald-900",
+    darkText: "dark:text-emerald-200",
+  },
+  "Dairy Free": {
+    bg: "bg-blue-100",
+    text: "text-blue-800",
+    darkBg: "dark:bg-blue-900",
+    darkText: "dark:text-blue-200",
+  },
+  "Gluten Free": {
+    bg: "bg-amber-100",
+    text: "text-amber-800",
+    darkBg: "dark:bg-amber-900",
+    darkText: "dark:text-amber-200",
+  },
+  "Crock Pot": {
+    bg: "bg-orange-100",
+    text: "text-orange-800",
+    darkBg: "dark:bg-orange-900",
+    darkText: "dark:text-orange-200",
+  },
+};
+
 export function RecipeOptions({ options, variant = "inline" }: RecipeOptionsProps) {
   if (!options) return null;
 
@@ -18,13 +52,18 @@ export function RecipeOptions({ options, variant = "inline" }: RecipeOptionsProp
 
   if (activeOptions.length === 0) return null;
 
+  const tagClassName = (label: string) => {
+    const colors = tagColors[label];
+    return `inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-normal ${colors.bg} ${colors.text} ${colors.darkBg} ${colors.darkText}`;
+  };
+
   if (variant === "inline") {
     return (
       <div className="flex flex-wrap gap-2">
         {activeOptions.map((option) => (
           <span
             key={option.label}
-            className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium"
+            className={tagClassName(option.label)}
           >
             <span>{option.icon}</span>
             <span>{option.label}</span>
@@ -35,12 +74,15 @@ export function RecipeOptions({ options, variant = "inline" }: RecipeOptionsProp
   }
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-wrap gap-2">
       {activeOptions.map((option) => (
-        <div key={option.label} className="flex items-center gap-2 text-sm">
+        <span
+          key={option.label}
+          className={tagClassName(option.label)}
+        >
           <span>{option.icon}</span>
           <span>{option.label}</span>
-        </div>
+        </span>
       ))}
     </div>
   );
