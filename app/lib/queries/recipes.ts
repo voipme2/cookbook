@@ -15,7 +15,7 @@ function getId(name: string): string {
  * Convert duration from minutes to human readable format
  * e.g., 90 -> "1 hr 30 min"
  */
-function convertToDuration(minutes: number): string {
+export function convertToDuration(minutes: number): string {
   if (!minutes || minutes === 0) return "";
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
@@ -28,7 +28,7 @@ function convertToDuration(minutes: number): string {
  * Convert duration from human readable to minutes
  * e.g., "1 hr 30 min" -> 90
  */
-function convertToMinutes(time: string | number): number {
+export function convertToMinutes(time: string | number): number {
   if (typeof time === "number") return time;
   if (!time) return 0;
   

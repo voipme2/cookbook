@@ -148,7 +148,7 @@ function getTime(time: string): number {
   }
 }
 
-function parseISODurationToMs(isoDuration: string): number {
+export function parseISODurationToMs(isoDuration: string): number {
   const match = isoDuration.match(/P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?/);
   if (!match) return 0;
 
@@ -169,7 +169,7 @@ function parseISODurationToMs(isoDuration: string): number {
   return totalMs;
 }
 
-function parseTimeStringToMinutes(timeStr: string): number {
+export function parseTimeStringToMinutes(timeStr: string): number {
   let totalMinutes = 0;
   
   const hourMatch = timeStr.match(/(\d+(?:\.\d+)?)\s*hrs?/i);
