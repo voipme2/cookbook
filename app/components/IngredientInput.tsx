@@ -1,6 +1,21 @@
 import { useState, useRef, useEffect } from "react";
 import { parseIngredient } from "~/lib/shopping-list";
 
+// Units that can be converted (for preview validation)
+const RECOGNIZED_UNITS = [
+  "cup", "cups", "c.", "c", "tbsp", "tablespoon", "tablespoons", "tbs", "t",
+  "tsp", "teaspoon", "teaspoons", "fl oz", "fl. oz", "fluid ounce", "fluid ounces",
+  "ml", "milliliter", "milliliters", "l", "liter", "liters",
+  "gal", "gallon", "gallons", "pt", "pint", "pints", "qt", "quart", "quarts",
+  "g", "gram", "grams", "kg", "kilogram", "kilograms", "oz", "ounce", "ounces",
+  "lb", "lbs", "pound", "pounds", "mg", "milligram", "milligrams",
+  "piece", "pieces", "clove", "cloves", "bulb", "bulbs", "head", "heads",
+  "stalk", "stalks", "sprig", "sprigs", "pinch", "pinches", "dash", "dashes",
+  "handful", "handfuls", "slice", "slices", "chunk", "chunks", "can", "cans",
+  "jar", "jars", "package", "packages", "packet", "packets", "box", "boxes",
+  "bunch", "bunches", "bottle", "bottles", "loaf", "loaves"
+];
+
 interface IngredientInputProps {
   value: string;
   onChange: (value: string) => void;
@@ -57,9 +72,34 @@ export function IngredientInput({
           parts.push(`${parsed.quantity}`);
         }
         
-        // Show parsed unit if available (this confirms it's a recognized unit)
+        // Extract the original unit from the input (before normalization)
+        // This shows the user their unit is recognized, not the canonical form
+        let originalUnit: string | undefined;
         if (parsed.unit) {
-          parts.push(parsed.unit);
+          // Sort units by length (longest first) to match multi-word units like "fluid ounce" before "ounce"
+          const sortedUnits = [...RECOGNIZED_UNITS].sort((a, b) => b.length - a.length);
+          
+          // Find the original unit in the input by matching against recognized units
+          for (const unit of sortedUnits) {
+            // Create a regex that matches the unit as a whole word
+            // Escape special regex characters and handle periods
+            const escapedUnit = unit.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\./g, '\\.');
+            const unitRegex = new RegExp(`(?:^|\\s)(${escapedUnit})(?:\\s|$|\\.)`, 'i');
+            const match = value.match(unitRegex);
+            if (match) {
+              originalUnit = match[1]; // Use the matched text (preserves original case)
+              break;
+            }
+          }
+          // Fallback to canonical unit if we can't find original
+          if (!originalUnit) {
+            originalUnit = parsed.unit;
+          }
+        }
+        
+        // Show original unit if available (this confirms it's a recognized unit)
+        if (originalUnit) {
+          parts.push(originalUnit);
         }
         
         // Show parsed item
