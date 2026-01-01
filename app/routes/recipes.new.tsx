@@ -77,8 +77,30 @@ export async function action({ request }: ActionFunctionArgs) {
   const notes = getValue("notes");
   const source = getValue("source");
   const image = getValue("image");
-  const ingredients = getArrayValue("ingredients");
-  const steps = getArrayValue("steps");
+  
+  // Get ingredients - they come as ingredient-0, ingredient-1, etc.
+  const ingredients: string[] = [];
+  let idx = 0;
+  while (true) {
+    const ingredient = formData.get(`ingredient-${idx}`);
+    if (ingredient === null) break;
+    if ((ingredient as string).trim().length > 0) {
+      ingredients.push((ingredient as string).trim());
+    }
+    idx++;
+  }
+  
+  // Get steps - they come as step-0, step-1, etc.
+  const steps: string[] = [];
+  idx = 0;
+  while (true) {
+    const step = formData.get(`step-${idx}`);
+    if (step === null) break;
+    if ((step as string).trim().length > 0) {
+      steps.push((step as string).trim());
+    }
+    idx++;
+  }
   
   // Get recipe options
   const options = {
