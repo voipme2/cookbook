@@ -397,6 +397,30 @@ function normalizeUnit(unit?: string): { canonical: string; category: "volume" |
 }
 
 /**
+ * Convert a quantity and unit to canonical form (ml for volume, g for weight, original for count)
+ * Returns the converted quantity and canonical unit name
+ */
+export function convertToCanonical(quantity?: number, unit?: string): { quantity: number; unit: string } | undefined {
+  if (quantity === undefined || !unit) return undefined;
+
+  const normalized = unit.toLowerCase().trim();
+  const unitInfo = UNIT_MAP[normalized];
+
+  if (!unitInfo || !unitInfo.conversionFactor) {
+    // For count units or unknown units, return as-is
+    return { quantity, unit: unitInfo?.canonical || unit };
+  }
+
+  // Convert quantity using the conversion factor
+  const convertedQuantity = quantity * unitInfo.conversionFactor;
+
+  return {
+    quantity: convertedQuantity,
+    unit: unitInfo.canonical,
+  };
+}
+
+/**
  * Check if two units are compatible (same category)
  */
 function areUnitsCompatible(unit1?: string, unit2?: string): boolean {

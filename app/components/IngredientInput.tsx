@@ -51,13 +51,20 @@ export function IngredientInput({
       try {
         const parsed = parseIngredient(value);
         const parts: string[] = [];
+        
+        // Show parsed quantity if available
         if (parsed.quantity !== undefined) {
           parts.push(`${parsed.quantity}`);
         }
+        
+        // Show parsed unit if available (this confirms it's a recognized unit)
         if (parsed.unit) {
           parts.push(parsed.unit);
         }
+        
+        // Show parsed item
         parts.push(parsed.item);
+        
         setParsedPreview(parts.join(" "));
       } catch {
         setParsedPreview("");

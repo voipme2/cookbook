@@ -1,6 +1,6 @@
 import { db } from "~/lib/db";
-import { recipes, recipeGroupMembers, recipeGroups } from "~/lib/db.schema";
-import { eq, sql, ilike, or, inArray } from "drizzle-orm";
+import { recipeGroupMembers, recipeGroups, recipes } from "~/lib/db.schema";
+import { eq, or, sql } from "drizzle-orm";
 import type { Recipe } from "~/types";
 import slugify from "slugify";
 
@@ -31,16 +31,16 @@ export function convertToDuration(minutes: number): string {
 export function convertToMinutes(time: string | number): number {
   if (typeof time === "number") return time;
   if (!time) return 0;
-  
+
   const regex = /(\d+)\s*(?:hr|h)|(\d+)\s*(?:min|m)/gi;
   let matches;
   let totalMinutes = 0;
-  
+
   while ((matches = regex.exec(time)) !== null) {
     if (matches[1]) totalMinutes += parseInt(matches[1], 10) * 60;
     if (matches[2]) totalMinutes += parseInt(matches[2], 10);
   }
-  
+
   return totalMinutes;
 }
 
@@ -49,7 +49,7 @@ export function convertToMinutes(time: string | number): number {
  */
 function formatRecipe(row: any): Recipe {
   const recipe = row.recipe || row;
-  
+
   // Convert time fields from minutes back to duration strings
   if (recipe.prepTime && typeof recipe.prepTime === "number") {
     recipe.prepTime = convertToDuration(recipe.prepTime);
@@ -60,7 +60,7 @@ function formatRecipe(row: any): Recipe {
   if (recipe.inactiveTime && typeof recipe.inactiveTime === "number") {
     recipe.inactiveTime = convertToDuration(recipe.inactiveTime);
   }
-  
+
   // Normalize ingredients - ensure they're strings, not objects
   let ingredients = recipe.ingredients || [];
   if (Array.isArray(ingredients)) {
@@ -75,7 +75,7 @@ function formatRecipe(row: any): Recipe {
       return JSON.stringify(ing);
     });
   }
-  
+
   // Normalize steps - ensure they're strings, not objects
   let steps = recipe.steps || [];
   if (Array.isArray(steps)) {
@@ -90,20 +90,22 @@ function formatRecipe(row: any): Recipe {
       return JSON.stringify(step);
     });
   }
-  
+
   // Always use the database row's ID, not the one from JSONB
   // The database ID is the canonical ID (stored in recipes.id column)
   // If row has an id property, use it; otherwise fall back to recipe.id
   const id = row.id || recipe.id;
-  
+
   // Normalize image field - use imageUrl if image doesn't exist
   // Handle empty strings by treating them as undefined
-  const getImageValue = (val: any) => (val && typeof val === 'string' && val.trim()) || undefined;
+  const getImageValue = (val: any) =>
+    (val && typeof val === "string" && val.trim()) || undefined;
   const image = getImageValue(recipe.image) || getImageValue(recipe.imageUrl);
-  const imageUrl = getImageValue(recipe.imageUrl) || getImageValue(recipe.image);
-  
+  const imageUrl =
+    getImageValue(recipe.imageUrl) || getImageValue(recipe.image);
+
   // Explicitly construct the Recipe object to avoid spreading unknown properties
-  const formattedRecipe: Recipe = {
+  return {
     id,
     name: recipe.name,
     description: recipe.description,
@@ -121,18 +123,14 @@ function formatRecipe(row: any): Recipe {
     steps,
     options: recipe.options,
   };
-  
-  return formattedRecipe;
 }
 
 /**
  * Get all recipes
  */
 export async function getAllRecipes(): Promise<Recipe[]> {
-  const results = await db
-    .select()
-    .from(recipes)
-    .orderBy(sql`${recipes.recipe}->>'name' ASC`);
+  const results = await db.select().from(recipes).orderBy(sql`${recipes.recipe}
+    ->>'name' ASC`);
 
   return results.map((row) => formatRecipe(row));
 }
@@ -141,10 +139,7 @@ export async function getAllRecipes(): Promise<Recipe[]> {
  * Get a single recipe by ID with its groups
  */
 export async function getRecipeById(id: string): Promise<Recipe | null> {
-  const results = await db
-    .select()
-    .from(recipes)
-    .where(eq(recipes.id, id));
+  const results = await db.select().from(recipes).where(eq(recipes.id, id));
 
   if (results.length === 0) return null;
 
@@ -166,7 +161,7 @@ export async function getRecipeById(id: string): Promise<Recipe | null> {
     id: g.id,
     name: g.name,
   }));
-  
+
   return recipe;
 }
 
@@ -180,11 +175,15 @@ export async function searchRecipes(query: string): Promise<Recipe[]> {
     .from(recipes)
     .where(
       or(
-        sql`${recipes.recipe}->>'name' ILIKE ${'%' + query + '%'}`,
-        sql`${recipes.recipe}->>'description' ILIKE ${'%' + query + '%'}`
+        sql`${recipes.recipe}
+        ->>'name' ILIKE
+        ${"%" + query + "%"}`,
+        sql`${recipes.recipe}
+        ->>'description' ILIKE
+        ${"%" + query + "%"}`
       )
-    )
-    .orderBy(sql`${recipes.recipe}->>'name' ASC`);
+    ).orderBy(sql`${recipes.recipe}
+    ->>'name' ASC`);
 
   return results.map((row) => formatRecipe(row));
 }
@@ -196,7 +195,7 @@ export async function createRecipe(
   recipeData: Omit<Recipe, "id">
 ): Promise<string> {
   const id = getId(recipeData.name);
-  
+
   // Convert time fields to minutes for storage
   const recipe: any = {
     ...recipeData,
@@ -221,10 +220,7 @@ export async function updateRecipe(
   recipeData: Partial<Recipe>
 ): Promise<void> {
   // Get existing recipe first
-  const existing = await db
-    .select()
-    .from(recipes)
-    .where(eq(recipes.id, id));
+  const existing = await db.select().from(recipes).where(eq(recipes.id, id));
 
   if (existing.length === 0) {
     throw new Error(`Recipe with id ${id} not found`);
@@ -249,10 +245,7 @@ export async function updateRecipe(
     updated.inactiveTime = convertToMinutes(updated.inactiveTime);
   }
 
-  await db
-    .update(recipes)
-    .set({ recipe: updated })
-    .where(eq(recipes.id, id));
+  await db.update(recipes).set({ recipe: updated }).where(eq(recipes.id, id));
 }
 
 /**
@@ -273,12 +266,10 @@ export async function getRecipesByGroup(groupId: string): Promise<Recipe[]> {
       recipe: recipes.recipe,
     })
     .from(recipes)
-    .innerJoin(
-      recipeGroupMembers,
-      eq(recipes.id, recipeGroupMembers.recipeId)
-    )
+    .innerJoin(recipeGroupMembers, eq(recipes.id, recipeGroupMembers.recipeId))
     .where(eq(recipeGroupMembers.groupId, groupId))
-    .orderBy(sql`${recipes.recipe}->>'name' ASC`);
+    .orderBy(sql`${recipes.recipe}
+    ->>'name' ASC`);
 
   return results.map((row) => formatRecipe(row));
 }
@@ -306,4 +297,3 @@ export async function recipeExists(id: string): Promise<boolean> {
 
   return result.length > 0;
 }
-
