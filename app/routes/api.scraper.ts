@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json } from "@remix-run/server-runtime";
 import { scraper } from "~/lib/scraper";
 
 export async function action({ request }: ActionFunctionArgs) {

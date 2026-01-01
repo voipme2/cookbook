@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json } from "@remix-run/server-runtime";
 import { searchRecipes } from "~/lib/queries/recipes";
 
 export async function loader({ request }: LoaderFunctionArgs) {

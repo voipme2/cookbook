@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/server-runtime";
 import { deleteGroup } from "~/lib/queries/groups";
 
 export async function action({ request, params }: ActionFunctionArgs) {

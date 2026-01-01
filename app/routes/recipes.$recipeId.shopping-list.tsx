@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json } from "@remix-run/server-runtime";
 import { useLoaderData, Link } from "@remix-run/react";
 import type { ShoppingListItem } from "~/lib/shopping-list";
 import { generateShoppingList } from "~/lib/shopping-list";

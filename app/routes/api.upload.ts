@@ -1,5 +1,5 @@
-import { json } from "@remix-run/node";
 import type { ActionFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/server-runtime";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { existsSync } from "fs";

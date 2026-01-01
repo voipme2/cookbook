@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs, ActionFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/server-runtime";
 import { useLoaderData, Form, Link, useActionData, useNavigation } from "@remix-run/react";
 import { getGroupById } from "~/lib/queries/groups";
 import { getRecipesByGroup, getAllRecipes } from "~/lib/queries/recipes";

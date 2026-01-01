@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json } from "@remix-run/server-runtime";
 import { useLoaderData, Link, useSearchParams, useNavigate } from "@remix-run/react";
 import { useState, useMemo, useEffect, useRef } from "react";
 import type { Recipe } from "~/types";

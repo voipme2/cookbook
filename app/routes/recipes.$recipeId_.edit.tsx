@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs, ActionFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/server-runtime";
 import { Form, Link, useLoaderData, useActionData, useNavigation } from "@remix-run/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getRecipeById, updateRecipe } from "~/lib/queries/recipes";
 import { ImageUploader } from "~/components/ImageUploader";
 import { IngredientInput } from "~/components/IngredientInput";
@@ -63,6 +63,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
+  // Get existing recipe to preserve image if not changed
+  const existing = await getRecipeById(recipeId);
+  if (!existing) {
+    return json<ActionData>(
+      { errors: { general: "Recipe not found" } },
+      { status: 404 }
+    );
+  }
+
   // Get form values
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
@@ -71,7 +80,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const prepTime = formData.get("prepTime") as string;
   const cookTime = formData.get("cookTime") as string;
   const inactiveTime = formData.get("inactiveTime") as string;
-  const image = formData.get("image") as string;
+  const imageValue = formData.get("image") as string;
   
   // Get ingredients - they come as ingredient-0, ingredient-1, etc.
   const ingredients: string[] = [];
@@ -123,11 +132,24 @@ export async function action({ request, params }: ActionFunctionArgs) {
       prepTime: prepTime || undefined,
       cookTime: cookTime || undefined,
       inactiveTime: inactiveTime || undefined,
-      image: image || undefined,
       ingredients,
       steps,
       options,
     };
+
+    // Only include image if it was explicitly changed
+    // If imageValue is empty string, user removed it (set to undefined)
+    // If imageValue is the same as existing, don't include it (preserve existing)
+    // If imageValue is different, include the new value
+    if (imageValue !== null) {
+      if (imageValue === "") {
+        recipeData.image = undefined;
+      } else if (imageValue !== existing.image) {
+        recipeData.image = imageValue;
+      }
+      // If imageValue === existing.image, don't include it in recipeData
+      // so the existing value is preserved
+    }
 
     await updateRecipe(recipeId, recipeData);
 
@@ -368,6 +390,14 @@ export default function EditRecipe() {
       imageInput.value = "";
     }
   };
+
+  // Initialize hidden input with current image value on mount
+  useEffect(() => {
+    const imageInput = document.getElementById("imageInput") as HTMLInputElement;
+    if (imageInput && recipe.image) {
+      imageInput.value = recipe.image;
+    }
+  }, [recipe.image]);
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">

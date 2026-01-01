@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/server-runtime";
 import { Form, Link, useActionData, useNavigation, useSearchParams } from "@remix-run/react";
 import { useState } from "react";
 import { createRecipe } from "~/lib/queries/recipes";

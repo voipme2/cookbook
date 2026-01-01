@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/server-runtime";
 import { deleteRecipe } from "~/lib/queries/recipes";
 
 export async function action({ request, params }: ActionFunctionArgs) {
