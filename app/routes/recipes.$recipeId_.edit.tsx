@@ -1,20 +1,24 @@
 import type { LoaderFunctionArgs, ActionFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/server-runtime";
 import { Form, Link, useLoaderData, useActionData, useNavigation } from "@remix-run/react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { getRecipeById, updateRecipe } from "~/lib/queries/recipes";
 import { ImageUploader } from "~/components/ImageUploader";
-import { IngredientInput } from "~/components/IngredientInput";
+import { ListItemManager, StepsManager } from "~/components/ListItemManager";
+import { RecipeOptionsCheckboxes } from "~/components/RecipeOptionsCheckboxes";
+import { useImageUpload } from "~/hooks/useImageUpload";
+import {
+  extractIndexedFormValues,
+  extractRecipeOptions,
+  validateRecipeData,
+} from "~/lib/recipe-form.utils";
 import type { Recipe } from "~/types";
-import React from "react";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   if (!data || !data.recipe) {
     return [{ title: "Edit Recipe - The Trusted Palate" }];
   }
-  return [
-    { title: `Edit ${data.recipe.name} - The Trusted Palate` },
-  ];
+  return [{ title: `Edit ${data.recipe.name} - The Trusted Palate` }];
 };
 
 interface LoaderData {
@@ -81,46 +85,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const cookTime = formData.get("cookTime") as string;
   const inactiveTime = formData.get("inactiveTime") as string;
   const imageValue = formData.get("image") as string;
-  
-  // Get ingredients - they come as ingredient-0, ingredient-1, etc.
-  const ingredients: string[] = [];
-  let idx = 0;
-  while (true) {
-    const ingredient = formData.get(`ingredient-${idx}`);
-    if (ingredient === null) break;
-    if ((ingredient as string).trim().length > 0) {
-      ingredients.push((ingredient as string).trim());
-    }
-    idx++;
-  }
-  
-  // Get steps - they come as step-0, step-1, etc.
-  const steps: string[] = [];
-  idx = 0;
-  while (true) {
-    const step = formData.get(`step-${idx}`);
-    if (step === null) break;
-    if ((step as string).trim().length > 0) {
-      steps.push((step as string).trim());
-    }
-    idx++;
-  }
-  
-  // Get recipe options
-  const options = {
-    isVegetarian: formData.get("isVegetarian") === "on",
-    isVegan: formData.get("isVegan") === "on",
-    isDairyFree: formData.get("isDairyFree") === "on",
-    isGlutenFree: formData.get("isGlutenFree") === "on",
-    isCrockPot: formData.get("isCrockPot") === "on",
-  };
+
+  const ingredients = extractIndexedFormValues(formData, "ingredient");
+  const steps = extractIndexedFormValues(formData, "step");
+  const options = extractRecipeOptions(formData);
 
   // Validation
-  if (!name || name.trim().length === 0) {
-    return json<ActionData>(
-      { errors: { name: "Recipe name is required" } },
-      { status: 400 }
-    );
+  const validationErrors = validateRecipeData({ name } as Omit<Recipe, "id">);
+  if (validationErrors) {
+    return json<ActionData>({ errors: validationErrors }, { status: 400 });
   }
 
   try {
@@ -147,8 +120,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
       } else if (imageValue !== existing.image) {
         recipeData.image = imageValue;
       }
-      // If imageValue === existing.image, don't include it in recipeData
-      // so the existing value is preserved
     }
 
     await updateRecipe(recipeId, recipeData);
@@ -163,249 +134,32 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
-// Component for managing list items with add/delete/reorder
-function ListItemManager({ 
-  items, 
-  setItems, 
-  label, 
-  placeholder 
-}: { 
-  items: string[], 
-  setItems: (items: string[]) => void,
-  label: string,
-  placeholder: string
-}) {
-  const handleChange = (index: number, value: string) => {
-    const newItems = [...items];
-    newItems[index] = value;
-    setItems(newItems);
-  };
-
-  const handleDelete = (index: number) => {
-    setItems(items.filter((_, i) => i !== index));
-  };
-
-  const handleAdd = () => {
-    setItems([...items, ""]);
-  };
-
-  const handleMoveUp = (index: number) => {
-    if (index === 0) return;
-    const newItems = [...items];
-    [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
-    setItems(newItems);
-  };
-
-  const handleMoveDown = (index: number) => {
-    if (index === items.length - 1) return;
-    const newItems = [...items];
-    [newItems[index], newItems[index + 1]] = [newItems[index + 1], newItems[index]];
-    setItems(newItems);
-  };
-
-  return (
-    <div>
-      <label className="block font-bold mb-4">{label}</label>
-      <div className="space-y-2">
-        {items.map((item, idx) => (
-          <div key={idx} className="flex items-center gap-2">
-            {label.toLowerCase() === "ingredients" ? (
-              <IngredientInput
-                name={`${label.toLowerCase().replace(/\s+/g, '-').slice(0, -1)}-${idx}`}
-                value={item}
-                onChange={(value) => handleChange(idx, value)}
-                placeholder={placeholder}
-                className="flex-1 px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800 dark:text-slate-100"
-              />
-            ) : (
-              <input
-                type="text"
-                name={`${label.toLowerCase().replace(/\s+/g, '-').slice(0, -1)}-${idx}`}
-                value={item}
-                onChange={(e) => handleChange(idx, e.target.value)}
-                placeholder={placeholder}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            )}
-            <div className="flex gap-1">
-              <button
-                type="button"
-                onClick={() => handleMoveUp(idx)}
-                disabled={idx === 0}
-                className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Move up"
-              >
-                ↑
-              </button>
-              <button
-                type="button"
-                onClick={() => handleMoveDown(idx)}
-                disabled={idx === items.length - 1}
-                className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Move down"
-              >
-                ↓
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDelete(idx)}
-                className="p-2 text-red-500 hover:text-red-700"
-                title="Delete"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-      <button
-        type="button"
-        onClick={handleAdd}
-        className="mt-3 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors"
-      >
-        + Add {label.slice(0, -1)}
-      </button>
-    </div>
-  );
-}
-
-// Component for steps with auto-expanding textarea
-function StepsManager({
-  steps,
-  setSteps,
-}: {
-  steps: string[],
-  setSteps: (steps: string[]) => void
-}) {
-  const handleChange = (index: number, value: string) => {
-    const newSteps = [...steps];
-    newSteps[index] = value;
-    setSteps(newSteps);
-  };
-
-  const handleDelete = (index: number) => {
-    setSteps(steps.filter((_, i) => i !== index));
-  };
-
-  const handleAdd = () => {
-    setSteps([...steps, ""]);
-  };
-
-  const handleMoveUp = (index: number) => {
-    if (index === 0) return;
-    const newSteps = [...steps];
-    [newSteps[index - 1], newSteps[index]] = [newSteps[index], newSteps[index - 1]];
-    setSteps(newSteps);
-  };
-
-  const handleMoveDown = (index: number) => {
-    if (index === steps.length - 1) return;
-    const newSteps = [...steps];
-    [newSteps[index], newSteps[index + 1]] = [newSteps[index + 1], newSteps[index]];
-    setSteps(newSteps);
-  };
-
-  return (
-    <div>
-      <label className="block font-bold mb-4">Instructions</label>
-      <div className="space-y-3">
-        {steps.map((step, idx) => (
-          <div key={idx} className="flex gap-2">
-            <div className="flex-shrink-0 pt-2">
-              <span className="font-bold text-blue-500">{idx + 1}.</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <textarea
-                name={`step-${idx}`}
-                value={step}
-                onChange={(e) => handleChange(idx, e.target.value)}
-                placeholder="Enter instruction..."
-                rows={Math.max(3, Math.ceil(step.length / 50))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-              />
-            </div>
-            <div className="flex flex-col gap-1 pt-2">
-              <button
-                type="button"
-                onClick={() => handleMoveUp(idx)}
-                disabled={idx === 0}
-                className="p-1.5 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                title="Move up"
-              >
-                ↑
-              </button>
-              <button
-                type="button"
-                onClick={() => handleMoveDown(idx)}
-                disabled={idx === steps.length - 1}
-                className="p-1.5 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                title="Move down"
-              >
-                ↓
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDelete(idx)}
-                className="p-1.5 text-red-500 hover:text-red-700 text-sm"
-                title="Delete"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-      <button
-        type="button"
-        onClick={handleAdd}
-        className="mt-3 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors"
-      >
-        + Add Step
-      </button>
-    </div>
-  );
-}
-
 export default function EditRecipe() {
   const { recipe } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
-  const [image, setImage] = useState<string>(recipe.image || "");
-  const [ingredients, setIngredients] = useState<string[]>(recipe.ingredients || [""]);
+
+  // Image handling via custom hook
+  const { image, handleImageUpload, handleRemoveImage } = useImageUpload({
+    initialImage: recipe.image || "",
+  });
+
+  const [ingredients, setIngredients] = useState<string[]>(
+    recipe.ingredients || [""]
+  );
   const [steps, setSteps] = useState<string[]>(recipe.steps || [""]);
-
-  const handleImageUpload = (url: string) => {
-    setImage(url);
-    const imageInput = document.getElementById("imageInput") as HTMLInputElement;
-    if (imageInput) {
-      imageInput.value = url;
-    }
-  };
-
-  const handleRemoveImage = () => {
-    setImage("");
-    const imageInput = document.getElementById("imageInput") as HTMLInputElement;
-    if (imageInput) {
-      imageInput.value = "";
-    }
-  };
-
-  // Initialize hidden input with current image value on mount
-  useEffect(() => {
-    const imageInput = document.getElementById("imageInput") as HTMLInputElement;
-    if (imageInput && recipe.image) {
-      imageInput.value = recipe.image;
-    }
-  }, [recipe.image]);
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       <div>
-        <Link to={`/recipes/${recipe.id}`} className="text-blue-500 hover:text-blue-600 mb-4 inline-block">
+        <Link
+          to={`/recipes/${recipe.id}`}
+          className="text-blue-500 hover:text-blue-600 mb-4 inline-block"
+        >
           ← Back to Recipe
         </Link>
-        <h1 className="text-3xl font-bold">✏️ Edit Recipe</h1>
+        <h1 className="text-3xl font-bold">Edit Recipe</h1>
       </div>
 
       {actionData?.errors?.general && (
@@ -461,7 +215,7 @@ export default function EditRecipe() {
             id="author"
             name="author"
             defaultValue={recipe.author || ""}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800 dark:text-slate-100"
           />
         </div>
 
@@ -483,7 +237,7 @@ export default function EditRecipe() {
               id="servings"
               name="servings"
               defaultValue={recipe.servings || ""}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800 dark:text-slate-100"
             />
           </div>
 
@@ -496,7 +250,7 @@ export default function EditRecipe() {
               id="prepTime"
               name="prepTime"
               defaultValue={recipe.prepTime || ""}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800 dark:text-slate-100"
             />
           </div>
 
@@ -509,7 +263,7 @@ export default function EditRecipe() {
               id="cookTime"
               name="cookTime"
               defaultValue={recipe.cookTime || ""}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800 dark:text-slate-100"
             />
           </div>
 
@@ -522,92 +276,25 @@ export default function EditRecipe() {
               id="inactiveTime"
               name="inactiveTime"
               defaultValue={recipe.inactiveTime || ""}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800 dark:text-slate-100"
             />
           </div>
-
         </div>
 
         {/* Ingredients */}
-        <ListItemManager 
+        <ListItemManager
           items={ingredients}
           setItems={setIngredients}
           label="Ingredients"
           placeholder="Enter ingredient..."
+          fieldPrefix="ingredient"
         />
 
         {/* Steps */}
-        <StepsManager 
-          steps={steps}
-          setSteps={setSteps}
-        />
+        <StepsManager steps={steps} setSteps={setSteps} />
 
         {/* Recipe Options */}
-        <div className="border rounded-lg p-4 bg-gray-50">
-          <label className="block font-bold mb-4">Recipe Options</label>
-          <div className="space-y-3">
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="isVegetarian"
-                name="isVegetarian"
-                defaultChecked={recipe.options?.isVegetarian || false}
-                className="w-4 h-4 cursor-pointer"
-              />
-              <label htmlFor="isVegetarian" className="ml-2 cursor-pointer">
-                🥬 Vegetarian
-              </label>
-            </div>
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="isVegan"
-                name="isVegan"
-                defaultChecked={recipe.options?.isVegan || false}
-                className="w-4 h-4 cursor-pointer"
-              />
-              <label htmlFor="isVegan" className="ml-2 cursor-pointer">
-                🌱 Vegan
-              </label>
-            </div>
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="isDairyFree"
-                name="isDairyFree"
-                defaultChecked={recipe.options?.isDairyFree || false}
-                className="w-4 h-4 cursor-pointer"
-              />
-              <label htmlFor="isDairyFree" className="ml-2 cursor-pointer">
-                🥛 Dairy Free
-              </label>
-            </div>
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="isGlutenFree"
-                name="isGlutenFree"
-                defaultChecked={recipe.options?.isGlutenFree || false}
-                className="w-4 h-4 cursor-pointer"
-              />
-              <label htmlFor="isGlutenFree" className="ml-2 cursor-pointer">
-                🌾 Gluten Free
-              </label>
-            </div>
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="isCrockPot"
-                name="isCrockPot"
-                defaultChecked={recipe.options?.isCrockPot || false}
-                className="w-4 h-4 cursor-pointer"
-              />
-              <label htmlFor="isCrockPot" className="ml-2 cursor-pointer">
-                🍲 Crock Pot
-              </label>
-            </div>
-          </div>
-        </div>
+        <RecipeOptionsCheckboxes defaultValues={recipe.options} />
 
         {/* Buttons */}
         <div className="flex gap-4">
@@ -626,7 +313,7 @@ export default function EditRecipe() {
           </Link>
         </div>
       </Form>
-      
+
       {/* Delete Button */}
       <div className="pt-4 border-t border-gray-300">
         <Form
@@ -654,4 +341,3 @@ export default function EditRecipe() {
     </div>
   );
 }
-
