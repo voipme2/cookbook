@@ -22,7 +22,7 @@
   "dependencies": {
     "@remix-run/express": "^2.10.0",
     "@remix-run/node": "^2.10.0",
-    "@remix-run/react": "^2.10.0",
+    "@remix-run/react": "^2.17.3",
     "@remix-run/server-runtime": "^2.10.0",
     "@remix-run/serve": "^2.10.0",
     "@tanstack/react-query": "^5.81.5",
