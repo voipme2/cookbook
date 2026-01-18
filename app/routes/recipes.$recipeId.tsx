@@ -5,6 +5,7 @@ import type { Recipe } from "~/types";
 import { getRecipeById } from "~/lib/queries/recipes";
 import { RecipeOptions } from "~/components/RecipeOptions";
 import { CookModeButton } from "~/components/CookModeButton";
+import { ExportPdfButton } from "~/components/ExportPdfButton";
 import { Edit, Printer, ShoppingCart } from "lucide-react";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -114,6 +115,7 @@ export default function RecipeDetail() {
             >
               <Printer size={20} />
             </a>
+            <ExportPdfButton recipe={recipe} />
             <Link
               to={`/recipes/${recipe.id}/edit`}
               title="Edit recipe"
